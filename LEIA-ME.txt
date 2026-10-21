@@ -1,0 +1,6 @@
+ITOP Sondagem V26.6
+
+Adicionados 11 links dedicados ao final da lista de Fibra, com preços e valores por mega da tabela fornecida.
+Adicionada janela IP Fixo com mensalidade de R$ 50,00.
+
+No GitHub, substitua somente index.html; mantenha os demais arquivos e capas publicados.
