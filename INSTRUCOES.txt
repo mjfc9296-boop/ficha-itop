@@ -1,0 +1,1 @@
+Atualização do portfólio ITOP: enviar Portfolio-Completo.pdf e index.html para a raiz do repositório ficha-itop no GitHub, substituindo os arquivos existentes. Preservar todos os demais arquivos. O PDF contém 14 páginas (8 originais + 6 novos slides).
