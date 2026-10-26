@@ -1,6 +1,1 @@
-ITOP Sondagem V26.6
-
-Adicionados 11 links dedicados ao final da lista de Fibra, com preços e valores por mega da tabela fornecida.
-Adicionada janela IP Fixo com mensalidade de R$ 50,00.
-
-No GitHub, substitua somente index.html; mantenha os demais arquivos e capas publicados.
+ITOP V26.9 — Aba 5: novos procedimentos DRY Portabilidade, DRY Erros e BRAZ Portabilidade/Migração. Inclui as melhorias anteriores da V26.8. Envie index.html, movel-suporte.js e os 7 slides PNG para a raiz do repositório; mantenha os demais arquivos (PDFs, imagens, logo etc.). Para esta atualização da aba 5, é essencial substituir movel-suporte.js. Teste as opções DRY e BRAZ e a mensagem ao cliente.
