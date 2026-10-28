@@ -1,9 +1,4 @@
-ITOP Sondagem v26.12 — atualização cumulativa baseada na v26.11.
-
-Novidades na aba 6: ITOP OFICIAL (manual da marca) e COMISSIONAMENTO (central de consulta).
-
-Envie TODOS os arquivos deste ZIP para a raiz do repositório GitHub ficha-itop, substituindo os arquivos existentes de mesmo nome.
-
-O manual foi otimizado de 393 MB para aproximadamente 2 MB para permitir hospedagem no GitHub Pages.
-
-Comissões: a tabela Remunera é apenas referência histórica e deve ser validada antes de uso comercial.
+ITOP v26.13 — Atualização completa
+Suba TODOS os arquivos para a raiz do repositório GitHub Pages, substituindo os existentes.
+ITOP COMUNICA: para publicar, edite comunicados.json, com objetos {"id":"2026-10-28-01","titulo":"Título","data":"28/10/2026","mensagem":"Texto"}. Cada comunicado precisa de ID único e permanente.
+O contador vermelho registra leituras por navegador/dispositivo via localStorage. Para controle individual entre aparelhos e contas, é necessário backend com autenticação.
