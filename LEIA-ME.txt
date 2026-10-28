@@ -1,1 +1,9 @@
-ITOP V26.9 — Aba 5: novos procedimentos DRY Portabilidade, DRY Erros e BRAZ Portabilidade/Migração. Inclui as melhorias anteriores da V26.8. Envie index.html, movel-suporte.js e os 7 slides PNG para a raiz do repositório; mantenha os demais arquivos (PDFs, imagens, logo etc.). Para esta atualização da aba 5, é essencial substituir movel-suporte.js. Teste as opções DRY e BRAZ e a mensagem ao cliente.
+ITOP Sondagem v26.12 — atualização cumulativa baseada na v26.11.
+
+Novidades na aba 6: ITOP OFICIAL (manual da marca) e COMISSIONAMENTO (central de consulta).
+
+Envie TODOS os arquivos deste ZIP para a raiz do repositório GitHub ficha-itop, substituindo os arquivos existentes de mesmo nome.
+
+O manual foi otimizado de 393 MB para aproximadamente 2 MB para permitir hospedagem no GitHub Pages.
+
+Comissões: a tabela Remunera é apenas referência histórica e deve ser validada antes de uso comercial.
