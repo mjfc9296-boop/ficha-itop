@@ -378,6 +378,49 @@ html body main nav.nav-tabs button.nav-tab.active{outline:3px solid #ffa35b!impo
 html body main nav.nav-tabs button.nav-tab span.comunica-badge{z-index:31!important}
 @media(max-width:1100px){html body main nav.nav-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 @media(max-width:680px){html body main nav.nav-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px 12px!important;padding:17px 11px!important}html body main nav.nav-tabs button.nav-tab span.step-ball{top:-10px!important;left:-10px!important;width:27px!important;height:27px!important;min-width:27px!important;min-height:27px!important;font-size:14px!important}}
+</style><style id="itop-v2634-desktop-sidebars">
+/* Laterais apenas em monitores grandes; a área central mantém suas dimensões. */
+.itop-desktop-side{display:none!important}
+@media screen and (min-width:1600px){
+ .itop-desktop-side{display:flex!important;position:fixed;top:100px;bottom:20px;width:clamp(150px,calc((100vw - 1210px)/2 - 25px),260px);flex-direction:column;gap:12px;overflow-y:auto;overscroll-behavior:contain;z-index:5;scrollbar-width:thin}
+ .itop-desktop-side.left{left:clamp(12px,calc((100vw - 1160px)/4 - 130px),45px)}
+ .itop-desktop-side.right{right:clamp(12px,calc((100vw - 1160px)/4 - 130px),45px)}
+ .itop-side-card{background:#fff;border:1px solid #e8d2c0;border-top:3px solid #d57a2f;border-radius:11px;padding:15px;box-shadow:0 2px 10px #0000000c}
+ .itop-side-card h3{margin:0 0 10px;font-size:13px;color:#a65317;text-align:left}
+ .itop-side-card p{font-size:12px;line-height:1.55;color:#52545a;margin:6px 0}
+ .itop-side-card a{display:block;padding:9px 8px;margin:5px 0;background:#fff5ec;color:#8e4614;border:1px solid #f0d4bb;border-radius:7px;font-size:11px;font-weight:700;text-align:center;text-decoration:none}
+ .itop-side-card a:hover{background:#fbe7d3}
+ .itop-side-card .itop-side-tag{display:inline-block;background:#1b1b1b;color:#fff;padding:5px 7px;border-radius:5px;font-size:10px;margin:4px 2px 0 0}
+}
+@media print{.itop-desktop-side{display:none!important}}
+</style><style id="itop-v2635-bordas-e-laterais">
+/* Todas as caixas principais ganham contorno completo, nao apenas borda superior. */
+.module section, .module .customer-panel, main > section {
+  border:2px solid #D57A2F!important;
+  border-radius:13px!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.07)!important;
+}
+/* Mantem campos e cards internos com bordas delicadas. */
+.module .tile,.module .recommend,.module .group,.module .multi-product-section,
+.module .training-card,.module .commission-doc-card,.module .useful-links-panel {
+  border-color:#D57A2F!important;
+}
+/* Faixas decorativas exclusivas de telas grandes; centro e login preservados. */
+@media screen and (min-width:1600px){
+ html.itop-authorized body{
+  background-color:#f2f3f5!important;
+  background-image:
+    linear-gradient(120deg,transparent 0 18%,rgba(213,122,47,.72) 18.2%,transparent 19.2%),
+    linear-gradient(60deg,transparent 0 24%,rgba(213,122,47,.46) 24.3%,transparent 25.3%),
+    linear-gradient(240deg,transparent 0 18%,rgba(213,122,47,.72) 18.2%,transparent 19.2%),
+    linear-gradient(300deg,transparent 0 24%,rgba(213,122,47,.46) 24.3%,transparent 25.3%),
+    linear-gradient(90deg,#000 0%,#482008 8%,#D57A2F 12%,#1a0d05 17%,#f2f3f5 18.5%,#f2f3f5 81.5%,#1a0d05 83%,#D57A2F 88%,#482008 92%,#000 100%)!important;
+  background-attachment:fixed!important;
+ }
+ html.itop-authorized body>main{position:relative;z-index:1}
+}
+@media screen and (max-width:1599px){html.itop-authorized body{background:#f2f3f5!important}}
+@media print{.module section,main>section{border:1px solid #bbb!important;box-shadow:none!important}}
 </style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
@@ -777,7 +820,7 @@ $('webPDF').addEventListener('click',downloadForWhatsAppWeb);$('appPDF').addEven
  function notice(t){msg.textContent=t;}
  function lock(){document.documentElement.classList.remove('itop-authorized');}
  function unlock(){document.documentElement.classList.add('itop-authorized');}
- try{if(!window.supabase)throw Error('Biblioteca de autenticação indisponível. Verifique sua conexão.');client=window.supabase.createClient(URL,KEY);}catch(e){notice(e.message);return;}
+ try{if(!window.supabase)throw Error('Biblioteca de autenticação indisponível. Verifique sua conexão.');client=window.supabase.createClient(URL,KEY);window.itopAuthClient=client;}catch(e){notice(e.message);return;}
  async function validate(){
    if(window.__itopPasswordRecovery)return;
    try{
@@ -814,7 +857,7 @@ document.getElementById('itop-forgot-password').addEventListener('click',async()
  if(!window.supabase){msg.textContent='Serviço de autenticação indisponível.';return;}
  const button=document.getElementById('itop-forgot-password');button.disabled=true;
  try{
-  const client=window.supabase.createClient('https://tzvwrcxcubiacvlisvhf.supabase.co','sb_publishable_MLnii3Sz2W_lBfw-0eRKXg_slUZERBm');
+  const client=window.itopAuthClient;
   const redirectTo=location.origin+location.pathname;
   const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});
   if(error)throw error;
@@ -971,7 +1014,7 @@ html body main nav.nav-tabs button.nav-tab.active {border:3px solid #ff791b!impo
 
 <style id="itop-reset-v2632-style">
 #itop-reset-panel{display:none;position:fixed;inset:0;z-index:2147483647;background:#15100de8;align-items:center;justify-content:center;padding:18px;font-family:Arial,sans-serif}
-#itop-reset-panel.open{display:flex!important}
+#itop-reset-panel.open{display:flex!important;visibility:visible!important}#itop-reset-panel.open *{visibility:visible!important}
 #itop-reset-panel .itop-reset-card{width:min(430px,100%);background:white;color:#222;padding:27px;border-radius:16px;border-top:5px solid #f57a2f;box-shadow:0 18px 55px #0007}
 #itop-reset-panel h2{font-size:21px;color:#a44d16;margin:0 0 10px}
 #itop-reset-panel p{font-size:13px;line-height:1.5}
@@ -1005,4 +1048,23 @@ window.itopShowResetPassword=function(client){
   }catch(err){feedback.textContent='Não foi possível alterar: '+(err?.message||'link expirado. Solicite outro e-mail.');btn.disabled=false;}
  });
 };
+</script>
+<script id="itop-reset-v2633-recovery-fallback">
+(function(){
+ const recoveryLink = /(?:[?#&]type=recovery(?:&|$))/.test(location.href);
+ if(!recoveryLink)return;
+ window.__itopPasswordRecovery=true;
+ document.documentElement.classList.remove('itop-authorized');
+ const show=async()=>{
+   const client=window.itopAuthClient;
+   if(!client)return;
+   try{
+     const {data}=await client.auth.getSession();
+     if(data?.session){window.itopShowResetPassword(client);return;}
+   }catch(e){}
+   const feedback=document.getElementById('itop-message');
+   if(feedback)feedback.textContent='Validando o link de recuperação. Se a tela não abrir, solicite um novo e-mail.';
+ };
+ show();
+})();
 </script></body></html>
