@@ -779,6 +779,7 @@ $('webPDF').addEventListener('click',downloadForWhatsAppWeb);$('appPDF').addEven
  function unlock(){document.documentElement.classList.add('itop-authorized');}
  try{if(!window.supabase)throw Error('Biblioteca de autenticação indisponível. Verifique sua conexão.');client=window.supabase.createClient(URL,KEY);}catch(e){notice(e.message);return;}
  async function validate(){
+   if(window.__itopPasswordRecovery)return;
    try{
      const {data:{user},error}=await client.auth.getUser();if(error||!user){lock();return;}
      const {data:profile,error:pe}=await client.from('perfis').select('papel,ativo,nome,status_aprovacao').eq('id',user.id).single();
@@ -792,7 +793,15 @@ $('webPDF').addEventListener('click',downloadForWhatsAppWeb);$('appPDF').addEven
    catch(e){notice('Erro de conexão. Tente novamente.');}finally{btn.disabled=false;}
  });
  document.getElementById('itop-logout').addEventListener('click',async()=>{lock();await client.auth.signOut();document.getElementById('itop-password').value='';notice('Você saiu do sistema.');});
- client.auth.onAuthStateChange((_event,_session)=>{if(!_session)lock();});
+ client.auth.onAuthStateChange((event,session)=>{
+   if(event==='PASSWORD_RECOVERY'){
+     window.__itopPasswordRecovery=true;
+     lock();
+     setTimeout(()=>window.itopShowResetPassword?.(client),0);
+     return;
+   }
+   if(!session && !window.__itopPasswordRecovery)lock();
+ });
  validate();
 })();
 </script><script>
@@ -801,10 +810,19 @@ const toggle=document.getElementById('itop-show-password');
 toggle.addEventListener('click',()=>{const p=document.getElementById('itop-password');p.type=p.type==='password'?'text':'password';toggle.textContent=p.type==='password'?'◉':'◌';});
 document.getElementById('itop-forgot-password').addEventListener('click',async()=>{
  const email=document.getElementById('itop-email').value.trim();const msg=document.getElementById('itop-message');
- if(!email){msg.textContent='Informe seu e-mail para recuperar a senha.';return;}
+ if(!email){msg.textContent='Digite seu e-mail no campo acima e clique novamente em Esqueci a senha.';return;}
  if(!window.supabase){msg.textContent='Serviço de autenticação indisponível.';return;}
- try{const client=window.supabase.createClient('https://tzvwrcxcubiacvlisvhf.supabase.co','sb_publishable_MLnii3Sz2W_lBfw-0eRKXg_slUZERBm');const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error)throw error;msg.textContent='Se o e-mail estiver cadastrado, você receberá instruções de recuperação.';}catch(e){msg.textContent='Não foi possível solicitar recuperação. Verifique a configuração de e-mails no Supabase.';}
+ const button=document.getElementById('itop-forgot-password');button.disabled=true;
+ try{
+  const client=window.supabase.createClient('https://tzvwrcxcubiacvlisvhf.supabase.co','sb_publishable_MLnii3Sz2W_lBfw-0eRKXg_slUZERBm');
+  const redirectTo=location.origin+location.pathname;
+  const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});
+  if(error)throw error;
+  msg.textContent='Solicitação enviada. Confira sua caixa de entrada e spam. Se não chegar, peça ao administrador para verificar o envio de e-mails no Supabase.';
+ }catch(e){msg.textContent='Falha ao solicitar recuperação: '+(e?.message||'erro desconhecido');}
+ finally{button.disabled=false;}
 });
+
 function shareTrainingWhatsApp(title,url){
  const field=document.getElementById('trainingWhatsAppNumber');
  const raw=(field?.value||'').replace(/\D/g,'');
@@ -951,4 +969,40 @@ html body main nav.nav-tabs button.nav-tab.active {border:3px solid #ff791b!impo
 @media(max-width:750px){html body main nav.nav-tabs{padding-left:13px!important;padding-right:13px!important;gap:13px!important;}html body main nav.nav-tabs button.nav-tab{height:104px!important;min-height:104px!important;}html body main nav.nav-tabs button.nav-tab span.itop-nav-label{font-size:clamp(12px,2.2vw,16px)!important;}html body main nav.nav-tabs button.nav-tab[data-module="procedimentos"] span.itop-nav-label{font-size:10px!important;}html body main nav.nav-tabs button.nav-tab span.step-ball{top:-12px!important;left:-12px!important;width:27px!important;height:27px!important;font-size:15px!important;}}
 </style>
 
-</body></html>
+<style id="itop-reset-v2632-style">
+#itop-reset-panel{display:none;position:fixed;inset:0;z-index:2147483647;background:#15100de8;align-items:center;justify-content:center;padding:18px;font-family:Arial,sans-serif}
+#itop-reset-panel.open{display:flex!important}
+#itop-reset-panel .itop-reset-card{width:min(430px,100%);background:white;color:#222;padding:27px;border-radius:16px;border-top:5px solid #f57a2f;box-shadow:0 18px 55px #0007}
+#itop-reset-panel h2{font-size:21px;color:#a44d16;margin:0 0 10px}
+#itop-reset-panel p{font-size:13px;line-height:1.5}
+#itop-reset-panel label{display:block;font-size:12px;font-weight:bold;margin:12px 0 6px}
+#itop-reset-panel input{display:block;width:100%;height:42px;border:1px solid #aaa;border-radius:8px;padding:9px 12px;font-size:15px;box-sizing:border-box}
+#itop-reset-panel button{width:100%;margin-top:18px;background:#f57a2f;color:white;font-weight:bold;border:0;border-radius:8px;padding:12px;cursor:pointer}
+#itop-reset-feedback{font-size:12px;line-height:1.5;color:#904515;margin-top:12px}
+</style>
+<div id="itop-reset-panel" role="dialog" aria-modal="true" aria-label="Cadastrar nova senha"><div class="itop-reset-card">
+<h2>Definir nova senha</h2><p>Crie uma senha para acessar o sistema ITOP. Ela deve ter pelo menos 8 caracteres.</p>
+<form id="itop-reset-form"><label for="itop-new-password">Nova senha</label><input id="itop-new-password" type="password" minlength="8" required autocomplete="new-password"/>
+<label for="itop-confirm-password">Confirme a nova senha</label><input id="itop-confirm-password" type="password" minlength="8" required autocomplete="new-password"/>
+<button type="submit" id="itop-reset-submit">Salvar nova senha</button></form><p id="itop-reset-feedback" aria-live="polite"></p>
+</div></div>
+<script id="itop-reset-v2632-script">
+window.itopShowResetPassword=function(client){
+ const panel=document.getElementById('itop-reset-panel');const form=document.getElementById('itop-reset-form');
+ if(!panel||!form)return;
+ panel.classList.add('open');
+ if(form.dataset.bound)return;form.dataset.bound='1';
+ form.addEventListener('submit',async function(e){
+  e.preventDefault();const p=document.getElementById('itop-new-password').value;const confirm=document.getElementById('itop-confirm-password').value;
+  const feedback=document.getElementById('itop-reset-feedback');const btn=document.getElementById('itop-reset-submit');
+  if(p.length<8){feedback.textContent='Use pelo menos 8 caracteres.';return;}
+  if(p!==confirm){feedback.textContent='As senhas não coincidem.';return;}
+  btn.disabled=true;feedback.textContent='Salvando nova senha...';
+  try{const {error}=await client.auth.updateUser({password:p});if(error)throw error;
+   feedback.textContent='Senha alterada! Você será direcionado ao login.';
+   await client.auth.signOut();
+   setTimeout(()=>location.replace(location.origin+location.pathname),1300);
+  }catch(err){feedback.textContent='Não foi possível alterar: '+(err?.message||'link expirado. Solicite outro e-mail.');btn.disabled=false;}
+ });
+};
+</script></body></html>
