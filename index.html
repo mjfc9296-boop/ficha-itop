@@ -265,7 +265,8 @@ html.itop-authorized #itop-auth-screen{display:none!important}
 <form id="itop-register-form">
 <label for="itop-reg-name">Nome completo</label><input id="itop-reg-name" required minlength="3" maxlength="120" autocomplete="name">
 <label for="itop-reg-email">E-mail</label><input id="itop-reg-email" type="email" required autocomplete="email">
-<label for="itop-reg-pass">Senha (mínimo 8 caracteres)</label><input id="itop-reg-pass" type="password" minlength="8" required autocomplete="new-password">
+<label for="itop-reg-pass">Senha (mínimo 8 caracteres)</label><div class="itop-reg-password-wrap"><input id="itop-reg-pass" type="password" minlength="8" required autocomplete="new-password"><button type="button" class="itop-reg-eye" data-password-target="itop-reg-pass" aria-label="Mostrar senha" aria-pressed="false">👁</button></div>
+<label for="itop-reg-confirm">Confirmar senha</label><div class="itop-reg-password-wrap"><input id="itop-reg-confirm" type="password" minlength="8" required autocomplete="new-password"><button type="button" class="itop-reg-eye" data-password-target="itop-reg-confirm" aria-label="Mostrar senha" aria-pressed="false">👁</button></div><p id="itop-reg-caps" role="status" style="font-size:12px;color:#ad5e1c;margin:0 0 8px" hidden>Caps Lock está ativado.</p>
 <div id="itop-reg-supervisor-wrap"><label for="itop-reg-supervisor">Supervisor responsável</label><select id="itop-reg-supervisor"><option value="">Selecione o supervisor</option></select></div>
 <button id="itop-register-submit" type="submit">Solicitar acesso</button>
 </form>
@@ -756,6 +757,7 @@ $('itop-register-form').addEventListener('submit',async e=>{
  const name=$('itop-reg-name').value.trim(),email=$('itop-reg-email').value.trim(),password=$('itop-reg-pass').value;
  const supervisorId=$('itop-reg-supervisor').value;
  if(name.length<3||password.length<8){status('Confira o nome e a senha (mínimo de 8 caracteres).');return;}
+ if(password!==$('itop-reg-confirm').value){status('As senhas digitadas não são iguais. Confira e tente novamente.');$('itop-reg-confirm').focus();return;}
  if(regRole==='vendedor'&&!supervisorId){status('Selecione um supervisor aprovado.');return;}
  const b=$('itop-register-submit');b.disabled=true;status('Enviando solicitação...');
  try{
@@ -814,4 +816,5 @@ $('itop-logout').addEventListener('click',()=>{$('itop-gestao-tab').hidden=true;
 client.auth.getUser().then(async ({data:{user}})=>{if(!user)return;const {data:p}=await client.from('perfis').select('papel,ativo,status_aprovacao').eq('id',user.id).maybeSingle();if(p?.ativo&&p.status_aprovacao==='aprovado')window.dispatchEvent(new CustomEvent('itop:authorized',{detail:{papel:p.papel}}));}).catch(()=>{});
 })();
 </script>
-</body></html>
+<style id="itop-v2622-password-fix">.itop-reg-password-wrap{position:relative}.itop-reg-password-wrap input{padding-right:52px!important}.itop-reg-eye{position:absolute;right:4px;top:7px;width:39px;height:28px;border:0!important;border-radius:6px;background:transparent!important;color:#a96021!important;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center}.itop-reg-eye:focus-visible{outline:2px solid #d77821}</style>
+<script id="itop-v2622-password-fix-script">document.querySelectorAll('[data-password-target]').forEach(button=>button.addEventListener('click',()=>{const input=document.getElementById(button.dataset.passwordTarget);const show=input.type==='password';input.type=show?'text':'password';button.setAttribute('aria-pressed',String(show));button.setAttribute('aria-label',show?'Ocultar senha':'Mostrar senha');button.textContent=show?'🙈':'👁';}));document.querySelectorAll('#itop-reg-pass,#itop-reg-confirm').forEach(input=>input.addEventListener('keyup',event=>{document.getElementById('itop-reg-caps').hidden=!event.getModifierState('CapsLock');}));</script></body></html>
