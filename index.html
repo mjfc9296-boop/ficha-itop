@@ -927,4 +927,70 @@ html body main nav.nav-tabs button.nav-tab[data-module="gestao-usuarios"] span.i
 html body main nav.nav-tabs button.nav-tab span.step-ball {position:absolute!important;z-index:20!important;top:-19px!important;left:-19px!important;width:32px!important;height:32px!important;display:grid!important;place-items:center!important;background:#ff791b!important;color:#fff!important;border:2px solid white!important;border-radius:50%!important;font-size:18px!important;line-height:1!important;}
 html body main nav.nav-tabs button.nav-tab.active {border:3px solid #ff791b!important;outline:3px solid #ffc18a!important;outline-offset:2px!important;box-shadow:0 0 0 5px #ff791b33,0 5px 16px #0005!important;}
 @media(max-width:750px){html body main nav.nav-tabs{padding-left:13px!important;padding-right:13px!important;gap:13px!important;}html body main nav.nav-tabs button.nav-tab{height:104px!important;min-height:104px!important;}html body main nav.nav-tabs button.nav-tab span.itop-nav-label{font-size:clamp(12px,2.2vw,16px)!important;}html body main nav.nav-tabs button.nav-tab[data-module="procedimentos"] span.itop-nav-label{font-size:10px!important;}html body main nav.nav-tabs button.nav-tab span.step-ball{top:-12px!important;left:-12px!important;width:27px!important;height:27px!important;font-size:15px!important;}}
-</style></body></html>
+</style>
+<script id="itop-v2629-nav-correction">
+(function(){
+ function fixTabs(){
+  const nav=document.querySelector('nav.nav-tabs');
+  if(!nav)return;
+  nav.style.setProperty('overflow','visible','important');
+  nav.style.setProperty('row-gap','24px','important');
+  nav.querySelectorAll('button.nav-tab').forEach((b,i)=>{
+   const art=b.querySelector('img.itop-tab-art');
+   const label=b.querySelector('.itop-nav-label');
+   const number=b.querySelector('.step-ball');
+   if(!art||!label)return;
+   b.style.setProperty('position','relative','important');
+   b.style.setProperty('height','112px','important');
+   b.style.setProperty('min-height','112px','important');
+   b.style.setProperty('overflow','visible','important');
+   b.style.setProperty('isolation','isolate','important');
+   b.style.setProperty('padding','0','important');
+   art.style.setProperty('position','absolute','important');
+   art.style.setProperty('top','0','important');
+   art.style.setProperty('left','10px','important');
+   art.style.setProperty('width','calc(100% - 10px)','important');
+   art.style.setProperty('height','75%','important');
+   art.style.setProperty('object-fit','fill','important');
+   art.style.setProperty('transform','none','important');
+   art.style.setProperty('z-index','1','important');
+   label.style.setProperty('display','flex','important');
+   label.style.setProperty('visibility','visible','important');
+   label.style.setProperty('opacity','1','important');
+   label.style.setProperty('position','absolute','important');
+   label.style.setProperty('z-index','999','important');
+   label.style.setProperty('inset','auto 0 0 0','important');
+   label.style.setProperty('width','100%','important');
+   label.style.setProperty('height','49px','important');
+   label.style.setProperty('min-height','49px','important');
+   label.style.setProperty('max-height','none','important');
+   label.style.setProperty('margin','0','important');
+   label.style.setProperty('padding','3px 4px','important');
+   label.style.setProperty('transform','none','important');
+   label.style.setProperty('clip-path','none','important');
+   label.style.setProperty('clip','auto','important');
+   label.style.setProperty('overflow','visible','important');
+   label.style.setProperty('align-items','center','important');
+   label.style.setProperty('justify-content','center','important');
+   label.style.setProperty('text-align','center','important');
+   label.style.setProperty('white-space','normal','important');
+   label.style.setProperty('background','#20120b','important');
+   label.style.setProperty('color','#ff791b','important');
+   label.style.setProperty('font-family','Arial,sans-serif','important');
+   label.style.setProperty('font-weight','900','important');
+   label.style.setProperty('font-size',i===7?'14px':i===10?'15px':'19px','important');
+   label.style.setProperty('line-height','1.08','important');
+   label.style.setProperty('border-radius','0 0 9px 9px','important');
+   if(number){
+    number.style.setProperty('position','absolute','important');
+    number.style.setProperty('left','-18px','important');
+    number.style.setProperty('top','-18px','important');
+    number.style.setProperty('z-index','1000','important');
+   }
+  });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fixTabs);
+ else fixTabs();
+})();
+</script>
+</body></html>
