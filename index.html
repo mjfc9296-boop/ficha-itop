@@ -288,7 +288,77 @@ html.itop-authorized #itop-auth-screen{display:none!important}
 .nav-tabs .nav-tab.active .itop-nav-label{color:#ff9a42!important;background:linear-gradient(180deg,#291305f0,#201006)!important}
 .nav-tabs .nav-tab:focus-visible{outline:3px solid #ff9a42!important;outline-offset:5px!important}
 @media(max-width:650px){.nav-tabs .nav-tab .itop-nav-label{font-size:clamp(9px,2.2vw,13px)!important;padding:2px!important}.nav-tabs .nav-tab[data-module="procedimentos"] .itop-nav-label{font-size:clamp(8px,1.8vw,10px)!important}.nav-tabs .nav-tab .step-ball{width:26px!important;height:26px!important;font-size:13px!important;left:-5px!important;top:-7px!important}}
-</style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
+</style><style id="itop-v2626-nav-label-visible">
+/* Corrige regra antiga que escondia o texto das abas. */
+.nav-tabs .nav-tab .itop-nav-label{
+ position:absolute!important;display:flex!important;visibility:visible!important;opacity:1!important;
+ width:auto!important;height:auto!important;clip:auto!important;clip-path:none!important;
+ overflow:visible!important;white-space:normal!important;margin:0!important;
+ left:3px!important;right:3px!important;bottom:3px!important;min-height:37%!important;
+ padding:3px 4px!important;z-index:8!important;align-items:center!important;justify-content:center!important;
+ text-align:center!important;color:#ff7515!important;font:900 clamp(14px,1.45vw,21px)/1.02 Arial,system-ui,sans-serif!important;
+ letter-spacing:-.35px!important;text-shadow:0 1px 3px #000!important;
+ background:linear-gradient(180deg,#1b1009e8,#1b1009 28%)!important;border-radius:0 0 8px 8px!important;
+}
+.nav-tabs .nav-tab[data-module="procedimentos"] .itop-nav-label{font-size:clamp(11px,1.05vw,15px)!important;line-height:1.04!important}
+.nav-tabs .nav-tab[data-module="gestao-usuarios"] .itop-nav-label{font-size:clamp(12px,1.2vw,17px)!important}
+.nav-tabs .nav-tab.active .itop-nav-label{color:#ff8a2d!important}
+@media(max-width:680px){
+ .nav-tabs .nav-tab .itop-nav-label{font-size:clamp(12px,2.6vw,17px)!important}
+ .nav-tabs .nav-tab[data-module="procedimentos"] .itop-nav-label{font-size:clamp(10px,2vw,13px)!important}
+ .nav-tabs .nav-tab[data-module="gestao-usuarios"] .itop-nav-label{font-size:clamp(11px,2.2vw,14px)!important}
+}
+</style>
+<style id="itop-v2627-fix-definitivo">
+/* Texto legível por cima da arte: neutraliza o ocultamento de versões anteriores. */
+html body main nav.nav-tabs button.nav-tab > span.itop-nav-label {
+  display:flex!important; visibility:visible!important; opacity:1!important;
+  position:absolute!important; z-index:100!important;
+  left:2px!important;right:2px!important;bottom:2px!important;
+  top:auto!important;width:auto!important;height:auto!important;
+  min-height:43%!important;max-height:65%!important;
+  margin:0!important;padding:5px 6px!important;
+  clip:auto!important;clip-path:none!important;overflow:visible!important;
+  white-space:normal!important;align-items:center!important;justify-content:center!important;
+  text-align:center!important;box-sizing:border-box!important;
+  color:#ff7515!important;background:#1b1009!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:clamp(15px,1.55vw,22px)!important;
+  font-weight:900!important;line-height:1.05!important;letter-spacing:-.4px!important;
+  text-shadow:0 1px 2px #000!important;border-radius:0 0 9px 9px!important;
+}
+html body main nav.nav-tabs button.nav-tab[data-module="procedimentos"] > span.itop-nav-label {
+  font-size:clamp(11px,1.05vw,15px)!important;
+}
+html body main nav.nav-tabs button.nav-tab[data-module="gestao-usuarios"] > span.itop-nav-label {
+  font-size:clamp(12px,1.15vw,17px)!important;
+}
+html body main nav.nav-tabs button.nav-tab > span.step-ball {
+  position:absolute!important;left:-17px!important;top:-17px!important;
+  z-index:110!important;width:31px!important;height:31px!important;
+  background:#ff7515!important;color:#fff!important;
+}
+html body main nav.nav-tabs button.nav-tab {
+  overflow:visible!important;
+}
+html body main nav.nav-tabs button.nav-tab.active {
+  border:3px solid #ff7515!important;
+  outline:3px solid #ffad4e!important;outline-offset:2px!important;
+  box-shadow:0 0 0 5px #ff751533,0 5px 17px #b95a25aa!important;
+}
+@media(max-width:680px) {
+ html body main nav.nav-tabs button.nav-tab > span.itop-nav-label {
+  font-size:clamp(12px,2.7vw,17px)!important;padding:3px!important;
+ }
+ html body main nav.nav-tabs button.nav-tab[data-module="procedimentos"] > span.itop-nav-label {
+  font-size:clamp(9px,2vw,12px)!important;
+ }
+ html body main nav.nav-tabs button.nav-tab > span.step-ball {
+  left:-11px!important;top:-12px!important;width:26px!important;height:26px!important;
+ }
+}
+</style>
+</head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
 <form id="itop-register-form">
