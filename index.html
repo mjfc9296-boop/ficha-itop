@@ -443,6 +443,51 @@ html body main nav.nav-tabs button.nav-tab.active span.step-ball {
 }
 @media print{html body main nav.nav-tabs button.nav-tab.active{box-shadow:none!important;transform:none!important}}
 </style>
+
+<style id="itop-v2637-contornos-campos">
+/* v26.37: contornos completos e uniformes para campos e controles,
+   sem alterar largura, altura, estrutura ou responsividade. */
+html.itop-authorized main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]),
+html.itop-authorized main select,
+html.itop-authorized main textarea,
+html.itop-authorized main .support-record textarea,
+html.itop-authorized main .training-contact input {
+  border:2px solid #D57A2F!important;
+  border-radius:8px!important;
+  box-shadow:0 0 0 1px rgba(213,122,47,.10)!important;
+  background-clip:padding-box;
+}
+html.itop-authorized main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+html.itop-authorized main select:focus,
+html.itop-authorized main textarea:focus {
+  border-color:#a94e0d!important;
+  outline:2px solid rgba(213,122,47,.35)!important;
+  outline-offset:1px!important;
+  box-shadow:0 0 0 3px rgba(213,122,47,.15)!important;
+}
+html.itop-authorized main input[readonly],
+html.itop-authorized main input:disabled,
+html.itop-authorized main select:disabled,
+html.itop-authorized main textarea:disabled {
+  border-color:#c88a58!important;
+}
+html.itop-authorized main button:not(.nav-tab),
+html.itop-authorized main .training-actions a,
+html.itop-authorized main .useful-link,
+html.itop-authorized main .support-map-links a {
+  border:2px solid #D57A2F!important;
+}
+html.itop-authorized main button:not(.nav-tab):focus-visible,
+html.itop-authorized main a:focus-visible {
+  outline:3px solid #f6a45b!important;
+  outline-offset:2px!important;
+}
+@media print {
+ html.itop-authorized main input,
+ html.itop-authorized main select,
+ html.itop-authorized main textarea {border:1px solid #bbb!important;box-shadow:none!important}
+}
+</style>
 </head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
