@@ -550,7 +550,7 @@ html body .itop-gestao table{max-width:100%!important}
 @media screen and (max-width:1599px){html body .itop-desktop-side{display:none!important}}
 @media print{html body .itop-desktop-side{display:none!important}}
 </style>
-</head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
+<style id="itop-v2641-number-center">html body main nav.nav-tabs button.nav-tab span.step-ball{left:50%!important;right:auto!important;top:-13px!important;transform:translateX(-50%)!important;display:grid!important;place-items:center!important;text-align:center!important}</style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
 <form id="itop-register-form">
@@ -1233,7 +1233,7 @@ function pdf(){
  doc.setFillColor(255,255,255);doc.roundedRect(10,5,53,26,2,2,'F');
  if(typeof PDF_LOGO!=='undefined')doc.addImage(PDF_LOGO,'JPEG',12,8,49,19);
  txt('SIMULAÇÃO DE ENERGIA',70,16,15,true,[255,255,255]);txt('ITOP NETZ  |  PROPOSTA COMERCIAL',70,24,9,false,[255,181,111]);txt(new Date().toLocaleDateString('pt-BR'),194,32,8,false,[255,255,255]);
- const box=(y,title,items)=>{doc.setDrawColor(226,211,198);doc.setFillColor(255,250,245);doc.roundedRect(11,y,188,9+items.length*9,2,2,'FD');txt(title,16,y+7,10,true,[160,80,24]);items.forEach((r,i)=>{const yy=y+16+i*9;txt(r[0],17,yy,9);txt(r[1],192,yy,9,true);});return y+13+items.length*9};
+ const box=(y,title,items)=>{doc.setDrawColor(226,211,198);doc.setFillColor(255,250,245);doc.roundedRect(11,y,188,9+items.length*6.2,2,2,'FD');txt(title,16,y+6,9,true,[160,80,24]);items.forEach((r,i)=>{const yy=y+13+i*6.2;txt(r[0],17,yy,9);doc.setFontSize(9);doc.setFont('helvetica','bold');doc.text(String(r[1]),192,yy,{align:'right'});});return y+9+items.length*6.2};
  let y=43;
  y=box(y,'DADOS DO CLIENTE',[['Cliente',d.name||'Não informado'],['WhatsApp',d.phone||'Não informado'],['Cidade',d.city||'Não informada'],['Consultor',d.seller||'Não informado']])+5;
  const cat=d.minimum===30?'Monofásico':d.minimum===50?'Bifásico':'Trifásico';
@@ -1245,7 +1245,7 @@ function pdf(){
  const notes=['A ITOP NETZ aplica desconto estimado de 20% somente ao consumo que ultrapassa o mínimo da categoria.','O consumo mínimo de 30, 50 ou 100 kWh, conforme a categoria, permanece na cobrança da distribuidora.','Os valores apresentados são estimativas e podem variar com tributos, encargos, bandeiras tarifárias e regras vigentes.'];
  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(75,75,75);
  notes.forEach(n=>{const lines=doc.splitTextToSize(n,182);doc.text(lines,14,y);y+=lines.length*4.2+3});
- txt('ITOP TELECOM  |  SIMULAÇÃO CONSULTIVA DE ECONOMIA',105,287,8,true,[160,80,24]);
+ doc.setFontSize(8);doc.setTextColor(160,80,24);doc.text('ITOP TELECOM  |  SIMULAÇÃO CONSULTIVA DE ECONOMIA',105,287,{align:'center'});
  doc.save('ITOP-NETZ-Simulacao-'+new Date().toISOString().slice(0,10)+'.pdf');
  $('itopEnergyActionStatus').textContent='PDF profissional de energia gerado em uma página.';
  }catch(e){$('itopEnergyActionStatus').textContent='Não foi possível gerar o PDF: '+e.message}
