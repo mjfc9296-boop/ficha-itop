@@ -511,20 +511,23 @@ html.itop-authorized main a:focus-visible {
 .itop-fixed-doc{display:inline-block;background:#d57a2f;color:#fff!important;padding:12px 16px;border-radius:8px;text-decoration:none;font-weight:700}
 @media(max-width:700px){.itop-fixed-grid,.itop-energy-excess-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.itop-energy-excess{padding:12px}.itop-energy-excess-grid strong{font-size:15px}}
 @media print{.itop-desktop-side{display:none!important}}
-</style><style id="itop-v2640-lupa">
-/* Lateral sem numeração, imagens nítidas e lupa acessível. */
+</style><style id="itop-v2642-flow-zoom">
+/* As laterais participam do fluxo normal da pagina, sem scroll independente. */
+.itop-desktop-side{display:none!important}
+@media screen and (min-width:1600px){
+ .itop-page-layout{display:grid;grid-template-columns:minmax(175px,1fr) minmax(0,1160px) minmax(175px,1fr);gap:18px;align-items:start;padding:16px 18px}
+ .itop-page-layout>main{width:100%!important;max-width:1160px!important;min-width:0!important;margin:0 auto!important;position:relative}
+ .itop-page-layout>.itop-desktop-side{display:flex!important;position:static!important;inset:auto!important;top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;width:100%!important;height:auto!important;max-height:none!important;overflow:visible!important;flex-direction:column;gap:12px;z-index:auto}
+ .itop-page-layout .itop-instruction{width:100%;cursor:zoom-in;overflow:hidden}
+ .itop-page-layout .itop-instruction img{width:100%;height:auto;object-fit:contain}
+}
+@media (max-width:1599px){.itop-page-layout>.itop-desktop-side{display:none!important}}
 .itop-instruction-no{display:none!important}
-.itop-instruction{cursor:zoom-in;overflow:hidden!important}
-.itop-instruction img{width:100%;height:auto;display:block;image-rendering:auto}
-.itop-instruction:focus-visible{outline:3px solid #ff8b22;outline-offset:3px}
-#itop-image-lightbox[hidden]{display:none!important}
-#itop-image-lightbox{position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.84);display:flex;align-items:center;justify-content:center;padding:25px;box-sizing:border-box}
-#itop-image-lightbox img{display:block;width:auto;height:auto;max-width:min(96vw,1250px);max-height:85vh;object-fit:contain;border:2px solid #d57a2f;border-radius:12px;box-shadow:0 15px 55px #000}
-#itop-image-lightbox .itop-zoom-close{position:absolute;right:20px;top:15px;border:1px solid #ff8b22;border-radius:50%;width:42px;height:42px;background:#19100b;color:#fff;font-size:27px;cursor:pointer;z-index:2}
-#itop-image-lightbox .itop-zoom-tip{position:absolute;bottom:8px;left:0;right:0;text-align:center;color:white;font:13px system-ui}
-@media screen and (min-width:1600px){.itop-desktop-side{scrollbar-width:thin}.itop-instruction:hover{box-shadow:0 0 0 2px #ff8b22,0 8px 22px #0007}}
-@media screen and (max-width:1599px){.itop-desktop-side{display:none!important}}
-@media print{#itop-image-lightbox{display:none!important}}
+.itop-image-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2147483600;display:none;align-items:center;justify-content:center;padding:35px;cursor:zoom-out}
+.itop-image-modal.open{display:flex}
+.itop-image-modal img{max-width:min(94vw,1100px);max-height:90vh;object-fit:contain;transform:scale(1.0);box-shadow:0 12px 45px #0009}
+.itop-image-modal button{position:absolute;top:12px;right:18px;background:#d57a2f;color:#fff;border:0;border-radius:9px;padding:10px 15px;font-size:20px;cursor:pointer}
+@media print{.itop-desktop-side,.itop-image-modal{display:none!important}.itop-page-layout{display:block!important}}
 </style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
@@ -1223,21 +1226,4 @@ $('itopEnergySavePDF')?.addEventListener('click',pdf);
 $('energiaWhatsapp')?.addEventListener('click',whats);
 refresh();
 })();
-</script><div id="itop-image-lightbox" role="dialog" aria-modal="true" aria-label="Imagem lateral ampliada" hidden><button type="button" class="itop-zoom-close" aria-label="Fechar imagem ampliada">×</button><img alt="Imagem informativa ampliada"><div class="itop-zoom-tip">Clique fora da imagem ou pressione Esc para fechar</div></div>
-<script id="itop-v2640-zoom-script">
-(function(){
- const modal=document.getElementById('itop-image-lightbox');
- const big=modal.querySelector('img'); const close=modal.querySelector('button');
- let previous=null;
- function open(img){previous=document.activeElement;big.src=img.currentSrc||img.src;big.alt=img.alt||'Imagem informativa ampliada';modal.hidden=false;document.body.style.overflow='hidden';close.focus();}
- function shut(){modal.hidden=true;big.removeAttribute('src');document.body.style.overflow='';if(previous&&previous.focus)previous.focus();}
- document.querySelectorAll('.itop-desktop-side .itop-instruction').forEach(card=>{
-   card.setAttribute('role','button');card.setAttribute('tabindex','0');card.setAttribute('aria-label','Ampliar imagem informativa');
-   card.addEventListener('click',()=>open(card.querySelector('img')));
-   card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open(card.querySelector('img'));}});
- });
- close.addEventListener('click',shut);
- modal.addEventListener('click',e=>{if(e.target===modal)shut();});
- document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)shut();});
-})();
-</script></body></html>
+</script><script id="itop-v2642-init">(function(){function setup(){const main=document.querySelector('body>main');const left=document.querySelector('body>.itop-desktop-side.left');const right=document.querySelector('body>.itop-desktop-side.right');if(!main||!left||!right)return;const wrap=document.createElement('div');wrap.className='itop-page-layout';main.parentNode.insertBefore(wrap,main);wrap.append(left,main,right);const modal=document.createElement('div');modal.className='itop-image-modal';modal.setAttribute('role','dialog');modal.setAttribute('aria-label','Imagem ampliada');modal.innerHTML='<button type="button" aria-label="Fechar imagem">×</button><img alt="Imagem ampliada">';document.body.appendChild(modal);const close=()=>modal.classList.remove('open');modal.addEventListener('click',close);document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});for(const img of document.querySelectorAll('.itop-desktop-side .itop-instruction img')){img.setAttribute('title','Clique para ampliar');img.setAttribute('tabindex','0');const open=()=>{modal.querySelector('img').src=img.currentSrc||img.src;modal.querySelector('img').alt=img.alt;modal.classList.add('open')};img.addEventListener('click',open);img.addEventListener('keydown',e=>{if(e.key==='Enter')open()})}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup()})();</script></body></html>
