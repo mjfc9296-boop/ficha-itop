@@ -511,6 +511,20 @@ html.itop-authorized main a:focus-visible {
 .itop-fixed-doc{display:inline-block;background:#d57a2f;color:#fff!important;padding:12px 16px;border-radius:8px;text-decoration:none;font-weight:700}
 @media(max-width:700px){.itop-fixed-grid,.itop-energy-excess-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.itop-energy-excess{padding:12px}.itop-energy-excess-grid strong{font-size:15px}}
 @media print{.itop-desktop-side{display:none!important}}
+</style><style id="itop-v2640-lupa">
+/* Lateral sem numeração, imagens nítidas e lupa acessível. */
+.itop-instruction-no{display:none!important}
+.itop-instruction{cursor:zoom-in;overflow:hidden!important}
+.itop-instruction img{width:100%;height:auto;display:block;image-rendering:auto}
+.itop-instruction:focus-visible{outline:3px solid #ff8b22;outline-offset:3px}
+#itop-image-lightbox[hidden]{display:none!important}
+#itop-image-lightbox{position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.84);display:flex;align-items:center;justify-content:center;padding:25px;box-sizing:border-box}
+#itop-image-lightbox img{display:block;width:auto;height:auto;max-width:min(96vw,1250px);max-height:85vh;object-fit:contain;border:2px solid #d57a2f;border-radius:12px;box-shadow:0 15px 55px #000}
+#itop-image-lightbox .itop-zoom-close{position:absolute;right:20px;top:15px;border:1px solid #ff8b22;border-radius:50%;width:42px;height:42px;background:#19100b;color:#fff;font-size:27px;cursor:pointer;z-index:2}
+#itop-image-lightbox .itop-zoom-tip{position:absolute;bottom:8px;left:0;right:0;text-align:center;color:white;font:13px system-ui}
+@media screen and (min-width:1600px){.itop-desktop-side{scrollbar-width:thin}.itop-instruction:hover{box-shadow:0 0 0 2px #ff8b22,0 8px 22px #0007}}
+@media screen and (max-width:1599px){.itop-desktop-side{display:none!important}}
+@media print{#itop-image-lightbox{display:none!important}}
 </style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
@@ -1161,7 +1175,7 @@ window.itopShowResetPassword=function(client){
  };
  show();
 })();
-</script><aside class="itop-desktop-side left" aria-label="Ilustrações das etapas 1 a 6"><div class="itop-instruction"><span class="itop-instruction-no">1</span><img src="itop-instrucao-01.webp" alt="Ilustração informativa da etapa 1" loading="lazy"></div><div class="itop-instruction"><span class="itop-instruction-no">2</span><img src="itop-instrucao-02.webp" alt="Ilustração informativa da etapa 2" loading="lazy"></div><div class="itop-instruction"><span class="itop-instruction-no">3</span><img src="itop-instrucao-03.webp" alt="Ilustração informativa da etapa 3" loading="lazy"></div><div class="itop-instruction"><span class="itop-instruction-no">4</span><img src="itop-instrucao-04.webp" alt="Ilustração informativa da etapa 4" loading="lazy"></div><div class="itop-instruction"><span class="itop-instruction-no">5</span><img src="itop-instrucao-05.webp" alt="Ilustração informativa da etapa 5" loading="lazy"></div><div class="itop-instruction"><span class="itop-instruction-no">6</span><img src="itop-instrucao-06.webp" alt="Ilustração informativa da etapa 6" loading="lazy"></div></aside><aside class="itop-desktop-side right" aria-label="Ilustrações das etapas 7 a 12"><div class="itop-instruction"><span class="itop-instruction-no">7</span><img src="itop-instrucao-07.webp" alt="Ilustração informativa da etapa 7" loading="lazy"></div><div class="itop-instruction"><span class="itop-instruction-no">8</span><img src="itop-instrucao-08.webp" alt="Ilustração informativa da etapa 8" loading="lazy"></div><div class="itop-instruction"><span class="itop-instruction-no">9</span><img src="itop-instrucao-09.webp" alt="Ilustração informativa da etapa 9" loading="lazy"></div><div class="itop-instruction"><span class="itop-instruction-no">10</span><img src="itop-instrucao-10.webp" alt="Ilustração informativa da etapa 10" loading="lazy"></div><div class="itop-instruction"><span class="itop-instruction-no">11</span><img src="itop-instrucao-11.webp" alt="Ilustração informativa da etapa 11" loading="lazy"></div><div class="itop-instruction"><span class="itop-instruction-no">12</span><img src="itop-instrucao-12.webp" alt="Ilustração informativa da etapa 12" loading="lazy"></div></aside><script id="itop-v2638-energy">
+</script><aside class="itop-desktop-side left" aria-label="Ilustrações das etapas 1 a 6"><div class="itop-instruction"><img src="itop-instrucao-01.webp" alt="Ilustração informativa da etapa 1" loading="lazy"></div><div class="itop-instruction"><img src="itop-instrucao-02.webp" alt="Ilustração informativa da etapa 2" loading="lazy"></div><div class="itop-instruction"><img src="itop-instrucao-03.webp" alt="Ilustração informativa da etapa 3" loading="lazy"></div><div class="itop-instruction"><img src="itop-instrucao-04.webp" alt="Ilustração informativa da etapa 4" loading="lazy"></div><div class="itop-instruction"><img src="itop-instrucao-05.webp" alt="Ilustração informativa da etapa 5" loading="lazy"></div><div class="itop-instruction"><img src="itop-instrucao-06.webp" alt="Ilustração informativa da etapa 6" loading="lazy"></div></aside><aside class="itop-desktop-side right" aria-label="Ilustrações das etapas 7 a 12"><div class="itop-instruction"><img src="itop-instrucao-07.webp" alt="Ilustração informativa da etapa 7" loading="lazy"></div><div class="itop-instruction"><img src="itop-instrucao-08.webp" alt="Ilustração informativa da etapa 8" loading="lazy"></div><div class="itop-instruction"><img src="itop-instrucao-09.webp" alt="Ilustração informativa da etapa 9" loading="lazy"></div><div class="itop-instruction"><img src="itop-instrucao-10.webp" alt="Ilustração informativa da etapa 10" loading="lazy"></div><div class="itop-instruction"><img src="itop-instrucao-11.webp" alt="Ilustração informativa da etapa 11" loading="lazy"></div><div class="itop-instruction"><img src="itop-instrucao-12.webp" alt="Ilustração informativa da etapa 12" loading="lazy"></div></aside><script id="itop-v2638-energy">
 (function(){
 const $=id=>document.getElementById(id);
 const parse=v=>{let x=String(v||'').trim().replace(/[R$\s]/g,'');if(x.includes(',')&&x.includes('.'))x=x.replace(/\./g,'').replace(',','.');else x=x.replace(',','.');return Number(x)||0};
@@ -1208,5 +1222,22 @@ for(const id of ['tarifa','consumo','categoria','conta'])$(id)?.addEventListener
 $('itopEnergySavePDF')?.addEventListener('click',pdf);
 $('energiaWhatsapp')?.addEventListener('click',whats);
 refresh();
+})();
+</script><div id="itop-image-lightbox" role="dialog" aria-modal="true" aria-label="Imagem lateral ampliada" hidden><button type="button" class="itop-zoom-close" aria-label="Fechar imagem ampliada">×</button><img alt="Imagem informativa ampliada"><div class="itop-zoom-tip">Clique fora da imagem ou pressione Esc para fechar</div></div>
+<script id="itop-v2640-zoom-script">
+(function(){
+ const modal=document.getElementById('itop-image-lightbox');
+ const big=modal.querySelector('img'); const close=modal.querySelector('button');
+ let previous=null;
+ function open(img){previous=document.activeElement;big.src=img.currentSrc||img.src;big.alt=img.alt||'Imagem informativa ampliada';modal.hidden=false;document.body.style.overflow='hidden';close.focus();}
+ function shut(){modal.hidden=true;big.removeAttribute('src');document.body.style.overflow='';if(previous&&previous.focus)previous.focus();}
+ document.querySelectorAll('.itop-desktop-side .itop-instruction').forEach(card=>{
+   card.setAttribute('role','button');card.setAttribute('tabindex','0');card.setAttribute('aria-label','Ampliar imagem informativa');
+   card.addEventListener('click',()=>open(card.querySelector('img')));
+   card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open(card.querySelector('img'));}});
+ });
+ close.addEventListener('click',shut);
+ modal.addEventListener('click',e=>{if(e.target===modal)shut();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)shut();});
 })();
 </script></body></html>
