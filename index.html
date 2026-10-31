@@ -1224,7 +1224,7 @@ window.itopShowResetPassword=function(client){
  };
  show();
 })();
-</script><aside class="itop-desktop-side left" aria-label="Ilustrações das etapas 1 a 6"><div class="itop-instruction"><img src="itop-lateral-01.png" alt="Sondagem" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-01.webp'"></div><div class="itop-instruction"><img src="itop-lateral-02.png" alt="Adicionar produtos" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-02.webp'"></div><div class="itop-instruction"><img src="itop-lateral-03.png" alt="Fechamento" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-03.webp'"></div><div class="itop-instruction"><img src="itop-lateral-04.png" alt="Simulação de energia" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-04.webp'"></div><div class="itop-instruction"><img src="itop-lateral-05.png" alt="Telefonia móvel e fixa" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-05.webp'"></div><div class="itop-instruction"><img src="itop-lateral-06.png" alt="Suporte móvel" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-06.webp'"></div></aside><aside class="itop-desktop-side right" aria-label="Ilustrações das etapas 7 a 12"><div class="itop-instruction"><img src="itop-lateral-07.png" alt="ITOP Comunica" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-07.webp'"></div><div class="itop-instruction"><img src="itop-lateral-08.png" alt="U.V.I." loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-08.webp'"></div><div class="itop-instruction"><img src="itop-lateral-09.png" alt="SVAs" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-09.webp'"></div><div class="itop-instruction"><img src="itop-lateral-10.png" alt="Comissão" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-10.webp'"></div><div class="itop-instruction"><img src="itop-lateral-11.png" alt="Portaria e segurança" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-11.webp'"></div><div class="itop-instruction"><img src="itop-lateral-12.png" alt="Gestão de usuários" loading="lazy" onerror="this.onerror=null;this.src='itop-instrucao-12.webp'"></div></aside><script id="itop-v2638-energy">
+</script><aside class="itop-desktop-side left" aria-label="Ilustrações das etapas 1 a 6"><div class="itop-instruction"><img src="itop-lateral-01.png?v=20261101-laterais" data-itop-lateral="itop-lateral-01.png" alt="Sondagem" loading="lazy"></div><div class="itop-instruction"><img src="itop-lateral-02.png?v=20261101-laterais" data-itop-lateral="itop-lateral-02.png" alt="Adicionar produtos" loading="lazy"></div><div class="itop-instruction"><img src="itop-lateral-03.png?v=20261101-laterais" data-itop-lateral="itop-lateral-03.png" alt="Fechamento" loading="lazy"></div><div class="itop-instruction"><img src="itop-lateral-04.png?v=20261101-laterais" data-itop-lateral="itop-lateral-04.png" alt="Simulação de energia" loading="lazy"></div><div class="itop-instruction"><img src="itop-lateral-05.png?v=20261101-laterais" data-itop-lateral="itop-lateral-05.png" alt="Telefonia móvel e fixa" loading="lazy"></div><div class="itop-instruction"><img src="itop-lateral-06.png?v=20261101-laterais" data-itop-lateral="itop-lateral-06.png" alt="Suporte móvel" loading="lazy"></div></aside><aside class="itop-desktop-side right" aria-label="Ilustrações das etapas 7 a 12"><div class="itop-instruction"><img src="itop-lateral-07.png?v=20261101-laterais" data-itop-lateral="itop-lateral-07.png" alt="ITOP Comunica" loading="lazy"></div><div class="itop-instruction"><img src="itop-lateral-08.png?v=20261101-laterais" data-itop-lateral="itop-lateral-08.png" alt="U.V.I." loading="lazy"></div><div class="itop-instruction"><img src="itop-lateral-09.png?v=20261101-laterais" data-itop-lateral="itop-lateral-09.png" alt="SVAs" loading="lazy"></div><div class="itop-instruction"><img src="itop-lateral-10.png?v=20261101-laterais" data-itop-lateral="itop-lateral-10.png" alt="Comissão" loading="lazy"></div><div class="itop-instruction"><img src="itop-lateral-11.png?v=20261101-laterais" data-itop-lateral="itop-lateral-11.png" alt="Portaria e segurança" loading="lazy"></div><div class="itop-instruction"><img src="itop-lateral-12.png?v=20261101-laterais" data-itop-lateral="itop-lateral-12.png" alt="Gestão de usuários" loading="lazy"></div></aside><script id="itop-v2638-energy">
 (function(){
 const $=id=>document.getElementById(id);
 const parse=v=>{let x=String(v||'').trim().replace(/[R$\s]/g,'');if(x.includes(',')&&x.includes('.'))x=x.replace(/\./g,'').replace(',','.');else x=x.replace(',','.');return Number(x)||0};
@@ -1360,5 +1360,29 @@ document.addEventListener('DOMContentLoaded',function(){
  },true);
  preview.addEventListener('click',function(event){if(event.target===preview||event.target.closest('button'))close()});
  document.addEventListener('keydown',function(event){if(event.key==='Escape')close()});
+})();
+</script><style id="itop-laterais-alinhamento-final">
+@media screen and (min-width:1100px){
+ html body .itop-desktop-side{top:var(--itop-lateral-top,160px)!important}
+ html body .itop-desktop-side .itop-instruction img{aspect-ratio:auto!important;height:auto!important}
+}
+</style>
+<script id="itop-laterais-alinhamento-dinamico">
+(function(){
+ function align(){
+  var nav=document.querySelector('main nav.nav-tabs');
+  if(!nav)return;
+  var top=nav.getBoundingClientRect().top+window.scrollY;
+  document.documentElement.style.setProperty('--itop-lateral-top',Math.ceil(top)+'px');
+ }
+ align();
+ window.addEventListener('load',align);
+ window.addEventListener('resize',align);
+ if(window.ResizeObserver){
+  var observer=new ResizeObserver(align);
+  ['header','main nav.nav-tabs'].forEach(function(selector){
+   var el=document.querySelector(selector);if(el)observer.observe(el);
+  });
+ }
 })();
 </script></body></html>
