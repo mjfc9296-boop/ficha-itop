@@ -1,1 +1,1 @@
-Envie todos os arquivos deste ZIP para a raiz do repositório ficha-itop. Substitua index.html. Não exclua os demais arquivos ou PDFs. Atualize a página com Ctrl+F5.
+Enviar os dois arquivos para a raiz do repositorio GitHub e substituir index.html. Nao excluir outros arquivos. Atualizar com Ctrl+F5.
