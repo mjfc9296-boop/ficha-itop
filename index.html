@@ -667,6 +667,35 @@ html body main nav.nav-tabs button.nav-tab img.itop-tab-art{
 html body main nav.nav-tabs button.nav-tab span.itop-nav-label{color:#fff!important}
 html body main nav.nav-tabs button.nav-tab span.step-ball{z-index:30!important}
 </style>
+
+<style id="itop-remunera-blue-buttons-v1">
+/* Azul Remunera + preto ITOP; contornos laranja ITOP. Não altera imagens nem painéis. */
+:root{--itop-blue:#25499e;--itop-blue-dark:#172d65;--itop-orange:#d27a2f}
+html body button:not(.nav-tab):not(.itop-exit):not(#itop-show-password):not(#itop-forgot-password),
+html body .training-actions a,
+html body a.training-open,
+html body a.training-download,
+html body .training-filter,
+html body .useful-link,
+html body .mobile-add-actions button,
+html body .training-wa {
+ background:linear-gradient(118deg,#101114 0%,#192e62 29%,#25499e 68%,#1b326e 100%)!important;
+ color:#fff!important;
+ border:1px solid var(--itop-orange)!important;
+ box-shadow:0 2px 7px #0002!important;
+ text-shadow:0 1px 2px #0005;
+ transition:filter .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+html body button:not(.nav-tab):not(.itop-exit):not(#itop-show-password):not(#itop-forgot-password):hover,
+html body .training-actions a:hover,
+html body .training-filter:hover,
+html body .useful-link:hover {filter:brightness(1.16);box-shadow:0 3px 12px #14295855!important}
+html body button:focus-visible,html body .training-actions a:focus-visible{outline:3px solid #d27a2f!important;outline-offset:2px}
+html body button:disabled{opacity:.55;cursor:not-allowed}
+/* Abas com capa ilustrada mantêm a arte original e as bordas padronizadas. */
+html body .nav-tabs .nav-tab{border-color:var(--itop-orange)!important}
+/* Ações de login e sair continuam distinguíveis. */
+</style>
 </head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
