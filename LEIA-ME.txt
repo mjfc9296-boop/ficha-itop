@@ -1,1 +1,1 @@
-Atualização visual: 12 artes sem moldura escura, contorno azul brilhante, painéis claros em degradê ITOP e botão Adicionar serviços em degradê laranja. Substitua index.html no repositório. Guarde backup antes da publicação.
+Correção dos cartões laranja-claro, incluindo Demonstrativo dos kWh excedentes, e destaque laranja do botão Adicionar serviços na sondagem. Mantenha cópia de segurança antes de substituir o index.html.

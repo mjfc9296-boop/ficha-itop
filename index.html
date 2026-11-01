@@ -1846,4 +1846,54 @@ html body #pacote button#continuePackage {
 }
 </style>
 
+
+<style id="itop-gradiente-paineis-corrigido-v2">
+/* Painéis claros de todas as janelas: fundo ITOP escuro/laranja, textos brancos. */
+html body .module .itop-energy-excess-grid > div,
+html body .module .itop-fixed-grid > div,
+html body .module .summary-saving > .tile,
+html body .module .energy-highlights > .tile,
+html body .module .totals > .tile:not(.dark),
+html body .module .bill > .tile,
+html body .module .survey-total,
+html body .module .recommend,
+html body .module .pill,
+html body .module .proposal-alert,
+html body .module .proposal-results,
+html body .module .closing-totals,
+html body .module .compact-saving,
+html body .module .energy-impact,
+html body .module .energy-package-strip,
+html body .module .energy-memory-comparison,
+html body .module .energy-highlights > div,
+html body .module .energy-package-strip > div {
+  background:linear-gradient(115deg,#121212 0%,#39291d 40%,#92501f 78%,#d27a2f 100%)!important;
+  background-color:#181818!important;
+  border:1px solid #d27a2f!important;
+  color:#fff!important;
+}
+html body .module .itop-energy-excess-grid > div :is(small,strong,span,b,p),
+html body .module .itop-fixed-grid > div :is(small,strong,span,b,p),
+html body .module .summary-saving > .tile :is(small,strong,span,b,p),
+html body .module .energy-highlights > .tile :is(small,strong,span,b,p),
+html body .module .totals > .tile :is(small,strong,span,b,p),
+html body .module .bill > .tile :is(small,strong,span,b,p),
+html body .module .energy-package-strip :is(small,strong,span,b,p),
+html body .module .energy-memory-comparison :is(small,strong,span,b,p) {
+ color:#fff!important;
+}
+/* O primeiro botão da sondagem é LARANJA e os demais permanecem AZUIS. */
+html body .module#sondagem .itop-one-line-actions > button:first-of-type,
+html body .module#sondagem .itop-one-line-actions > button.secondary:first-of-type {
+ background:linear-gradient(110deg,#5a270c 0%,#d27a2f 58%,#ffad58 100%)!important;
+ background-color:#d27a2f!important;
+ border:2px solid #ffd095!important;
+ color:#fff!important;
+ box-shadow:0 0 0 1px #a14d14,0 3px 12px #d27a2f77!important;
+}
+html body .module#sondagem .itop-one-line-actions > button:first-of-type:hover{
+ filter:brightness(1.12)!important;
+}
+</style>
+
 </body></html>
