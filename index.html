@@ -675,7 +675,7 @@ const mobile=$('mobilelines');for(let i=0;i<5;i++){const el=document.createEleme
 const groups=[['Fibra / combos',['Fibra','Combos ITOPV','Combos ITOPT']],['Móveis',['ITOPV móvel','ITOPT móvel']],['Telefone fixo',['Telefone fixo']],['Câmeras',['Câmeras']],['Telemedicina',['Telemedicina']],['ITOP FI',['ITOP FI']],['IP Fixo',['IP Fixo']],['SVA avulso',['SVA avulso']]];
 const wrap=$('catalog');const compactRows=[];
 const multipleCategories=new Set(['Câmeras','Telemedicina','SVA avulso','ITOP FI','IP Fixo']);
-let mobileSection,mobileLineCount=0;
+let mobileSection,mobileLineCount=0,fixedSection,fixedLineCount=0;
 function createPlanRow(label,keys,container){
 const row=document.createElement('div');row.className='compact-row';const title=document.createElement('strong');title.textContent=label.toUpperCase();const sel=document.createElement('select');sel.className='plan-select';sel.setAttribute('aria-label','Plano de '+label);sel.add(new Option('Selecione um plano',''));for(const key of keys){const optgroup=document.createElement('optgroup');optgroup.label=key;for(const [name,price] of catalogData[key]){const opt=new Option(name+' — '+money(price)+(planPromotion(name)?' · '+planPromotion(name).label:''),name);opt.dataset.price=price;optgroup.append(opt)}sel.append(optgroup)}const price=document.createElement('output');price.textContent='—';const quantity=document.createElement('input');quantity.type='number';quantity.min='0';quantity.max='99';quantity.step='1';quantity.value='0';quantity.className='quantity';quantity.setAttribute('aria-label','Quantidade de '+label);const subtotal=document.createElement('output');subtotal.textContent=money(0);row.append(title,sel,price,quantity,subtotal);container.append(row);const model={label,sel,price,quantity,subtotal};compactRows.push(model);return model;
 }
@@ -687,6 +687,12 @@ function addPackageMobileLine(){
  compactRows.splice(at<0?compactRows.length:at,0,model);
  return model;
 }
+function addPackageFixedLine(){
+ fixedLineCount++;
+ const model=createPlanRow('Telefone fixo '+fixedLineCount,['Telefone fixo'],fixedSection);
+ model.isAdditionalFixed=true;
+ return model;
+}
 for(const [label,keys] of groups){
  const section=document.createElement('div');section.className='multi-product-section';
  const heading=document.createElement('h3');heading.textContent=label.toUpperCase();section.append(heading);wrap.append(section);
@@ -694,6 +700,13 @@ for(const [label,keys] of groups){
   mobileSection=document.createElement('div');section.append(mobileSection);addPackageMobileLine();
   const actions=document.createElement('div');actions.className='mobile-add-actions';const add=document.createElement('button');add.type='button';add.id='addPackageMobile';add.className='secondary';add.textContent='+ ADICIONAR LINHA MÓVEL';
   add.addEventListener('click',()=>{const model=addPackageMobileLine();model.sel.focus();recalc();});actions.append(add);section.append(actions);continue;
+ }
+ if(label==='Telefone fixo'){
+  fixedSection=document.createElement('div');section.append(fixedSection);addPackageFixedLine();
+  const actions=document.createElement('div');actions.className='mobile-add-actions';
+  const add=document.createElement('button');add.type='button';add.id='addPackageFixed';add.className='secondary';add.textContent='+ ADICIONAR TELEFONE FIXO';
+  add.addEventListener('click',()=>{const model=addPackageFixedLine();model.sel.focus();recalc();});
+  actions.append(add);section.append(actions);continue;
  }
  if(multipleCategories.has(label)){
   for(const [name,unitPrice] of catalogData[keys[0]]){
@@ -879,7 +892,7 @@ function clearEverything(){
  $('includeEnergy').checked=false;$('includeEnergyFromEnergy').checked=false;proposalEdits={};transferredSignature=null;managedPackageRows.clear();compactRows.forEach(r=>r.sourceIndex=undefined);recalc();if(typeof resetMobileSupport==='function')resetMobileSupport();
 }
 function phoneFor(p){
- if(p.category==='Telefone fixo')return $('fixoNumero').value||'NÚMERO NÃO INFORMADO';
+ if(p.category==='Telefone fixo')return $('fixoNumero').value||'NÚMERO A CONFIRMAR';
  if(p.sourceIndex!==undefined && (/móvel/i.test(p.category)||/combo/i.test(p.name)))return 'MÓVEL '+(p.sourceIndex+1)+' · '+($('mnumero'+p.sourceIndex).value||'NÚMERO NÃO INFORMADO');
  return /^ITOP[VT] até/.test(p.name)?'LINHA NOVA / NÚMERO A DEFINIR':'';
 }
@@ -899,7 +912,7 @@ function reportData(){
  if(num('fixoValor')||$('fixoNumero').value)current.push({name:'FIXO · '+$('fixoOperadora').value+' · '+$('fixoNumero').value,value:num('fixoValor')});
  for(let i=0;i<5;i++)if(num('mvalor'+i)||num('mgb'+i)||$('mnumero'+i).value)current.push({name:'MÓVEL '+(i+1)+' · '+$('mnumero'+i).value+' · '+$('mop'+i).value+' · '+num('mgb'+i)+' GB',value:num('mvalor'+i)});
  const actual=proposalState().actual,saving=actual-total;
- const products=selected.map(p=>({name:p.category.toUpperCase()+' · '+p.name.toUpperCase()+(phoneFor(p)?' · '+phoneFor(p):'')+(p.q>1?' · '+p.q+' UNIDADES':'')+(planPromotion(p.name)?' · '+planPromotion(p.name).label+'; DEPOIS '+money(p.price)+'/MÊS':''),value:p.price*p.q}));
+ const products=selected.map((p,i)=>({name:(/móvel/i.test(p.category)||/combo/i.test(p.name)?(selected.slice(0,i).some(x=>/móvel/i.test(x.category)||/combo/i.test(x.name))?'DEPENDENTE · ':'TITULAR · '):'')+p.category.toUpperCase()+' · '+p.name.toUpperCase()+(phoneFor(p)?' · '+phoneFor(p):'')+(p.q>1?' · '+p.q+' UNIDADES':'')+(planPromotion(p.name)?' · '+planPromotion(p.name).label+'; DEPOIS '+money(p.price)+'/MÊS':''),value:p.price*p.q}));
  const include=$('includeEnergy').checked,energyValid=!!(energy.valid&&num('tarifa')&&$('consumo').value!=='');
  return {current,products,actual,total,saving,annualSaving:actual*12-firstYearCost(selected),schedule:promoSchedule(selected),include,energyValid,client:$('pacoteNome').value||$('nome').value||'NÃO INFORMADO',phone:$('pacoteTelefone').value||$('telefone').value,city:$('pacoteCidade').value||$('cidade').value,seller:$('pacoteVendedor').value||$('vendedor').value};
 }
