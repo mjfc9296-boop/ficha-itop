@@ -1,1 +1,1 @@
-Publique index.html E itop-mascote-login-aprovado.webp na raiz do repositório. A imagem de login aprovada foi recortada para preservar o mascote e evitar botões falsos. O formulário permanece funcional. ADD SERVIÇOS em laranja. Faça backup antes de publicar.
+Atualização: substitua index.html e envie as imagens PNG e o WEBP na raiz do repositório. Preserve os PDFs e demais arquivos. Verifique as capas e os links após publicar.
