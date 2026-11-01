@@ -623,7 +623,22 @@ header{position:sticky!important;top:0!important;z-index:1000!important;backgrou
 .comunica-item h3{flex:1 1 60%;margin:0}.comunica-item p{flex:1 1 100%;margin:0}.comunica-item button{margin-left:auto}
 header{position:sticky!important;top:0!important;z-index:1000!important}
 @media(max-width:700px){.training-grid .training-card{display:flex!important;flex-direction:column!important;align-items:stretch!important}.training-grid .training-card .training-cover{max-width:100%!important}.training-grid .training-card .training-actions{flex-direction:row!important;flex-wrap:wrap!important}}
-</style><style id="itop-stage4-style">#includeEnergy,#includeEnergyFromEnergy{display:none!important}label:has(> #includeEnergy),label:has(> #includeEnergyFromEnergy){display:none!important}.itop-energy-disclaimer{font-size:12px;color:#8b4a18;margin-top:8px}</style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
+</style><style id="itop-stage4-style">#includeEnergy,#includeEnergyFromEnergy{display:none!important}label:has(> #includeEnergy),label:has(> #includeEnergyFromEnergy){display:none!important}.itop-energy-disclaimer{font-size:12px;color:#8b4a18;margin-top:8px}</style><style id="itop-stage5-colors">
+/* Identidade visual ITOP nos títulos de seções; não altera campos e alertas */
+.separated-catalog .multi-product-section>h3,
+.separated-catalog .compact-head,
+.module .multi-product-section>h3,
+.module .catalog-group>h3 {
+ background:linear-gradient(105deg,#151515 0%,#30251e 50%,#d27a2f 100%)!important;
+ color:#fff!important;border:1px solid #d27a2f!important;
+}
+.separated-catalog .multi-product-section>h3 *,
+.separated-catalog .compact-head *,
+.module .multi-product-section>h3 * {color:#fff!important}
+.itop-search-target{outline:3px solid #d27a2f!important;outline-offset:5px!important;border-radius:4px}
+.itop-search-highlight{background:#ffe066!important;color:#151515!important;padding:1px 2px;border-radius:3px}
+.module [data-itop-search-scroll]{scroll-margin-top:125px}
+</style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
 <form id="itop-register-form">
@@ -1536,87 +1551,78 @@ html body .itop-shortcuts .itop-shortcut.is-pending{cursor:default}
 <script id="itop-global-search-script">
 (function(){
 const wrap=document.getElementById('itop-global-search'),toggle=document.getElementById('itop-search-toggle'),input=document.getElementById('itop-search-input'),close=document.getElementById('itop-search-close'),results=document.getElementById('itop-search-results');
-if(!wrap||!input)return;
-const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+if(!wrap||!input||!results)return;
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
 const synonyms={celular:'movel',chip:'movel',comissao:'comissionamento',wifi:'wi-fi',portar:'portabilidade',medico:'telemedicina'};
-const ignored=new Set(['SCRIPT','STYLE','NOSCRIPT','SVG','OPTION','BUTTON']);
-let entries=[],marks=[];
-function clearMarks(){marks.forEach(m=>{if(m.isConnected)m.replaceWith(document.createTextNode(m.textContent))});marks=[]}
+let entries=[],highlights=[];
+function clearMarks(){for(const m of highlights){if(m.isConnected)m.replaceWith(document.createTextNode(m.textContent))}highlights=[]}
+function titleOf(el){return (el.getAttribute('aria-label')||el.getAttribute('title')||el.textContent||'').replace(/\s+/g,' ').trim()}
 function build(){
  entries=[];
  document.querySelectorAll('.module[id]').forEach(module=>{
-  const tab=document.querySelector('.nav-tab[data-module="'+module.id+'"]');
-  if(!tab)return;
+  const tab=document.querySelector('.nav-tab[data-module="'+module.id+'"]');if(!tab)return;
   const label=(tab.querySelector('.itop-nav-label')?.textContent||module.id).trim();
-  const walker=document.createTreeWalker(module,NodeFilter.SHOW_TEXT,{acceptNode(n){
-   if(!n.textContent.trim()||n.parentElement.closest('script,style,noscript,svg,button'))return NodeFilter.FILTER_REJECT;
-   return NodeFilter.FILTER_ACCEPT;
-  }});
-  let n;
-  while(n=walker.nextNode()){
-   const value=n.textContent.replace(/\s+/g,' ').trim();
-   if(value.length<3||value.length>600)continue;
-   const parent=n.parentElement;
-   const title=parent.closest('h1,h2,h3,h4,h5,summary,label,strong,a,td,th,li,p,.useful-link-item,.field')||parent;
-   const snippet=(title.textContent||value).replace(/\s+/g,' ').trim().slice(0,200);
-   entries.push({module:module.id,label,text:value,title:snippet,node:n,parent});
-  }
+  // Indexar os elementos de destino, inclusive links e cartões; não somente nós de texto soltos.
+  const selectors='h1,h2,h3,h4,h5,summary,label,a[href],.useful-link-item,.training-card,.support-topic,.multi-product-section>h3,td,th,li,p';
+  const seen=new Set();
+  module.querySelectorAll(selectors).forEach(el=>{
+   if(el.closest('script,style,noscript,svg')||el.closest('[hidden]'))return;
+   const title=titleOf(el).slice(0,260);if(title.length<3)return;
+   const key=module.id+'|'+title;if(seen.has(key))return;seen.add(key);
+   entries.push({module:module.id,label,title,el});
+  });
  });
 }
 function show(q){
- const terms=norm(q).split(/\s+/).filter(Boolean);
- results.replaceChildren();
- if(!terms.length){results.innerHTML='<div class="itop-search-empty">Digite uma palavra para localizar o conteúdo exato.</div>';return}
- const matches=entries.filter(e=>terms.every(t=>norm(e.text).includes(t)||norm(e.title).includes(t)||norm(e.label).includes(t)||norm(e.text).includes(synonyms[t]||'__not_found__')));
- matches.sort((a,b)=>Number(norm(b.text).startsWith(terms[0]))-Number(norm(a.text).startsWith(terms[0])));
- if(!matches.length){results.innerHTML='<div class="itop-search-empty">Nenhum resultado. Tente outra palavra-chave.</div>';return}
- const seen=new Set();
- for(const item of matches){
-  const key=item.module+'|'+item.title;
-  if(seen.has(key))continue;seen.add(key);
-  const b=document.createElement('button');b.type='button';b.className='itop-search-result';
+ results.replaceChildren();const terms=norm(q).split(' ').filter(Boolean);
+ if(!terms.length){results.textContent='Digite uma palavra para localizar o conteúdo exato.';return}
+ const variants=terms.map(t=>[t,synonyms[t]].filter(Boolean));
+ const matches=entries.filter(e=>variants.every(v=>v.some(t=>norm(e.title+' '+e.label).includes(t))));
+ matches.sort((a,b)=>Number(norm(b.title).startsWith(norm(q)))-Number(norm(a.title).startsWith(norm(q)))||a.title.length-b.title.length);
+ if(!matches.length){results.textContent='Nenhum resultado. Tente outra palavra-chave.';return}
+ for(const item of matches.slice(0,40)){
+  const btn=document.createElement('button');btn.type='button';btn.className='itop-search-result';
   const small=document.createElement('small');small.textContent=item.label;
-  const strong=document.createElement('strong');strong.textContent=item.title.slice(0,110);
-  const span=document.createElement('span');span.textContent=item.text.slice(0,170);
-  b.append(small,strong,span);results.appendChild(b);
-  b.addEventListener('click',()=>navigate(item,q));
-  if(seen.size>=35)break;
+  const strong=document.createElement('strong');strong.textContent=item.title.slice(0,150);
+  btn.append(small,strong);btn.addEventListener('click',()=>navigate(item,q));results.appendChild(btn);
  }
 }
-function markText(node,q){
- if(!node||!node.isConnected||node.nodeType!==Node.TEXT_NODE)return null;
- const terms=norm(q).split(/\s+/).filter(Boolean);
- const raw=node.textContent,folded=norm(raw);
- let index=-1,len=0;
- for(const t of terms){let i=folded.indexOf(t);if(i<0&&synonyms[t])i=folded.indexOf(synonyms[t]);if(i>=0&&(index<0||i<index)){index=i;len=(i===folded.indexOf(t)?t:synonyms[t]).length}}
- if(index<0)return null;
- const range=document.createRange();range.setStart(node,index);range.setEnd(node,Math.min(index+len,raw.length));
- const mark=document.createElement('mark');mark.className='itop-search-highlight';range.surroundContents(mark);marks.push(mark);return mark;
+function highlight(el,q){
+ const term=norm(q).split(' ').find(Boolean);if(!term)return;
+ const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;
+ while(n=walker.nextNode()){
+  if(n.parentElement.closest('script,style'))continue;
+  const raw=n.textContent,idx=norm(raw).indexOf(term);
+  if(idx<0)continue;
+  // Texto com acentos pode deslocar índices; neste caso manter o destaque do bloco.
+  if(raw.length!==raw.normalize('NFD').replace(/[\u0300-\u036f]/g,'').length)break;
+  const mark=document.createElement('mark');mark.className='itop-search-highlight';
+  const range=document.createRange();range.setStart(n,idx);range.setEnd(n,Math.min(idx+term.length,raw.length));range.surroundContents(mark);highlights.push(mark);break;
+ }
 }
 function navigate(item,q){
- clearMarks();
- const tab=document.querySelector('.nav-tab[data-module="'+item.module+'"]');
- if(!tab||tab.disabled||tab.hidden){results.innerHTML='<div class="itop-search-empty">Esta área exige permissão de acesso.</div>';return}
+ clearMarks();const tab=document.querySelector('.nav-tab[data-module="'+item.module+'"]');
+ if(!tab||tab.disabled||tab.hidden){results.textContent='Esta área exige permissão de acesso.';return}
  tab.click();wrap.classList.remove('is-open');
- let p=item.parent;
- while(p){if(p.tagName==='DETAILS')p.open=true;p=p.parentElement}
- // Abrir seções ocultas por elementos details; jamais abrir ações de formulário automaticamente.
- setTimeout(()=>{
-  const el=item.parent;
-  const target=markText(item.node,q)||el;
-  if(el.getClientRects().length===0){
-   const section=el.closest('section,.module')||document.getElementById(item.module);
-   section.scrollIntoView({behavior:'smooth',block:'center'});
-  }else{target.scrollIntoView({behavior:'smooth',block:'center'})}
-  el.classList.add('itop-search-target');
-  setTimeout(()=>{el.classList.remove('itop-search-target');clearMarks()},5500);
- },300);
+ let p=item.el;while(p){if(p.tagName==='DETAILS')p.open=true;p=p.parentElement}
+ let tries=0;
+ function focusTarget(){
+  const el=item.el;
+  if(!el.isConnected)return;
+  if(!el.getClientRects().length&&tries++<10){setTimeout(focusTarget,150);return}
+  const target=el.getClientRects().length?el:(el.closest('section,.module')||document.getElementById(item.module));
+  target.setAttribute('data-itop-search-scroll','');
+  target.scrollIntoView({behavior:'smooth',block:'center'});
+  el.classList.add('itop-search-target');highlight(el,q);
+  setTimeout(()=>{el.classList.remove('itop-search-target');clearMarks();target.removeAttribute('data-itop-search-scroll')},6500);
+ }
+ setTimeout(focusTarget,200);
 }
-toggle.addEventListener('click',()=>{wrap.classList.add('is-open');build();show(input.value);input.focus()});
-close.addEventListener('click',()=>wrap.classList.remove('is-open'));
-input.addEventListener('input',()=>show(input.value));
+toggle?.addEventListener('click',()=>{wrap.classList.add('is-open');build();show(input.value);input.focus()});
+close?.addEventListener('click',()=>wrap.classList.remove('is-open'));
+input.addEventListener('input',()=>{build();show(input.value)});
 input.addEventListener('keydown',e=>{if(e.key==='Escape')wrap.classList.remove('is-open');if(e.key==='Enter')results.querySelector('button')?.click()});
-document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();wrap.classList.contains('is-open')?input.focus():toggle.click()}});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();wrap.classList.contains('is-open')?input.focus():toggle?.click()}});
 document.addEventListener('click',e=>{if(!wrap.contains(e.target))wrap.classList.remove('is-open')});
 })();
 </script>
