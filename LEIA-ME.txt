@@ -1,1 +1,1 @@
-Atualização: substitua index.html e envie as imagens PNG e o WEBP na raiz do repositório. Preserve os PDFs e demais arquivos. Verifique as capas e os links após publicar.
+V6: Enviar index.html, itop-login-fundo-unico-v5.webp e capas capa-uvi-oficial-*.png para a RAIZ do repositório. Não apagar outros arquivos. Corrige contraste da energia, layout da entrada e cards horizontais de telefonia. Preserva PDFs e links. Atualize o navegador com Ctrl+F5. Não publicado automaticamente.
