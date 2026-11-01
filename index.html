@@ -774,7 +774,25 @@ html body #itop-movel .itop-movel-grid > article.training-card > .training-meta{
 html body #itop-movel .itop-movel-grid > article.training-card > .training-actions{grid-column:3!important;grid-row:1 / 5!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:center!important;gap:6px!important;position:static!important;min-width:0!important}
 html body #itop-movel .itop-movel-grid > article.training-card > .training-actions a{position:static!important;display:block!important;width:100%!important;box-sizing:border-box!important;text-align:center!important;white-space:normal!important}
 @media(max-width:700px){html body #itop-auth-screen:not(.hidden){grid-template-columns:1fr!important;background-position:28% center!important}html body #itop-auth-screen .itop-login-art{height:16vh!important}html body #itop-auth-screen .itop-login-side{height:auto!important;min-height:84vh!important}html body #itop-auth-screen .itop-login-side .itop-login{max-height:none!important}html body #itop-movel .itop-movel-grid > article.training-card{grid-template-columns:100px minmax(0,1fr)!important}html body #itop-movel .itop-movel-grid > article.training-card > .training-cover{width:100px!important;height:95px!important}html body #itop-movel .itop-movel-grid > article.training-card > .training-actions{grid-column:1 / -1!important;grid-row:5!important;flex-direction:row!important}}
-</style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
+</style>
+<style id="itop-fix-link-esqueci-senha-20261101">
+html body #itop-auth-screen button#itop-forgot-password,
+html body #itop-auth-screen button#itop-forgot-password:link,
+html body #itop-auth-screen button#itop-forgot-password:visited {
+ color:#d27a2f!important;-webkit-text-fill-color:#d27a2f!important;
+ background:transparent!important;background-image:none!important;
+ text-shadow:none!important;opacity:1!important;visibility:visible!important;
+ display:block!important;margin:12px auto!important;
+ text-align:center!important;border:0!important;box-shadow:none!important;
+ text-decoration:none!important;
+}
+html body #itop-auth-screen button#itop-forgot-password:hover,
+html body #itop-auth-screen button#itop-forgot-password:focus-visible {
+ color:#f39440!important;-webkit-text-fill-color:#f39440!important;
+ text-decoration:underline!important;
+}
+</style>
+</head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
 <form id="itop-register-form">

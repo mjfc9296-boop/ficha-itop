@@ -1,1 +1,1 @@
-V6: Enviar index.html, itop-login-fundo-unico-v5.webp e capas capa-uvi-oficial-*.png para a RAIZ do repositório. Não apagar outros arquivos. Corrige contraste da energia, layout da entrada e cards horizontais de telefonia. Preserva PDFs e links. Atualize o navegador com Ctrl+F5. Não publicado automaticamente.
+Somente cor do botão Esqueci a senha. Substituir index.html na raiz. Base: V7. Se o site tiver atualizações posteriores, não substitua o HTML sem antes conferir a versão.
