@@ -1,1 +1,1 @@
-Substituir index.html. Fundo azul único, arte do mascote com bordas suavizadas, e botão ADD SERVIÇOS com ID próprio e gradiente laranja. O arquivo mascote-login.png original deve permanecer no repositório. Faça backup antes de publicar.
+No celular, o botão WhatsApp Web da etapa 3 passa a usar o compartilhamento nativo do PDF, sem abrir links do GitHub. No computador, mantém o download para WhatsApp Web. Substitua somente index.html, mantendo os demais arquivos e faça backup.

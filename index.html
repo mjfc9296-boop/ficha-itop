@@ -1083,7 +1083,7 @@ function handleField(event){if(event.target.closest('#movel, #procedimentos, #it
  recalc();
 }
 document.addEventListener('input',handleField);document.addEventListener('change',handleField);
-$('webPDF').addEventListener('click',downloadForWhatsAppWeb);$('appPDF').addEventListener('click',shareWithApp);$('openWebChat').addEventListener('click',openWhatsAppWeb);$('closeShare').addEventListener('click',closeShareDialog);$('simulateEnergy').addEventListener('click',goToEnergy);$('backToPackage').addEventListener('click',()=>switchModule('pacote'));$('shareClosing').addEventListener('click',shareClosingPDF);$('sondagemWhatsapp').addEventListener('click',shareClosingPDF);$('pacoteWhatsapp').addEventListener('click',shareClosingPDF);/* Ação de energia independente configurada em itop-v26.38 */$('limparSondagem').addEventListener('click',resetSurvey);$('limparPacote').addEventListener('click',resetPackage);recalc();
+$('webPDF').addEventListener('click',()=>{if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent))return shareWithApp();return downloadForWhatsAppWeb();});$('appPDF').addEventListener('click',shareWithApp);$('openWebChat').addEventListener('click',()=>{if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)){ $('shareStatus').textContent='No celular, use APLICATIVO · COMPARTILHAR para enviar o PDF como documento, sem abrir um link.';return;}openWhatsAppWeb();});$('closeShare').addEventListener('click',closeShareDialog);$('simulateEnergy').addEventListener('click',goToEnergy);$('backToPackage').addEventListener('click',()=>switchModule('pacote'));$('shareClosing').addEventListener('click',shareClosingPDF);$('sondagemWhatsapp').addEventListener('click',shareClosingPDF);$('pacoteWhatsapp').addEventListener('click',shareClosingPDF);/* Ação de energia independente configurada em itop-v26.38 */$('limparSondagem').addEventListener('click',resetSurvey);$('limparPacote').addEventListener('click',resetPackage);recalc();
 </script><script src="movel-suporte.js"></script><script>
 (function(){
  const search=document.getElementById('trainingSearch'),grid=document.querySelector('.training-grid');let category='all';
@@ -2004,4 +2004,14 @@ html body button#itop-add-servicos-destaque {
  html body #itop-auth-screen .itop-login-side{height:auto!important;min-height:65vh!important}
 }
 </style>
+
+<script id="itop-pdf-mobile-hint">
+document.addEventListener('DOMContentLoaded',()=>{
+ if(!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent))return;
+ const b=document.getElementById('webPDF');
+ if(b){b.querySelector('strong').textContent='COMPARTILHAR PDF NO CELULAR';b.querySelector('span').textContent='Abre o compartilhamento do aparelho para enviar o PDF como documento no WhatsApp.';}
+ const app=document.getElementById('appPDF');
+ if(app){app.querySelector('strong').textContent='ENVIAR PDF COMO ARQUIVO';}
+});
+</script>
 </body></html>
