@@ -1684,4 +1684,37 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLower
 document.addEventListener('click',e=>{if(!wrap.contains(e.target))wrap.classList.remove('is-open')});
 })();
 </script>
+
+<style id="itop-nav-centralizacao-corrigida-20261101">
+/* As 12 imagens e seus contêineres usam o mesmo centro geométrico. */
+html body main nav.nav-tabs { align-items:stretch!important; justify-items:stretch!important; }
+html body main nav.nav-tabs button.nav-tab {
+ box-sizing:border-box!important; padding:0!important; margin:0!important;
+ display:grid!important; place-items:center!important; position:relative!important;
+ aspect-ratio:1 / 1!important; width:100%!important; min-width:0!important;
+ overflow:visible!important; isolation:isolate!important;
+}
+html body main nav.nav-tabs button.nav-tab > img.itop-tab-art {
+ position:absolute!important; top:50%!important; left:50%!important;
+ right:auto!important; bottom:auto!important; inset:auto!important;
+ transform:translate(-50%,-50%)!important; transform-origin:center center!important;
+ width:calc(100% - 14px)!important; height:calc(100% - 14px)!important;
+ max-width:calc(100% - 14px)!important; max-height:calc(100% - 14px)!important;
+ object-fit:contain!important; object-position:center center!important;
+ margin:0!important; padding:0!important; box-sizing:border-box!important;
+ border-radius:10px!important; display:block!important;
+}
+html body main nav.nav-tabs button.nav-tab > span.step-ball {
+ position:absolute!important; top:5px!important; left:5px!important; right:auto!important;
+ transform:none!important; margin:0!important; z-index:30!important;
+ width:27px!important; height:27px!important; line-height:1!important;
+ display:grid!important; place-items:center!important;
+ box-sizing:border-box!important; font-size:14px!important;
+}
+html body main nav.nav-tabs button.nav-tab > span.itop-nav-label {
+ left:50%!important; right:auto!important; transform:translateX(-50%)!important;
+ width:calc(100% - 16px)!important; text-align:center!important;
+ color:#fff!important; box-sizing:border-box!important;
+}
+</style>
 </body></html>
