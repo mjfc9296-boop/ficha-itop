@@ -864,7 +864,7 @@ function buildClosingPDF(){
  if(!r.products.length)throw new Error('Selecione os serviços na etapa 2 antes de gerar o PDF.');
  if(r.include&&!r.energyValid)throw new Error('Preencha uma simulação de energia válida ou desmarque a inclusão no relatório.');
  const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'}),left=14,width=182;
- doc.setFillColor(18,18,18);doc.rect(0,0,210,28,'F');doc.setFillColor(255,255,255);doc.roundedRect(12,4,48,19,2,2,'F');doc.addImage(PDF_LOGO,'PNG',14,5.35,44,18.3);doc.setTextColor(255);doc.setFontSize(13);doc.text('FECHAMENTO DO PLANO',66,13);doc.setFontSize(8);doc.text(new Date().toLocaleDateString('pt-BR')+' · PROPOSTA COMERCIAL',66,20);doc.setTextColor(30);
+ doc.setFillColor(18,18,18);doc.rect(0,0,210,28,'F');doc.addImage(PDF_LOGO,'PNG',14,5.35,44,18.3);doc.setTextColor(255);doc.setFontSize(13);doc.text('FECHAMENTO DO PLANO',66,13);doc.setFontSize(8);doc.text(new Date().toLocaleDateString('pt-BR')+' · PROPOSTA COMERCIAL',66,20);doc.setTextColor(30);
  let y=36;doc.setFontSize(9);doc.setFont('helvetica','bold');const clientLines=doc.splitTextToSize('CLIENTE: '+r.client,178);doc.text(clientLines,left,y);y+=clientLines.length*4+4;doc.setFont('helvetica','normal');
  const metaLines=doc.splitTextToSize('WHATSAPP: '+r.phone+'   |   CIDADE: '+r.city+'   |   CONSULTOR: '+r.seller,178);doc.text(metaLines,left,y);y+=metaLines.length*4+7;
  // Fit all selected services and optional energy on one A4 page.
@@ -1248,44 +1248,67 @@ function rows(d){return [
 ]}
 function pdf(){
  const d=current();if(!valid(d))return;
+ if(!(d.bill>0)||Math.round(d.bill*100)<Math.round(d.original*100)){
+ $('itopEnergyActionStatus').textContent='Informe o valor total da fatura Cemig para comparar uma conta com duas contas. Confira se a fatura cobre o consumo excedente informado.';return;
+ }
  if(!window.jspdf?.jsPDF){$('itopEnergyActionStatus').textContent='Biblioteca de PDF indisponível. Verifique a conexão.';return}
  try{
  const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
- const black=[19,19,20],orange=[213,122,47];
- const txt=(v,x,y,size=9,bold=false,color=black)=>{doc.setTextColor(...color);doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);doc.text(String(v),x,y)};
- doc.setFillColor(...black);doc.rect(0,0,210,38,'F');
- doc.setFillColor(255,255,255);doc.roundedRect(10,5,53,26,2,2,'F');
- if(typeof PDF_LOGO!=='undefined')doc.addImage(PDF_LOGO,'PNG',12,7.8,49,20.38);
- txt('SIMULAÇÃO DE ENERGIA',70,16,15,true,[255,255,255]);txt('ITOP NETZ  |  PROPOSTA COMERCIAL',70,24,9,false,[255,181,111]);txt(new Date().toLocaleDateString('pt-BR'),194,32,8,false,[255,255,255]);
- const box=(y,title,items)=>{
- doc.setFontSize(9);
- const rows=items.map(r=>({label:doc.splitTextToSize(String(r[0]),82),value:doc.splitTextToSize(String(r[1]),87)}));
- const heights=rows.map(r=>Math.max(8,Math.max(r.label.length,r.value.length)*4+3));
- const height=13+heights.reduce((a,b)=>a+b,0);
- doc.setDrawColor(226,211,198);doc.setFillColor(255,250,245);doc.roundedRect(11,y,188,height,2,2,'FD');
- txt(title,16,y+7,10,true,[160,80,24]);
- let rowY=y+16;
- rows.forEach((r,i)=>{
-  doc.setFontSize(9);doc.setTextColor(...black);doc.setFont('helvetica','normal');doc.text(r.label,17,rowY);
-  doc.setFont('helvetica','bold');doc.text(r.value,193,rowY,{align:'right'});
-  rowY+=heights[i];
- });
- return y+height;
-};
- let y=43;
- y=box(y,'DADOS DO CLIENTE',[['Cliente',d.name||'Não informado'],['WhatsApp',d.phone||'Não informado'],['Cidade',d.city||'Não informada'],['Consultor',d.seller||'Não informado']])+5;
+ const black=[19,19,20],orange=[210,122,47];
+ const txt=(v,x,y,size=9,bold=false,color=black,align='left')=>{doc.setTextColor(...color);doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);doc.text(String(v),x,y,{align})};
+ doc.setFillColor(...black);doc.rect(0,0,210,32,'F');
+ doc.addImage(PDF_LOGO,'PNG',11,5,50,20.8);
+ txt('SIMULAÇÃO DE ENERGIA',68,13,14,true,[255,255,255]);
+ txt('ITOP NETZ | PROPOSTA COMERCIAL',68,21,8,false,[255,181,111]);
+ txt(new Date().toLocaleDateString('pt-BR'),198,28,7,false,[255,255,255],'right');
+ function box(y,title,items){
+  doc.setFontSize(9);
+  const rows=items.map(r=>({label:doc.splitTextToSize(String(r[0]),85),value:doc.splitTextToSize(String(r[1]),85)}));
+  const heights=rows.map(r=>Math.max(7,Math.max(r.label.length,r.value.length)*4+3));
+  const height=12+heights.reduce((a,b)=>a+b,0);
+  doc.setDrawColor(226,211,198);doc.setFillColor(255,250,245);doc.roundedRect(11,y,188,height,2,2,'FD');
+  txt(title,16,y+7,9,true,[160,80,24]);
+  let rowY=y+11;
+  rows.forEach((r,i)=>{
+   if(i%2===1){doc.setFillColor(249,240,230);doc.rect(12,rowY-1,186,heights[i],'F')}
+   if(i>0){doc.setDrawColor(218,203,190);doc.setLineWidth(.2);doc.line(15,rowY-1,195,rowY-1)}
+   doc.setTextColor(...black);doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text(r.label,17,rowY+3);
+   doc.setFont('helvetica','bold');doc.text(r.value,193,rowY+3,{align:'right'});
+   rowY+=heights[i];
+   if(i<rows.length-1){doc.setDrawColor(218,203,190);doc.setLineWidth(.2);doc.line(15,rowY-1,195,rowY-1)}
+  });
+  return y+height+5;
+ }
+ let y=37;
+ y=box(y,'DADOS DO CLIENTE',[['Cliente',d.name||'Não informado'],['WhatsApp',d.phone||'Não informado'],['Cidade',d.city||'Não informada'],['Consultor',d.seller||'Não informado']]);
  const cat=d.minimum===30?'Monofásico':d.minimum===50?'Bifásico':'Trifásico';
- y=box(y,'PERFIL DE CONSUMO',[['Categoria de fornecimento',cat],['Consumo mensal informado',d.consumption+' kWh'],['Consumo mínimo da categoria',d.minimum+' kWh'],['Consumo excedente considerado',d.excess+' kWh'],['Tarifa Cemig por kWh',brl(d.tariff)],['Tarifa ITOP NETZ por kWh',brl(d.netz)]])+5;
- y=box(y,'COMPARATIVO DO CONSUMO EXCEDENTE',[['Excedente pela tarifa Cemig',brl(d.original)],['Excedente com ITOP NETZ',brl(d.discounted)],['Desconto aplicado ao excedente','20%']])+7;
- doc.setFillColor(...black);doc.roundedRect(11,y,188,30,3,3,'F');txt('ECONOMIA ESTIMADA MENSAL',17,y+9,9,true,[255,195,140]);txt(brl(d.savings),17,y+22,18,true,[255,255,255]);txt('ECONOMIA ESTIMADA ANUAL',112,y+9,9,true,[255,195,140]);txt(brl(d.savings*12),112,y+22,18,true,[255,255,255]);
- y+=38;doc.setDrawColor(...orange);doc.line(12,y,198,y);y+=7;
- txt('COMO FUNCIONA A SIMULAÇÃO',13,y,9,true,[160,80,24]);y+=6;
- const notes=['A ITOP NETZ aplica desconto estimado de 20% somente ao consumo que ultrapassa o mínimo da categoria.','O consumo mínimo de 30, 50 ou 100 kWh, conforme a categoria, permanece na cobrança da distribuidora.','Os valores apresentados são estimativas e podem variar com tributos, encargos, bandeiras tarifárias e regras vigentes.'];
+ y=box(y,'CONSUMO E TARIFAS',[['Categoria / consumo mínimo',cat+' / '+d.minimum+' kWh'],['Consumo total / excedente',d.consumption+' / '+d.excess+' kWh'],['Tarifa Cemig por kWh',brl(d.tariff)],['Tarifa NETZ por kWh (-20%)',brl(d.netz)]]);
+ const billCents=Math.round(d.bill*100),excessCents=Math.round(d.original*100),netzCents=Math.round(d.discounted*100);
+ const residual=(billCents-excessCents)/100,combined=(billCents-excessCents+netzCents)/100,saving=(excessCents-netzCents)/100;
+ y=box(y,'UMA CONTA HOJE x DUAS CONTAS COM ITOP NETZ',[
+ ['HOJE: uma conta Cemig',brl(d.bill)],
+ ['COM NETZ: conta Cemig estimada',brl(residual)],
+ ['COM NETZ: conta NETZ estimada',brl(netzCents/100)],
+ ['TOTAL DAS DUAS CONTAS',brl(combined)],
+ ['ECONOMIA MENSAL ESTIMADA',brl(saving)]
+ ]);
+ txt(brl(residual)+' (Cemig) + '+brl(netzCents/100)+' (NETZ) = '+brl(combined),105,y+2,10,true,[160,80,24],'center');
+ y+=9;
+ doc.setFillColor(...black);doc.roundedRect(11,y,188,25,3,3,'F');
+ txt('ECONOMIA MENSAL',17,y+8,8,true,[255,195,140]);txt(brl(saving),17,y+19,16,true,[255,255,255]);
+ txt('ECONOMIA EM 12 MESES',112,y+8,8,true,[255,195,140]);txt(brl(saving*12),112,y+19,16,true,[255,255,255]);
+ y+=33;
+ txt('DUAS CONTAS, UM TOTAL MENOR NESTA SIMULAÇÃO',13,y,9,true,[160,80,24]);y+=6;
+ const notes=[
+ 'A conta Cemig estimada mantém o consumo mínimo e os demais valores da fatura informada. A NETZ cobra o consumo excedente com desconto estimado de 20%.',
+ 'Cálculo: fatura Cemig atual menos o excedente pela tarifa Cemig, mais o excedente com a tarifa NETZ.',
+ 'Estimativa sujeita a tributos, encargos, bandeiras, créditos, consumo e condições de contratação. Duas contas não significam pagar duas vezes pelo mesmo consumo.'
+ ];
  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(75,75,75);
- notes.forEach(n=>{const lines=doc.splitTextToSize(n,182);doc.text(lines,14,y);y+=lines.length*4.2+3});
- txt('ITOP TELECOM  |  SIMULAÇÃO CONSULTIVA DE ECONOMIA',105,287,8,true,[160,80,24]);
+ notes.forEach(n=>{const lines=doc.splitTextToSize(n,182);doc.text(lines,14,y);y+=lines.length*4+2});
+ txt('ITOP TELECOM | SIMULAÇÃO CONSULTIVA DE ECONOMIA',105,289,7,true,[160,80,24],'center');
  doc.save('ITOP-NETZ-Simulacao-'+new Date().toISOString().slice(0,10)+'.pdf');
- $('itopEnergyActionStatus').textContent='PDF profissional de energia gerado em uma página.';
+ $('itopEnergyActionStatus').textContent='PDF com comparação de uma conta e duas contas gerado.';
  }catch(e){$('itopEnergyActionStatus').textContent='Não foi possível gerar o PDF: '+e.message}
 }
 function whats(){
@@ -1411,4 +1434,4 @@ document.addEventListener('DOMContentLoaded',function(){
 }
 @media screen and (min-width:1500px){html.itop-authorized body{background-size:175px 100%,175px 100%!important}}
 @media print{html body{background:white!important}.logo-print{object-fit:contain!important}}
-</style></body></html>
+</style><style id="itop-pdf-linhas-20261101">@media print{.report-table td,.report-table th,.survey-row,.compact-row,.prodrow{border-bottom:1px solid #aaa!important}.report-table tbody tr:nth-child(even){background:#f5ede5!important;print-color-adjust:exact}}</style></body></html>
