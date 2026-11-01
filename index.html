@@ -1563,11 +1563,11 @@ function build(){
   const tab=document.querySelector('.nav-tab[data-module="'+module.id+'"]');if(!tab)return;
   const label=(tab.querySelector('.itop-nav-label')?.textContent||module.id).trim();
   // Indexar os elementos de destino, inclusive links e cartões; não somente nós de texto soltos.
-  const selectors='h1,h2,h3,h4,h5,summary,label,a[href],.useful-link-item,.training-card,.support-topic,.multi-product-section>h3,td,th,li,p';
+  const selectors='h1,h2,h3,h4,h5,summary,label,a[href],button,.useful-link-item,.training-card,.support-topic,.multi-product-section>h3,td,th,li,p';
   const seen=new Set();
   module.querySelectorAll(selectors).forEach(el=>{
    if(el.closest('script,style,noscript,svg')||el.closest('[hidden]'))return;
-   const title=titleOf(el).slice(0,260);if(title.length<3)return;
+   const title=(el.getAttribute('data-training')||titleOf(el)).slice(0,260);if(title.length<3)return;
    const key=module.id+'|'+title;if(seen.has(key))return;seen.add(key);
    entries.push({module:module.id,label,title,el});
   });
