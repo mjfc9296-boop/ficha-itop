@@ -1,1 +1,1 @@
-Atualização: tela de login com tratamento azul; botão ADD SERVIÇOS laranja gradiente. Requer mascote-login.png existente no repositório. Faça backup e confira no navegador.
+Substituir index.html. Fundo azul único, arte do mascote com bordas suavizadas, e botão ADD SERVIÇOS com ID próprio e gradiente laranja. O arquivo mascote-login.png original deve permanecer no repositório. Faça backup antes de publicar.
