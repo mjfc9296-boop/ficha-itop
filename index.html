@@ -595,7 +595,7 @@ html body main nav.nav-tabs button.nav-tab.active{outline:3px solid #ff9a42!impo
 @media(max-width:700px){#itop-global-search{top:8px;right:66px;max-width:180px}#itop-search-input{width:110px;max-width:30vw}header .head{min-width:0}#itop-search-results{position:fixed;top:95px;left:5vw;right:5vw;width:90vw}}
 @media print{#itop-global-search{display:none!important}}
 </style>
-</head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
+<style>.itop-search-highlight{background:#ffe15a!important;color:#111!important;border-radius:3px;padding:1px 3px;box-shadow:0 0 0 3px #d27a2f66}.itop-search-target{outline:3px solid #d27a2f!important;outline-offset:5px;scroll-margin-top:110px}</style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>PAINEL DE SONDAGEM<br/>E SUPORTE AO VENDEDOR</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">E-mail</label><input autocomplete="username" id="itop-email" placeholder="✉  E-mail" required="" type="email"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
 <form id="itop-register-form">
@@ -1493,72 +1493,88 @@ html body .itop-shortcuts .itop-shortcut.is-pending{cursor:default}
 </style><aside class="itop-desktop-side right itop-shortcuts" aria-label="Atalhos e links úteis"><a class="itop-shortcut" href="https://remuneratop.itop.net.br/product/" target="_blank" rel="noopener noreferrer" title="Remunera Top" aria-label="Remunera Top (abre em nova aba)"><img src="atalho-remunera-top.png" alt="Remunera Top" loading="lazy"></a><a class="itop-shortcut" href="https://parceiro.brazmovel.com.br/" target="_blank" rel="noopener noreferrer" title="Portal do Parceiro Braz Móvel"><img src="atalho-parceiro-braz-v2.png" alt="Portal do Parceiro Braz Móvel" loading="lazy"></a><a class="itop-shortcut" href="https://itop.drytelecom.tech/index.php?exe=restrito" target="_blank" rel="noopener noreferrer" title="Portal DRY Parceiros"><img src="atalho-parceiro-dry.png" alt="Portal DRY Parceiros" loading="lazy"></a><a class="itop-shortcut" href="https://tip.movidesk.com/" target="_blank" rel="noopener noreferrer" title="TIP Movidesk — Atendimento e suporte"><img src="atalho-tip-movidesk.png" alt="TIP Movidesk — Atendimento e suporte" loading="lazy"></a><a class="itop-shortcut" href="https://easy2use.com.br/mvno/wp-login.php?redirect_to=%2F" target="_blank" rel="noopener noreferrer" title="Portal de Portabilidade TIP" aria-label="Portal de Portabilidade TIP (abre em nova aba)"><img src="atalho-portabilidade-tip-v2.png" alt="Portal de Portabilidade TIP" loading="lazy"></a><a class="itop-shortcut" href="https://tip.movidesk.com/kb/pt-br/article/526696/portabilidade-via-easy-servicos" target="_blank" rel="noopener noreferrer" title="Manual da Portabilidade TIP" aria-label="Manual da Portabilidade TIP (abre em nova aba)"><img src="atalho-manual-portabilidade-v2.png" alt="Manual da Portabilidade TIP" loading="lazy"></a><a class="itop-shortcut" href="https://www.playhub.com.br/APP/login" target="_blank" rel="noopener noreferrer" title="Portal Integradores Play Hub"><img src="atalho-portal-playhub.png" alt="Portal Integradores Play Hub" loading="lazy"></a><a class="itop-shortcut" href="https://plataforma.celetihub.com.br/login" target="_blank" rel="noopener noreferrer" title="Portal Integradores Celeti Hub"><img src="atalho-portal-celeti.png" alt="Portal Integradores Celeti Hub" loading="lazy"></a><a class="itop-shortcut" href="https://dashboard.aliviaapp.com.br/authentication/sign-in" target="_blank" rel="noopener noreferrer" title="Portal Telemedicina — Ativação de Vidas"><img src="atalho-portal-telemedicina.png" alt="Portal Telemedicina — Ativação de Vidas" loading="lazy"></a><a class="itop-shortcut" href="https://consultanumero.abrtelecom.com.br/consultanumero/consulta/consultaHistoricoRecenteCtg" target="_blank" rel="noopener noreferrer" title="Consulta Número e Portabilidade ABR" aria-label="Consulta Número e Portabilidade ABR (abre em nova aba)"><img src="atalho-consulta-numero-v2.png" alt="Consulta Número e Portabilidade ABR" loading="lazy"></a></aside>
 <script id="itop-global-search-script">
 (function(){
-const wrap=document.getElementById('itop-global-search');
-const toggle=document.getElementById('itop-search-toggle');
-const input=document.getElementById('itop-search-input');
-const close=document.getElementById('itop-search-close');
-const results=document.getElementById('itop-search-results');
+const wrap=document.getElementById('itop-global-search'),toggle=document.getElementById('itop-search-toggle'),input=document.getElementById('itop-search-input'),close=document.getElementById('itop-search-close'),results=document.getElementById('itop-search-results');
 if(!wrap||!input)return;
-const normalize=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-const synonyms={'celular':'movel','chip':'movel','comissao':'comissionamento','net':'internet','wifi':'wi-fi','portar':'portabilidade','medico':'telemedicina'};
-let entries=[];
+const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const synonyms={celular:'movel',chip:'movel',comissao:'comissionamento',wifi:'wi-fi',portar:'portabilidade',medico:'telemedicina'};
+const ignored=new Set(['SCRIPT','STYLE','NOSCRIPT','SVG','OPTION','BUTTON']);
+let entries=[],marks=[];
+function clearMarks(){marks.forEach(m=>{if(m.isConnected)m.replaceWith(document.createTextNode(m.textContent))});marks=[]}
 function build(){
  entries=[];
  document.querySelectorAll('.module[id]').forEach(module=>{
   const tab=document.querySelector('.nav-tab[data-module="'+module.id+'"]');
   if(!tab)return;
   const label=(tab.querySelector('.itop-nav-label')?.textContent||module.id).trim();
-  const candidates=[module,...module.querySelectorAll('h2,h3,h4,summary,article,.training-card,.useful-link-item,.field,.support-source-title')];
-  const seen=new Set();
-  candidates.forEach(el=>{
-   const raw=(el.innerText||el.textContent||'').replace(/\s+/g,' ').trim();
-   if(!raw||raw.length<3)return;
-   const title=(el.querySelector?.('h2,h3,h4,summary,strong')?.textContent||raw).replace(/\s+/g,' ').trim().slice(0,100);
-   const key=module.id+'|'+title;
-   if(seen.has(key))return;
-   seen.add(key);
-   entries.push({module:module.id,label,title,body:raw.slice(0,1800),el});
-  });
+  const walker=document.createTreeWalker(module,NodeFilter.SHOW_TEXT,{acceptNode(n){
+   if(!n.textContent.trim()||n.parentElement.closest('script,style,noscript,svg,button'))return NodeFilter.FILTER_REJECT;
+   return NodeFilter.FILTER_ACCEPT;
+  }});
+  let n;
+  while(n=walker.nextNode()){
+   const value=n.textContent.replace(/\s+/g,' ').trim();
+   if(value.length<3||value.length>600)continue;
+   const parent=n.parentElement;
+   const title=parent.closest('h1,h2,h3,h4,h5,summary,label,strong,a,td,th,li,p,.useful-link-item,.field')||parent;
+   const snippet=(title.textContent||value).replace(/\s+/g,' ').trim().slice(0,200);
+   entries.push({module:module.id,label,text:value,title:snippet,node:n,parent});
+  }
  });
 }
-function search(q){
- const terms=normalize(q).split(/\s+/).filter(Boolean);
- if(!terms.length){results.innerHTML='<div class="itop-search-empty">Digite uma palavra para encontrar conteúdos em todas as abas.</div>';return}
- const expanded=terms.map(t=>[t,synonyms[t]].filter(Boolean));
- const matches=entries.filter(e=>expanded.every(opts=>opts.some(t=>normalize(e.title+' '+e.body+' '+e.label).includes(t))));
- matches.sort((a,b)=>Number(normalize(b.title).includes(terms[0]))-Number(normalize(a.title).includes(terms[0])));
+function show(q){
+ const terms=norm(q).split(/\s+/).filter(Boolean);
  results.replaceChildren();
- if(!matches.length){results.innerHTML='<div class="itop-search-empty">Nenhum resultado encontrado. Tente outra palavra.</div>';return}
- matches.slice(0,24).forEach(item=>{
+ if(!terms.length){results.innerHTML='<div class="itop-search-empty">Digite uma palavra para localizar o conteúdo exato.</div>';return}
+ const matches=entries.filter(e=>terms.every(t=>norm(e.text).includes(t)||norm(e.title).includes(t)||norm(e.label).includes(t)||norm(e.text).includes(synonyms[t]||'__not_found__')));
+ matches.sort((a,b)=>Number(norm(b.text).startsWith(terms[0]))-Number(norm(a.text).startsWith(terms[0])));
+ if(!matches.length){results.innerHTML='<div class="itop-search-empty">Nenhum resultado. Tente outra palavra-chave.</div>';return}
+ const seen=new Set();
+ for(const item of matches){
+  const key=item.module+'|'+item.title;
+  if(seen.has(key))continue;seen.add(key);
   const b=document.createElement('button');b.type='button';b.className='itop-search-result';
   const small=document.createElement('small');small.textContent=item.label;
-  const strong=document.createElement('strong');strong.textContent=item.title;
-  const span=document.createElement('span');span.textContent=item.body.slice(0,140);
-  b.append(small,strong,span);
-  b.addEventListener('click',()=>{
-   const tab=document.querySelector('.nav-tab[data-module="'+item.module+'"]');
-   if(!tab)return;
-   if(tab.hidden||tab.disabled){results.innerHTML='<div class="itop-search-empty">Esta área exige permissão de acesso.</div>';return}
-   tab.click();wrap.classList.remove('is-open');
-   setTimeout(()=>{
-    let target=item.el;
-    // Conteúdo dentro de um painel fechado: abrir os detalhes ancestrais.
-    let ancestor=target.parentElement;
-    while(ancestor){if(ancestor.tagName==='DETAILS')ancestor.open=true;ancestor=ancestor.parentElement}
-    if(target.offsetParent===null)target=document.getElementById(item.module);
-    target.scrollIntoView({behavior:'smooth',block:'center'});
-    target.classList.add('itop-search-target');
-    setTimeout(()=>target.classList.remove('itop-search-target'),2600);
-   },180);
-  });
-  results.appendChild(b);
- });
+  const strong=document.createElement('strong');strong.textContent=item.title.slice(0,110);
+  const span=document.createElement('span');span.textContent=item.text.slice(0,170);
+  b.append(small,strong,span);results.appendChild(b);
+  b.addEventListener('click',()=>navigate(item,q));
+  if(seen.size>=35)break;
+ }
 }
-toggle.addEventListener('click',()=>{wrap.classList.add('is-open');build();search(input.value);input.focus()});
+function markText(node,q){
+ if(!node||!node.isConnected||node.nodeType!==Node.TEXT_NODE)return null;
+ const terms=norm(q).split(/\s+/).filter(Boolean);
+ const raw=node.textContent,folded=norm(raw);
+ let index=-1,len=0;
+ for(const t of terms){let i=folded.indexOf(t);if(i<0&&synonyms[t])i=folded.indexOf(synonyms[t]);if(i>=0&&(index<0||i<index)){index=i;len=(i===folded.indexOf(t)?t:synonyms[t]).length}}
+ if(index<0)return null;
+ const range=document.createRange();range.setStart(node,index);range.setEnd(node,Math.min(index+len,raw.length));
+ const mark=document.createElement('mark');mark.className='itop-search-highlight';range.surroundContents(mark);marks.push(mark);return mark;
+}
+function navigate(item,q){
+ clearMarks();
+ const tab=document.querySelector('.nav-tab[data-module="'+item.module+'"]');
+ if(!tab||tab.disabled||tab.hidden){results.innerHTML='<div class="itop-search-empty">Esta área exige permissão de acesso.</div>';return}
+ tab.click();wrap.classList.remove('is-open');
+ let p=item.parent;
+ while(p){if(p.tagName==='DETAILS')p.open=true;p=p.parentElement}
+ // Abrir seções ocultas por elementos details; jamais abrir ações de formulário automaticamente.
+ setTimeout(()=>{
+  const el=item.parent;
+  const target=markText(item.node,q)||el;
+  if(el.getClientRects().length===0){
+   const section=el.closest('section,.module')||document.getElementById(item.module);
+   section.scrollIntoView({behavior:'smooth',block:'center'});
+  }else{target.scrollIntoView({behavior:'smooth',block:'center'})}
+  el.classList.add('itop-search-target');
+  setTimeout(()=>{el.classList.remove('itop-search-target');clearMarks()},5500);
+ },300);
+}
+toggle.addEventListener('click',()=>{wrap.classList.add('is-open');build();show(input.value);input.focus()});
 close.addEventListener('click',()=>wrap.classList.remove('is-open'));
-input.addEventListener('input',()=>search(input.value));
+input.addEventListener('input',()=>show(input.value));
 input.addEventListener('keydown',e=>{if(e.key==='Escape')wrap.classList.remove('is-open');if(e.key==='Enter')results.querySelector('button')?.click()});
-document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();toggle.click()}});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();wrap.classList.contains('is-open')?input.focus():toggle.click()}});
 document.addEventListener('click',e=>{if(!wrap.contains(e.target))wrap.classList.remove('is-open')});
 })();
 </script>
