@@ -1,1 +1,1 @@
-Correções: textos escuros em campos brancos da indicação, ordem Fibra > Fixo > Móveis, botão Adicionar serviços laranja, entrada do login em azul e título SUPORTE A VENDAS ITOP. Preserve backup do index.html antes da substituição.
+Atualização: tela de login com tratamento azul; botão ADD SERVIÇOS laranja gradiente. Requer mascote-login.png existente no repositório. Faça backup e confira no navegador.
