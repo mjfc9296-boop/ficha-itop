@@ -1,4 +1,1 @@
-ITOP v26.13 — Atualização completa
-Suba TODOS os arquivos para a raiz do repositório GitHub Pages, substituindo os existentes.
-ITOP COMUNICA: para publicar, edite comunicados.json, com objetos {"id":"2026-10-28-01","titulo":"Título","data":"28/10/2026","mensagem":"Texto"}. Cada comunicado precisa de ID único e permanente.
-O contador vermelho registra leituras por navegador/dispositivo via localStorage. Para controle individual entre aparelhos e contas, é necessário backend com autenticação.
+Atualização visual: 12 artes sem moldura escura, contorno azul brilhante, painéis claros em degradê ITOP e botão Adicionar serviços em degradê laranja. Substitua index.html no repositório. Guarde backup antes da publicação.

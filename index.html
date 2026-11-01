@@ -1717,4 +1717,133 @@ html body main nav.nav-tabs button.nav-tab > span.itop-nav-label {
  color:#fff!important; box-sizing:border-box!important;
 }
 </style>
+
+<style id="itop-visual-final-sem-molduras-20261101">
+/* Ícones livres: elimina o segundo quadrado escuro e centraliza a arte. */
+html body main nav.nav-tabs {
+  display:grid!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  gap:16px!important;
+  align-items:start!important;
+}
+html body main nav.nav-tabs button.nav-tab {
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:1 / 1!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:2px solid #3c83ff!important;
+  border-radius:13px!important;
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:0 0 0 1px #8cc7ff,0 0 11px #397df177!important;
+  overflow:visible!important;
+  isolation:isolate!important;
+}
+html body main nav.nav-tabs button.nav-tab.active {
+  border-color:#70baff!important;
+  box-shadow:0 0 0 2px #d27a2f,0 0 16px #4c9affaa!important;
+}
+html body main nav.nav-tabs button.nav-tab > img.itop-tab-art {
+  position:relative!important;
+  inset:auto!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:11px!important;
+  box-sizing:border-box!important;
+}
+html body main nav.nav-tabs button.nav-tab > span.itop-nav-label {
+  display:none!important; /* O nome já consta nas artes originais */
+}
+html body main nav.nav-tabs button.nav-tab > span.step-ball {
+  position:absolute!important;
+  top:5px!important;
+  left:5px!important;
+  right:auto!important;
+  transform:none!important;
+  z-index:30!important;
+  width:28px!important;
+  height:28px!important;
+  display:grid!important;
+  place-items:center!important;
+  margin:0!important;
+}
+@media(max-width:900px){
+  html body main nav.nav-tabs {grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+}
+@media(max-width:540px){
+  html body main nav.nav-tabs {grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important}
+  html body main nav.nav-tabs button.nav-tab > span.step-ball {width:22px!important;height:22px!important;font-size:12px!important}
+}
+/* Substitui cartões e faixas em laranja-pálido, sem afetar campos de entrada. */
+html body .module .recommend,
+html body .module .pill,
+html body .module .survey-total,
+html body .module .closing-totals,
+html body .module .compact-saving,
+html body .module .energy-impact,
+html body .module .closing-controls,
+html body .module .report-total,
+html body .module .energy-highlights .tile,
+html body .module .proposal-alert,
+html body .module .proposal-results,
+html body .module .package-impact-line .impact-result,
+html body .module .before-after > div + div,
+html body .module .multi-product-section > h3,
+html body .module .catalog-group > h3,
+html body .module .compact-head {
+  background:linear-gradient(110deg,#101010 0%,#35261b 48%,#a85c24 80%,#d27a2f 100%)!important;
+  color:#fff!important;
+  border-color:#d27a2f!important;
+}
+html body .module .recommend *,
+html body .module .pill *,
+html body .module .survey-total *,
+html body .module .closing-totals *,
+html body .module .compact-saving *,
+html body .module .energy-impact *,
+html body .module .closing-controls *,
+html body .module .report-total *,
+html body .module .energy-highlights .tile *,
+html body .module .proposal-alert *,
+html body .module .proposal-results *,
+html body .module .package-impact-line .impact-result *,
+html body .module .before-after > div + div *,
+html body .module .multi-product-section > h3 *,
+html body .module .catalog-group > h3 *,
+html body .module .compact-head * {
+  color:#fff!important;
+}
+html body .module .recommend input,
+html body .module .closing-controls input,
+html body .module .proposal-results input {
+  color:#161616!important;
+}
+/* Botão de entrada para Adicionar serviços, destacado dos demais botões azuis. */
+html body #sondagem .itop-one-line-actions button:first-child,
+html body #sondagem button[onclick*="switchModule('pacote')"],
+html body #continuePackage,
+html body #pacote button#continuePackage {
+  background:linear-gradient(115deg,#57290e 0%,#b65e1e 45%,#f59c42 100%)!important;
+  color:#fff!important;
+  border:1px solid #ffb36b!important;
+  box-shadow:0 2px 9px #a7532470!important;
+}
+</style>
+
 </body></html>
