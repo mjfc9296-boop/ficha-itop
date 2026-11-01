@@ -1,1 +1,1 @@
-No celular, o botão WhatsApp Web da etapa 3 passa a usar o compartilhamento nativo do PDF, sem abrir links do GitHub. No computador, mantém o download para WhatsApp Web. Substitua somente index.html, mantendo os demais arquivos e faça backup.
+Publique index.html E itop-mascote-login-aprovado.webp na raiz do repositório. A imagem de login aprovada foi recortada para preservar o mascote e evitar botões falsos. O formulário permanece funcional. ADD SERVIÇOS em laranja. Faça backup antes de publicar.
