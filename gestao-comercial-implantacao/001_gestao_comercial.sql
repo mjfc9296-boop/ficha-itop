@@ -21,6 +21,7 @@ create index on public.itop_equipe_supervisores(supervisor_id,equipe_id);
 create table public.itop_sondagens (
  id uuid primary key, vendedor_id uuid not null references auth.users(id),
  equipe_id uuid references public.itop_equipes(id),
+ teste boolean not null default false,
  status text not null default 'rascunho' check(status in ('rascunho','proposta','finalizada','venda_confirmada','perdida')),
  dados jsonb not null default '{}' check(jsonb_typeof(dados)='object' and octet_length(dados::text)<=32768),
  oferecidos jsonb not null default '[]' check(jsonb_typeof(oferecidos)='array' and jsonb_array_length(oferecidos)<=100),
@@ -39,6 +40,7 @@ create index on public.itop_sondagens(vendedor_id,created_at desc,id desc) where
 create index on public.itop_sondagens(equipe_id,created_at desc,id desc) where excluida_at is null;
 create index on public.itop_sondagens(status,created_at desc) where excluida_at is null;
 create index on public.itop_sondagens(created_at desc,id desc) where excluida_at is null;
+create index on public.itop_sondagens(created_at desc,vendedor_id) where excluida_at is null and teste=false;
 create table public.itop_sondagem_auditoria (
  id bigint generated always as identity primary key, sondagem_id uuid,
  ator uuid, acao text not null, detalhes jsonb not null default '{}', created_at timestamptz not null default now()
@@ -88,9 +90,9 @@ begin
  return jsonb_build_object('usuario_id',u,'papel',papel,'equipes',coalesce((select jsonb_agg(jsonb_build_object('id',e.id,'nome',e.nome)) from public.itop_equipes e where e.ativo and (itop_private.pode_equipe(e.id) or exists(select 1 from public.itop_equipe_membros m where m.equipe_id=e.id and m.usuario_id=u))),'[]'::jsonb),
  'pessoas',coalesce((select jsonb_agg(jsonb_build_object('id',p.id,'nome',p.nome,'papel',p.papel)) from public.perfis p where p.ativo and p.status_aprovacao='aprovado' and (itop_private.eh_admin() or p.id=u or exists(select 1 from public.itop_equipe_membros m where m.usuario_id=p.id and itop_private.pode_equipe(m.equipe_id)) or exists(select 1 from public.itop_equipe_supervisores es where es.supervisor_id=p.id and itop_private.pode_equipe(es.equipe_id)))),'[]'::jsonb));
 end $$;
-create function public.itop_salvar_sondagem(p_id uuid,p_versao integer,p_operacao uuid,p_status text,p_dados jsonb,p_oferecidos jsonb,p_escolhidos jsonb,p_desconto numeric default 0,p_resultado text default '',p_confirmacao text default null)
+create function public.itop_salvar_sondagem(p_id uuid,p_versao integer,p_operacao uuid,p_status text,p_dados jsonb,p_oferecidos jsonb,p_escolhidos jsonb,p_desconto numeric default 0,p_resultado text default '',p_confirmacao text default null,p_teste boolean default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
-declare u uuid:=auth.uid(); papel text:=itop_private.papel(); s public.itop_sondagens; e uuid; v_bruto numeric:=0; item jsonb; resposta jsonb; op itop_private.operacoes; estado_anterior text; desconto_anterior numeric;
+declare u uuid:=auth.uid(); papel text:=itop_private.papel(); s public.itop_sondagens; e uuid; v_bruto numeric:=0; item jsonb; resposta jsonb; op itop_private.operacoes; estado_anterior text; desconto_anterior numeric; teste_anterior boolean;
 begin
  if papel is null then raise exception 'ACESSO_NEGADO'; end if;
  if p_id is null or p_operacao is null or p_versao is null or p_versao<0 then raise exception 'IDENTIFICACAO_INVALIDA'; end if;
@@ -115,28 +117,31 @@ begin
  if p_status='perdida' and length(trim(p_resultado))=0 then raise exception 'INFORME_RESULTADO'; end if;
  select * into s from public.itop_sondagens where id=p_id for update;
  if found then
+  p_teste:=coalesce(p_teste,s.teste);
   if s.excluida_at is not null or not itop_private.pode_ler(s.vendedor_id,s.equipe_id) then raise exception 'ACESSO_NEGADO'; end if;
   if p_versao<>s.versao then raise exception 'CONFLITO_VERSAO' using errcode='40001'; end if;
   if s.vendedor_id<>u and not itop_private.pode_equipe(s.equipe_id) then raise exception 'ACESSO_NEGADO'; end if;
   if s.status in ('venda_confirmada','perdida','finalizada') and not itop_private.pode_equipe(s.equipe_id) then raise exception 'REGISTRO_FINALIZADO'; end if;
+  if s.teste is distinct from p_teste and s.status<>'rascunho' and not itop_private.pode_equipe(s.equipe_id) then raise exception 'CLASSIFICACAO_GERENCIAL_OBRIGATORIA'; end if;
   if s.status<>'rascunho' and p_status='rascunho' then raise exception 'TRANSICAO_INVALIDA'; end if;
  else
+  p_teste:=coalesce(p_teste,false);
   if p_versao<>0 then raise exception 'CONFLITO_VERSAO' using errcode='40001'; end if;
   select m.equipe_id into e from public.itop_equipe_membros m join public.itop_equipes q on q.id=m.equipe_id and q.ativo where m.usuario_id=u;
   insert into public.itop_sondagens(id,vendedor_id,equipe_id) values(p_id,u,e) returning * into s;
  end if;
  if p_status='venda_confirmada' and (not itop_private.pode_equipe(s.equipe_id) or coalesce(length(trim(p_confirmacao)),0)=0) then raise exception 'CONFIRMACAO_GERENCIAL_OBRIGATORIA'; end if;
- estado_anterior:=s.status; desconto_anterior:=s.desconto;
- update public.itop_sondagens set status=p_status,dados=p_dados,oferecidos=p_oferecidos,escolhidos=p_escolhidos,bruto=v_bruto,desconto=round(p_desconto,2),resultado=p_resultado,
+ estado_anterior:=s.status; desconto_anterior:=s.desconto; teste_anterior:=s.teste;
+ update public.itop_sondagens set status=p_status,teste=p_teste,dados=p_dados,oferecidos=p_oferecidos,escolhidos=p_escolhidos,bruto=v_bruto,desconto=round(p_desconto,2),resultado=p_resultado,
  confirmacao_ref=case when p_status='venda_confirmada' then p_confirmacao else null end,confirmado_por=case when p_status='venda_confirmada' then u else null end,
  confirmada_at=case when p_status='venda_confirmada' then coalesce(s.confirmada_at,now()) else null end,
  apresentada_at=case when p_status<>'rascunho' then coalesce(s.apresentada_at,now()) else s.apresentada_at end,
  finalizada_at=case when p_status in ('finalizada','venda_confirmada','perdida') then coalesce(s.finalizada_at,now()) else null end,
  versao=case when p_versao=0 then 1 else s.versao+1 end,updated_at=now() where id=p_id returning * into s;
- if p_versao=0 or estado_anterior is distinct from p_status or desconto_anterior is distinct from p_desconto then
- insert into public.itop_sondagem_auditoria(sondagem_id,ator,acao,detalhes) values(p_id,u,'salvar',jsonb_build_object('status',s.status,'versao',s.versao));
+ if p_versao=0 or estado_anterior is distinct from p_status or desconto_anterior is distinct from p_desconto or teste_anterior is distinct from p_teste then
+ insert into public.itop_sondagem_auditoria(sondagem_id,ator,acao,detalhes) values(p_id,u,'salvar',jsonb_build_object('status',s.status,'versao',s.versao,'teste',s.teste));
  end if;
- resposta:=jsonb_build_object('id',s.id,'versao',s.versao,'updated_at',s.updated_at,'status',s.status,'total',s.total);
+ resposta:=jsonb_build_object('id',s.id,'versao',s.versao,'updated_at',s.updated_at,'status',s.status,'total',s.total,'teste',s.teste);
  insert into itop_private.operacoes(id,ator,sondagem_id,resposta) values(p_operacao,u,p_id,resposta);
  return resposta;
 end $$;
@@ -146,8 +151,10 @@ create function public.itop_sondagens_filtradas(p_filtros jsonb default '{}') re
 declare inicio timestamptz:=coalesce((p_filtros->>'inicio')::timestamptz,now()-interval '30 days'); fim timestamptz:=coalesce((p_filtros->>'fim')::timestamptz,now()+interval '1 day');
 begin
  if itop_private.papel() is null then raise exception 'ACESSO_NEGADO'; end if;
+ if coalesce(p_filtros->>'modo','producao') not in ('producao','testes','todos') then raise exception 'MODO_INVALIDO'; end if;
  if fim<=inicio or fim-inicio>interval '367 days' then raise exception 'PERIODO_MAXIMO_366_DIAS'; end if;
  return query select s.* from public.itop_sondagens s where s.created_at>=inicio and s.created_at<fim
+ and (case coalesce(p_filtros->>'modo','producao') when 'testes' then s.teste=true when 'todos' then true else s.teste=false end)
  and (coalesce(p_filtros->>'vendedor','')='' or s.vendedor_id=(p_filtros->>'vendedor')::uuid)
  and (coalesce(p_filtros->>'equipe','')='' or s.equipe_id=(p_filtros->>'equipe')::uuid)
  and (coalesce(p_filtros->>'supervisor','')='' or exists(select 1 from public.itop_equipe_supervisores es where es.equipe_id=s.equipe_id and es.supervisor_id=(p_filtros->>'supervisor')::uuid))
@@ -159,7 +166,7 @@ create function public.itop_listar_sondagens(p_filtros jsonb default '{}',p_curs
  select jsonb_build_object('itens',coalesce(jsonb_agg(to_jsonb(pagina) order by created_at desc,id desc),'[]'::jsonb)) from pagina
 $$;
 create function public.itop_indicadores(p_filtros jsonb default '{}') returns jsonb language sql stable security invoker set search_path='' as $$
- with s as materialized(select * from public.itop_sondagens_filtradas(p_filtros)),
+ with s as materialized(select * from public.itop_sondagens_filtradas(jsonb_set(p_filtros,'{modo}',to_jsonb(case when p_filtros->>'modo'='testes' then 'testes'::text else 'producao'::text end)))),
  vendedores as(select vendedor_id,count(*) total,count(*) filter(where status='venda_confirmada') vendas,coalesce(sum(total) filter(where status='venda_confirmada'),0) receita from s group by vendedor_id),
  equipes as(select equipe_id,count(*) total,count(*) filter(where status='venda_confirmada') vendas from s group by equipe_id),
  dias as(select to_char(created_at at time zone 'America/Sao_Paulo','YYYY-MM-DD') dia,count(*) sondagens,count(*) filter(where status='venda_confirmada') vendas from s group by 1),
@@ -188,6 +195,18 @@ begin
  insert into public.itop_sondagem_auditoria(ator,acao,detalhes)values(auth.uid(),'equipe:'||p_acao,jsonb_build_object('equipe',e,'usuario',p_usuario));
  return e;
 end $$;
+create function public.itop_classificar_sondagem(p_id uuid,p_versao integer,p_teste boolean) returns jsonb language plpgsql security definer set search_path='' as $$
+declare s public.itop_sondagens; anterior boolean;
+begin
+ if p_teste is null or p_versao is null then raise exception 'CLASSIFICACAO_INVALIDA'; end if;
+ select * into s from public.itop_sondagens where id=p_id and excluida_at is null for update;
+ if not found or not itop_private.pode_equipe(s.equipe_id) then raise exception 'ACESSO_NEGADO'; end if;
+ if s.versao<>p_versao then raise exception 'CONFLITO_VERSAO' using errcode='40001'; end if;
+ anterior:=s.teste;
+ update public.itop_sondagens set teste=p_teste,versao=versao+1,updated_at=now() where id=p_id returning * into s;
+ insert into public.itop_sondagem_auditoria(sondagem_id,ator,acao,detalhes) values(p_id,auth.uid(),'classificar_teste',jsonb_build_object('antes',anterior,'teste',p_teste,'versao',s.versao));
+ return jsonb_build_object('id',s.id,'versao',s.versao,'teste',s.teste);
+end $$;
 create function public.itop_excluir_sondagem(p_id uuid,p_versao integer) returns void language plpgsql security definer set search_path='' as $$
 declare s public.itop_sondagens;
 begin
@@ -212,6 +231,6 @@ begin
  return jsonb_build_object('removidos',n);
 end $$;
 -- Revoga execução implícita para TODOS: somente authenticated pode chamar a API nova.
-revoke all on function public.itop_comercial_contexto(),public.itop_salvar_sondagem(uuid,integer,uuid,text,jsonb,jsonb,jsonb,numeric,text,text),public.itop_sondagens_filtradas(jsonb),public.itop_listar_sondagens(jsonb,jsonb,integer),public.itop_indicadores(jsonb),public.itop_gerir_equipe(text,text,uuid,uuid),public.itop_excluir_sondagem(uuid,integer),public.itop_aplicar_retencao() from public,anon;
-grant execute on function public.itop_comercial_contexto(),public.itop_salvar_sondagem(uuid,integer,uuid,text,jsonb,jsonb,jsonb,numeric,text,text),public.itop_sondagens_filtradas(jsonb),public.itop_listar_sondagens(jsonb,jsonb,integer),public.itop_indicadores(jsonb),public.itop_gerir_equipe(text,text,uuid,uuid),public.itop_excluir_sondagem(uuid,integer),public.itop_aplicar_retencao() to authenticated;
+revoke all on function public.itop_comercial_contexto(),public.itop_salvar_sondagem(uuid,integer,uuid,text,jsonb,jsonb,jsonb,numeric,text,text,boolean),public.itop_sondagens_filtradas(jsonb),public.itop_listar_sondagens(jsonb,jsonb,integer),public.itop_indicadores(jsonb),public.itop_gerir_equipe(text,text,uuid,uuid),public.itop_classificar_sondagem(uuid,integer,boolean),public.itop_excluir_sondagem(uuid,integer),public.itop_aplicar_retencao() from public,anon;
+grant execute on function public.itop_comercial_contexto(),public.itop_salvar_sondagem(uuid,integer,uuid,text,jsonb,jsonb,jsonb,numeric,text,text,boolean),public.itop_sondagens_filtradas(jsonb),public.itop_listar_sondagens(jsonb,jsonb,integer),public.itop_indicadores(jsonb),public.itop_gerir_equipe(text,text,uuid,uuid),public.itop_classificar_sondagem(uuid,integer,boolean),public.itop_excluir_sondagem(uuid,integer),public.itop_aplicar_retencao() to authenticated;
 commit;

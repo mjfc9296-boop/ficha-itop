@@ -12,6 +12,16 @@ Base: `mjfc9296-boop/ficha-itop`, commit `31cd46e2d84312955a4d75a18763ffdce19503
 - PDF e Excel dos registros autorizados; até 5.000 registros por exportação, com orientação para reduzir filtros acima disso. O Excel grava textos literais, sem interpretar nomes de clientes como fórmulas.
 - Quatro capas geradas para Globoplay, Disney+, HBO e Deezer, usadas no atributo `poster` dos oito players existentes (UVI e rodapé comum). Os vídeos continuam com seus controles.
 
+## Modo teste — não compõe o resultado comercial
+
+Na Sondagem, a opção **TESTE — não entra nos resultados comerciais** identifica simulações e treinamentos. A preferência é lembrada para novas sondagens na mesma sessão do usuário, até desmarcar. Não se excluem automaticamente todas as negociações do administrador: uma negociação real feita por ele continua válida quando o modo teste está desmarcado.
+
+A marcação é um campo booleano no banco. Indicadores e relatórios normais excluem testes no servidor, inclusive testes que simulam vendas confirmadas. Há uma visão separada **Somente testes**, com identificação explícita nas planilhas e PDFs; não há modo de indicadores que some testes e produção. A recuperação pessoal pode carregar ambos os tipos, claramente identificados.
+
+O vendedor pode classificar seu rascunho. Depois da apresentação, a mudança exige administrador ou supervisor autorizado. A gestão pode corrigir a classificação pelo painel, com controle de versão e auditoria. Registros de teste ainda ocupam espaço de banco; ficar fora dos indicadores não os elimina.
+
+Esta regra só ficará operacional quando a migração for aplicada e a integração ativada. O código publicado continua com a sincronização desabilitada, pois o projeto Supabase não está conectado nesta sessão.
+
 ## Arquivos e como revisar
 
 - `PREVIA_GESTAO_E_CAPAS.html`: demonstração independente, com dados fictícios. Abra no navegador. Não consulta nem grava no Supabase e não modifica o GitHub. Os filtros dessa prévia não consultam dados reais; mostram a interface de revisão.

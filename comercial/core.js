@@ -28,6 +28,6 @@
   get unsaved(){return !!this.pending||this.dirty>this.saved;}
  }
  const money=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
- const rowsForExport=(items,names={})=>items.map(s=>({Proposta:s.id,Data:new Date(s.created_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}),Vendedor:names[s.vendedor_id]||s.vendedor_id,Situacao:s.status,Cliente:s.dados?.campos?.nome||'',Produtos:(s.escolhidos||[]).map(p=>`${p.q} × ${p.name}`).join('; '),Bruto:Number(s.bruto),Desconto:Number(s.desconto),Total:Number(s.total),Resultado:s.resultado||'',Confirmacao:s.confirmacao_ref||''}));
+ const rowsForExport=(items,names={})=>items.map(s=>({Proposta:s.id,Data:new Date(s.created_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}),Vendedor:names[s.vendedor_id]||s.vendedor_id,Situacao:s.status,Tipo:s.teste?'TESTE':'NEGOCIAÇÃO REAL',Cliente:s.dados?.campos?.nome||'',Produtos:(s.escolhidos||[]).map(p=>`${p.q} × ${p.name}`).join('; '),Bruto:Number(s.bruto),Desconto:Number(s.desconto),Total:Number(s.total),Resultado:s.resultado||'',Confirmacao:s.confirmacao_ref||''}));
  return {DraftSync,money,rowsForExport};
 });
