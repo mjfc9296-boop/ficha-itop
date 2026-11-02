@@ -38,3 +38,33 @@ html body #sondagem .summary-saving>.tile *,html body #pacote .before-after>div 
  .itop-work-rail.itop-links-rail{grid-column:3;grid-row:1}
 }
 .itop-links-rail[hidden]{display:none!important}
+
+/* Indicação inteligente: superfície clara, uma hierarquia de valores e avisos agrupados. */
+html body #sondagem #recommend{background:#fff!important;background-image:none!important;border:1px solid #dfe3e8!important;border-radius:12px!important;padding:18px!important;color:#18202b!important;line-height:1.5!important}
+html body #sondagem #recommend *{color:#18202b!important;-webkit-text-fill-color:#18202b!important;text-shadow:none!important}
+html body #sondagem #recommend .proposal-clean-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:16px;border-bottom:1px solid #e8eaed;margin-bottom:4px}
+html body #sondagem #recommend h3{margin:0!important;font-size:16px!important}
+html body #sondagem #recommend .proposal-clean-header p{font-size:12px;margin:5px 0 0;color:#657080!important;-webkit-text-fill-color:#657080!important;max-width:370px}
+html body #sondagem #recommend .proposal-clean-total{text-align:right;flex-shrink:0}
+html body #sondagem #recommend .proposal-clean-total>span{display:block;font-size:11px;color:#657080!important;-webkit-text-fill-color:#657080!important}
+html body #sondagem #recommend .proposal-clean-total strong{font-size:23px;white-space:nowrap;display:block}
+html body #sondagem #recommend .proposal-clean-total small{font-size:11px;font-weight:400;margin-left:3px}
+html body #sondagem #recommend .proposal-row{display:grid!important;grid-template-columns:125px minmax(0,1fr) 85px!important;gap:12px!important;padding:12px 0!important;border-bottom:1px solid #eef0f2!important;align-items:center!important;background:transparent!important}
+html body #sondagem #recommend .proposal-row label{text-align:left!important;text-transform:none!important;font-size:12px!important}
+html body #sondagem #recommend .mapped-phone{display:inline-block;font-size:10px!important;font-weight:400;color:#657080!important;-webkit-text-fill-color:#657080!important;margin-top:3px}
+html body #sondagem #recommend .proposal-row select{background:#f8fafc!important;border:1px solid #cbd2da!important;box-shadow:none!important;border-radius:8px!important;height:40px!important;font-size:12px!important;text-align:left!important;text-transform:none!important}
+html body #sondagem #recommend .proposal-row select:focus{outline:2px solid #D27A2F!important;outline-offset:2px}
+html body #sondagem #recommend .proposal-row output{text-align:right!important;font-size:13px!important;font-weight:750!important;white-space:nowrap}
+html body #sondagem #recommend .proposal-clean-notes{margin-top:14px;border:0!important;background:#fff8f1!important;border-radius:8px;padding:0!important}
+html body #sondagem #recommend .proposal-clean-notes summary{padding:10px 12px;cursor:pointer;font-size:12px;font-weight:650;list-style-position:inside}
+html body #sondagem #recommend .proposal-clean-notes summary span{display:inline-grid;place-items:center;width:21px;height:21px;border-radius:50%;background:#f5dfcb;margin-left:6px}
+html body #sondagem #recommend .proposal-clean-notes ul{margin:0;padding:0 16px 12px 30px;font-size:12px;line-height:1.65}
+html body #sondagem #recommend>.hint{font-size:10px!important;color:#657080!important;-webkit-text-fill-color:#657080!important;margin:12px 0 0!important}
+html body #sondagem #recommend .promotion-summary{background:#f8fafc!important;background-image:none!important;border:1px solid #e2e7ed!important;border-radius:8px;padding:12px!important;font-size:11px!important;margin-top:14px}
+@media(max-width:600px){
+ html body #sondagem #recommend{padding:13px!important}
+ html body #sondagem #recommend .proposal-clean-header{flex-direction:column;gap:10px}
+ html body #sondagem #recommend .proposal-clean-total{text-align:left}
+ html body #sondagem #recommend .proposal-row{grid-template-columns:minmax(0,1fr) 85px!important;gap:7px!important}
+ html body #sondagem #recommend .proposal-row label{grid-column:1/-1!important}
+}
