@@ -1,110 +1,63 @@
-# ITOP — Gestão Comercial e capas de vídeos
+# ITOP — Gestão Comercial
 
-**Situação: Supabase conectado e arquitetura real inspecionada. Nova migração preparada e testada localmente; aplicação em produção bloqueada pela revisão automática até aprovação específica do proprietário. Nenhuma tabela da Gestão Comercial foi criada.**
-Base: `mjfc9296-boop/ficha-itop`, commit `31cd46e2d84312955a4d75a18763ffdce19503ff`.
+Integração ativada no projeto **ITOP SONDAGEM**, com autorização do proprietário. Hospedagem mantida no GitHub Pages e plano Supabase Free preservado. Sem contratação de serviços pagos.
 
-## O que está preparado
+## Uso
 
-- 13ª aba Gestão Comercial, com identidade preta/laranja `#d27a2f`, responsiva e reservada à gestão.
-- Registro comercial na Sondagem: rascunho automático, proposta apresentada, finalização, resultado, desconto registrado, identificação UUID e recuperação da versão salva.
-- Vendedores: seus próprios registros. Supervisores: equipes explicitamente atribuídas. Administradores: visão geral e gestão de vínculos integrada à aba 12. A tabela `perfis` e o Supabase Auth existentes são reutilizados.
-- Indicadores agregados no banco, filtros por vendedor/supervisor/equipe/período/produto/situação, rankings e evolução diária/semanal/mensal.
-- PDF e Excel dos registros autorizados; até 5.000 registros por exportação, com orientação para reduzir filtros acima disso. O Excel grava textos literais, sem interpretar nomes de clientes como fórmulas.
-- Quatro capas geradas para Globoplay, Disney+, HBO e Deezer, usadas no atributo `poster` dos oito players existentes (UVI e rodapé comum). Os vídeos continuam com seus controles.
+Na aba Sondagem, o bloco Registro comercial permite salvar rascunho, registrar a proposta apresentada, finalizar e recuperar a última versão sincronizada. O modo **TESTE** identifica simulações: ficam fora dos indicadores e relatórios de negociações reais. A preferência permanece nas novas sondagens da mesma sessão, até desmarcar.
 
-## Modo teste — não compõe o resultado comercial
+A aba **13 — Gestão Comercial** aparece para administradores e supervisores aprovados. Vendedores continuam registrando e recuperando suas próprias sondagens na aba 1. Administradores consultam todas as equipes; supervisores apenas as atribuídas. A base de usuários e o login da aba 12 continuam sendo os existentes.
 
-Na Sondagem, a opção **TESTE — não entra nos resultados comerciais** identifica simulações e treinamentos. A preferência é lembrada para novas sondagens na mesma sessão do usuário, até desmarcar. Não se excluem automaticamente todas as negociações do administrador: uma negociação real feita por ele continua válida quando o modo teste está desmarcado.
+O cadastro novo consulta a disponibilidade do nome antes do envio. Um índice no banco impede solicitações simultâneas com o mesmo nome completo normalizado, ignorando acentos, caixa, espaços e pontuação. E-mails já são únicos no Auth. Pessoas distintas com o mesmo nome completo precisam de conferência administrativa antes de novo cadastro. Nenhuma senha foi lida, exportada ou alterada.
 
-A marcação é um campo booleano no banco. Indicadores e relatórios normais excluem testes no servidor, inclusive testes que simulam vendas confirmadas. Há uma visão separada **Somente testes**, com identificação explícita nas planilhas e PDFs; não há modo de indicadores que some testes e produção. A recuperação pessoal pode carregar ambos os tipos, claramente identificados.
+## Equipes
 
-O vendedor pode classificar seu rascunho. Depois da apresentação, a mudança exige administrador ou supervisor autorizado. A gestão pode corrigir a classificação pelo painel, com controle de versão e auditoria. Registros de teste ainda ocupam espaço de banco; ficar fora dos indicadores não os elimina.
+As equipes iniciais foram geradas a partir dos supervisores aprovados e dos vínculos de `perfis.supervisor_id`. Novas aprovações passam a gerar os vínculos comerciais automaticamente. O administrador pode criar equipes e gerenciar seus membros e supervisores na aba 12. A equipe histórica de cada sondagem não muda automaticamente quando o vendedor troca de equipe.
 
-Esta regra só ficará operacional quando a migração for aplicada e a integração ativada. O código publicado continua com a sincronização desabilitada, pois o projeto Supabase não está conectado nesta sessão.
+## Gravação e falhas
 
-## Arquivos e como revisar
+- Primeira gravação automática após aproximadamente 5 segundos; próximas com intervalo mínimo de 30 segundos, somente quando há alterações. Os botões explícitos podem salvar antes desse intervalo.
+- UUID por sondagem e operação, uma gravação por vez, repetição idempotente e controle de versão. Conflitos não sobrescrevem silenciosamente outro usuário ou outra aba.
+- Dados de cliente não são guardados no armazenamento local do navegador. A sessão guarda apenas identificação recente e preferência de teste; a autenticação segue o mecanismo Supabase já existente.
+- Sem conexão, alterações ficam em memória nesta aba e há novas tentativas com intervalo crescente. Fechar a página ou confirmar saída antes de sincronizar pode perder o que ainda não foi enviado. Recuperar carrega a última versão confirmada pelo servidor.
+- A lista pessoal contém até 100 registros dos últimos 90 dias. A gestão tem paginação por cursor de 50 registros.
 
-- `PREVIA_GESTAO_E_CAPAS.html`: demonstração independente, com dados fictícios. Abra no navegador. Não consulta nem grava no Supabase e não modifica o GitHub. Os filtros dessa prévia não consultam dados reais; mostram a interface de revisão.
-- `staging/index.html`, `staging/comercial/` e `staging/capas-videos/`: arquivos alterados/novos para aplicação sobre a cópia do repositório base. O ZIP de revisão é uma atualização, não um repositório completo. Os demais arquivos são mantidos.
-- `sql/000_preflight_somente_leitura.sql`: consultas para inspeção do banco real.
-- `sql/001_gestao_comercial.sql`: migração transacional inicial; executar **somente depois do preflight e da autorização**. Não a executar novamente sobre objetos já existentes.
-- `tests/`: testes e seus resultados, além de roteiro de carga em homologação.
-- A cópia integral anterior está em `FICHA_ITOP_ANTES_GESTAO_31cd46e.zip`, entregue separadamente. O hash do índice consta em `backup/REVISAO.json`.
+## Indicadores e relatórios
 
-## Arquitetura e segurança
+Sondagem inclui rascunho. Proposta apresentada não é venda. Finalizada encerra a negociação sem presumir venda. Venda confirmada exige ação de gestor autorizado e referência de contrato/pedido, com registro de quem confirmou.
 
-A hospedagem continua no GitHub Pages. O navegador chama o mesmo cliente Supabase autenticado do login atual; não cria outra base de usuários. As novas tabelas guardam sondagens, equipes, membros, supervisores e auditoria. Chaves administrativas e senhas não foram adicionadas.
+Conversão = vendas confirmadas ÷ propostas apresentadas no conjunto filtrado. Ticket médio usa apenas vendas confirmadas. Receita é soma das mensalidades contratadas, não recebimento financeiro.
 
-As políticas RLS protegem consultas diretas. O navegador não recebe permissão de escrita nas tabelas; as gravações passam por funções com validação do usuário ativo/aprovado, equipe, conteúdo, valores e versão. Atribuições de equipe só podem ser feitas por administradores. Não são usadas declarações de perfil vindas de `user_metadata` para autorizar acesso.
+O período e a evolução diária/semanal/mensal usam a criação da sondagem no horário de Brasília. São indicadores de coorte, não de data de pagamento ou confirmação. Filtros: vendedor, supervisor, equipe, período, produto e situação. A visão Só testes é separada; não há indicador que misture testes com negociações reais.
 
-Cada sondagem mantém o vendedor e a equipe de origem, definidos pelo servidor. A mudança futura de equipe do vendedor não transfere automaticamente o histórico. Um vendedor pode continuar vendo seu histórico; o supervisor acessa os registros pertencentes às equipes que lhe foram autorizadas. Dados de vendedor sem equipe não ficam visíveis a supervisores até uma decisão de atribuição histórica aprovada.
+PDF e Excel respeitam a mesma autorização do banco. Período máximo de 366 dias e exportação de até 5.000 registros por vez. O Excel grava nomes e observações como texto literal, inclusive se começarem com `=`. Exportações paginadas não são uma fotografia transacional: alterações durante a extração podem aparecer em versões diferentes.
 
-A aprovação e o bloqueio de contas continuam nas rotinas atuais da aba 12. **Pré-requisito bloqueante:** conferir no banco real que vendedores não podem alterar o próprio papel, aprovação ou estado ativo. Os testes locais usam uma base de perfis de teste protegida; não atestam as políticas atuais da produção.
+O desconto do registro comercial reduz o total dos novos relatórios. Ele não modifica o catálogo nem os PDFs antigos das abas 1–4; o campo informa essa diferença. Os recursos antigos foram preservados.
 
-## Salvamento, conflitos e falhas
+## Banco e segurança
 
-- Primeira gravação após aproximadamente 5 segundos de alteração, somente quando houver dados relevantes.
-- Gravações automáticas seguintes: intervalo mínimo de 30 segundos, mesmo durante digitação contínua. Botões explícitos podem salvar antes desse intervalo.
-- Uma gravação por vez, UUID estável e identificador de operação repetido nas tentativas após falhas de rede. O banco usa controle de versão e bloqueio por sondagem.
-- Em conflito com outra aba/usuário, a sincronização para e solicita reabertura; não há sobrescrita silenciosa.
-- Durante falta de conexão, alterações ficam em memória nesta aba. Há aviso ao tentar sair e novas tentativas com intervalo crescente. **Fechar o navegador antes da sincronização pode perder as alterações ainda não enviadas.** A recuperação carrega a última versão confirmada pelo servidor.
-- Não se guarda o conteúdo dos clientes em `localStorage` ou `sessionStorage`. A sessão guarda apenas a identificação da proposta recente; tokens seguem o mecanismo já existente do Supabase Auth.
-- A lista pessoal mostra até 100 registros dos últimos 90 dias. A gestão tem paginação por cursor em lotes de 50. Recuperação mais antiga pela gestão depende do perfil autorizado.
+Migrações aplicadas:
 
-## O que cada indicador significa
+- `supabase/migrations/20261102170043_gestao_comercial_e_cadastros_unicos.sql`
+- `supabase/migrations/20261102170858_indices_apoio_gestao_comercial.sql`
 
-Sondagem é qualquer registro, incluindo rascunho. Proposta apresentada exige cliente e produtos, e marca a primeira apresentação. Finalizada é uma proposta encerrada, sem inferir venda. Venda confirmada exige ação de administrador ou supervisor autorizado, referência de contrato/pedido e grava quem confirmou.
+São reutilizados Supabase Auth e `public.perfis`. As novas tabelas de equipes, membros, supervisores, sondagens e auditoria têm RLS. Gravações são feitas por funções que validam usuário aprovado, responsável, equipe, conteúdo e versão. As implementações privilegiadas ficam em `itop_private`; os endpoints públicos novos são invoker. Chaves administrativas não foram colocadas no site.
 
-Conversão = quantidade de vendas confirmadas / quantidade de propostas apresentadas no conjunto filtrado. Ticket médio = média dos totais mensais das vendas confirmadas. Receita = soma das mensalidades contratadas, e não faturamento recebido. Período e evolução usam a data de criação da sondagem no horário de Brasília: são indicadores de coorte, não a data de pagamento ou de confirmação.
+A tabela privada de operações tem RLS sem políticas de acesso direto por desenho: somente as funções internas autorizadas a acessam. Os índices de confirmado_por e supervisor_id foram incluídos após a revisão de desempenho. Índices novos sem uso ainda são esperados antes do início das operações.
 
-Produtos oferecidos vêm da indicação apresentada; planos escolhidos vêm da composição selecionada. Quantidades e valores são armazenados na versão salva. O desconto informado reduz o total registrado nos novos relatórios. **Não altera o catálogo nem a geração dos PDFs antigos das abas 1–4**; a interface explicita essa diferença. Unificar o desconto nesses documentos deve ser decidido e validado antes de usar o campo em uma operação que dependa desses PDFs como proposta final.
+Funções antigas de gestão de usuários mantêm suas verificações e permissões. A listagem pública de supervisores continua necessária para o cadastro e retorna apenas nome e ID de supervisores aprovados. A proteção de senhas vazadas continua como estava no Auth; nenhum upgrade foi contratado. Orientações:
 
-A lista e os relatórios respeitam a mesma RLS. A exportação é paginada e não constitui uma fotografia transacional: alterações durante a extração podem aparecer em versões diferentes. Para fechamento contábil, será necessário um mecanismo de relatório congelado.
+- https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable
+- https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
 
-## Retenção proposta — depende de aprovação
+## Retenção e capacidade
 
-A migração inclui uma função administrativa, **não agendada**, que pode remover rascunhos sem atualização há 90 dias, registros encerrados há 365 dias e exclusões lógicas após 30 dias. Auditoria sem conteúdo de cliente: 365 dias. Identificadores operacionais de repetição: 2 dias. Propostas ainda em andamento não são apagadas por essa regra; devem ser monitoradas e encerradas ou excluídas pela gestão.
+Não foi agendada exclusão automática. A função administrativa de retenção prevê rascunhos sem atualização há 90 dias, registros encerrados há 365 dias, exclusões lógicas após 30 dias, auditoria sem conteúdo por 365 dias e operações por 2 dias. Esses são prazos operacionais propostos, não prazos jurídicos obrigatórios. Não executar limpeza sem definição do responsável da ITOP e política de backup.
 
-Esses prazos são uma proposta operacional, não uma definição jurídica de prazo obrigatório. O responsável da ITOP deve aprová-los, inclusive exceções e a relação com contratos, antes de agendar qualquer limpeza. Backups do banco e sua exclusão devem ter prazo próprio. Nenhuma limpeza foi executada. Não inclua CPF, dados de saúde ou informações desnecessárias nas observações.
+O plano Free tem recursos compartilhados e limites de banco/tráfego; usuários mensais não garantem simultaneidade. A gravação a cada 30 segundos limita o volume, mas não representa garantia de capacidade. Houve 31 casos locais de banco e 23 verificações no Supabase real, com dados fictícios revertidos e zero registros de teste remanescentes. A simulação local de 50/100 requisições não é medição de vendedores reais. A tentativa de carga administrativa SQL simultânea não concluiu pela integração e não fundamenta promessa de 50/100 usuários. O roteiro `carga-homologacao.js` exige contas fictícias distintas e projeto de teste autorizado, e não foi executado contra produção.
 
-## Plano gratuito e desempenho
-
-Fontes verificadas em 02/11/2026:
-- https://supabase.com/pricing
-- https://supabase.com/docs/guides/platform/billing-on-supabase
-- https://supabase.com/docs/guides/database/postgres/row-level-security
-
-O Free informa 500 MB de banco, CPU compartilhada com 500 MB de RAM, 5 GB de saída não cacheada, 5 GB de saída cacheada, 1 GB de arquivos e 50.000 usuários ativos mensais. Projetos gratuitos podem pausar após uma semana sem atividade. A franquia de usuários mensais **não é garantia de usuários simultâneos**. O Free não inclui backup automático de banco como o Pro.
-
-Vídeos e capas continuam como arquivos do site; não são transferidos para Supabase Storage. Não foi contratado serviço pago.
-
-Com todos os usuários alterando continuamente, 50 vendedores podem gerar aproximadamente 1,67 gravação/s; 100, cerca de 3,33 gravações/s, sem contar ações manuais e relatórios. Em 8 horas, 100 vendedores poderiam gerar até 96.000 atualizações: auditoria registra a criação e mudanças relevantes de situação/desconto, mas a tabela de idempotência também ocupa espaço. A limpeza operacional e o monitoramento precisam ser habilitados e aprovados antes do uso sustentado.
-
-O número de sondagens suportado depende do tamanho médio real, índices, versões antigas do PostgreSQL, auditoria e operações. Monitorar tamanho do banco, tráfego, latência p95, erros e uso de disco. Propor revisão ao atingir 60% e agir antes de 80% da franquia; não prometer capacidade ilimitada.
-
-Não há assinatura Realtime por vendedor nem atualização de dashboard em loop. Indicadores agregam no servidor; relatórios exigem filtros e limitam o período a 366 dias, e consultas de produtos sobre JSON ainda precisam de medição com volume real. Uma tabela de itens normalizados ou agregações incrementais poderá ser necessária na expansão.
-
-## O que depende da sua autorização e conexão
-
-1. Instalar/conectar a integração Supabase e selecionar o projeto correto; não enviar senha nem chave secreta por mensagem.
-2. Autorizar inspeção somente leitura de esquema, políticas, funções, métricas e uso atual.
-3. Definir projeto gratuito de homologação disponível. O limite de dois projetos pode impedir criar outro; não usar branching pago sem aprovação.
-4. Aprovar a migração em homologação e definir contas fictícias, equipes e supervisores.
-5. Validar políticas existentes de `perfis` e URLs de login/recuperação; não alterar a autenticação atual sem revisão.
-6. Executar testes de múltiplas contas, carga real 50/100 e testes visuais/PDF/celular na homologação.
-7. Aprovar retenção, rotina de limpeza, backup do banco, atribuição inicial das equipes e significado comercial do desconto.
-8. Somente após os testes e **aprovação expressa**, aplicar a migração em produção, ativar `enabled:true` em `comercial/config.js` e publicar os arquivos. Hoje o valor é `false`.
+Ainda é necessário medir o uso real de navegador, latência p95, erros, tamanho de banco e tráfego antes de ampliar a operação para 50/100 usuários. Não há atualização de dashboard em loop nem assinatura Realtime por vendedor. O limite por período e os relatórios agregados reduzem consultas e transferência de dados.
 
 ## Reversão
 
-Manter o commit-base e o ZIP de backup. Se houver problema, desativar a integração e restaurar os arquivos do site anterior mediante autorização. Não apagar tabelas de sondagens como forma de reversão: isso destruiria registros novos. Exportar/proteger os dados antes de qualquer decisão de remoção. Nada foi alterado nas políticas antigas ou nos usuários reais.
-
-## Inspeção real de 02/11/2026
-
-Projeto `ITOP SONDAGEM` (`tzvwrcxcubiacvlisvhf`), PostgreSQL 17.11, plano Free e aproximadamente 11 MB. Antes da migração só há a tabela pública `perfis`, com RLS ativa e consulta apenas do próprio perfil. Vendedores não têm permissão direta de alteração de perfil. As funções antigas de aprovação/bloqueio validam aprovador ativo, aprovação e vínculo do supervisor.
-
-A conta duplicada indicada pelo proprietário foi excluída. A conta comercial e sua vendedora vinculada foram preservadas. Nenhuma senha ou chave administrativa foi lida ou alterada.
-
-A nova migração mantém os logins e senhas, cria as tabelas comerciais, implementa as funções privilegiadas em schema privado e usa wrappers invoker no schema público. Novas aprovações são integradas às equipes pelo supervisor já cadastrado. Cadastros pendentes/aprovados terão unicidade de nome completo normalizado (sem diferenças de acentos, caixa, espaços e pontuação). Pessoas distintas com o mesmo nome completo precisarão de conferência administrativa antes de novo cadastro. A tela verificará disponibilidade antes de enviar a solicitação; o índice único protege contra envios simultâneos.
-
-Não há criação de projeto, branch paga, cobrança ou alteração da hospedagem. A retenção continua sem agendamento automático; seus prazos ainda dependem de decisão do controlador. A migração foi submetida uma vez e rejeitada por revisão automática, que exigiu aprovação específica para as alterações de produção. Nenhum contorno desse bloqueio foi utilizado.
+Os arquivos anteriores e o estado inicial de perfis/permissões foram preservados em backup. Para desativar a captura, alterar `comercial/config.js` para `enabled:false` e publicar. Não apagar tabelas como reversão: podem conter novas sondagens. Proteger/exportar os dados antes de qualquer remoção de estrutura.
