@@ -28,3 +28,13 @@ html body #itop-survey-record[hidden]{display:none!important}
 html body main nav.nav-tabs button.nav-tab[data-module].active{outline:none!important}html body main nav.nav-tabs button.nav-tab[data-module]:focus-visible{outline:3px solid #00134C!important;outline-offset:2px!important}
 html body #sondagem .summary-saving>.tile,html body #pacote .before-after>div,html body #pacote .compact-saving,html body #pacote .energy-impact,html body #energia .energy-package-strip,html body #energia #energyPackageResult .package-impact-line>div,html body #pacote #energyImpact .package-impact-line>div{background:#fff!important;background-image:none!important;border:1px solid #D27A2F!important;color:#111!important}
 html body #sondagem .summary-saving>.tile *,html body #pacote .before-after>div *,html body #pacote .compact-saving *,html body #pacote .energy-impact *,html body #energia .energy-package-strip *{color:#111!important;-webkit-text-fill-color:#111!important;text-shadow:none!important}
+
+/* Desktop: módulos à esquerda, formulário central e links à direita.
+   Em telas móveis, os dois menus continuam no mesmo agrupamento. */
+@media screen and (min-width:901px){
+ html body main{max-width:1800px!important;grid-template-columns:clamp(150px,16vw,244px) minmax(0,1fr) clamp(150px,16vw,244px)!important;gap:16px!important}
+ .itop-work-rail{grid-column:1;grid-row:1}
+ .itop-work-content{grid-column:2;grid-row:1;width:100%;justify-self:center}
+ .itop-work-rail.itop-links-rail{grid-column:3;grid-row:1}
+}
+.itop-links-rail[hidden]{display:none!important}
