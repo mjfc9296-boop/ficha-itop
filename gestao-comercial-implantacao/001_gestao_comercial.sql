@@ -5,6 +5,7 @@ create schema if not exists itop_private;
 revoke all on schema itop_private from public;
 create table public.itop_equipes (
  id uuid primary key default gen_random_uuid(), nome text not null check(length(nome) between 2 and 80),
+ supervisor_origem uuid unique references auth.users(id) on delete set null,
  ativo boolean not null default true, created_at timestamptz not null default now()
 );
 create table public.itop_equipe_membros (
@@ -49,6 +50,7 @@ create index on public.itop_sondagem_auditoria(sondagem_id,created_at desc);
 create table itop_private.operacoes (
  id uuid primary key, ator uuid not null, sondagem_id uuid not null, resposta jsonb not null, created_at timestamptz not null default now()
 );
+alter table itop_private.operacoes enable row level security;
 create function itop_private.papel() returns text language sql stable security definer set search_path='' as $$
  select p.papel from public.perfis p where p.id=(select auth.uid()) and p.ativo and p.status_aprovacao='aprovado' and p.papel in('administrador','supervisor','vendedor')
 $$;
@@ -83,14 +85,14 @@ grant usage on schema itop_private to authenticated;
 revoke all on all functions in schema itop_private from public;
 grant execute on function itop_private.papel(),itop_private.eh_admin(),itop_private.pode_equipe(uuid),itop_private.pode_ler(uuid,uuid) to authenticated;
 
-create function public.itop_comercial_contexto() returns jsonb language plpgsql stable security definer set search_path='' as $$
+create function itop_private.itop_comercial_contexto() returns jsonb language plpgsql stable security definer set search_path='' as $$
 declare u uuid:=auth.uid(); papel text:=itop_private.papel();
 begin
  if papel is null then raise exception 'ACESSO_NEGADO'; end if;
  return jsonb_build_object('usuario_id',u,'papel',papel,'equipes',coalesce((select jsonb_agg(jsonb_build_object('id',e.id,'nome',e.nome)) from public.itop_equipes e where e.ativo and (itop_private.pode_equipe(e.id) or exists(select 1 from public.itop_equipe_membros m where m.equipe_id=e.id and m.usuario_id=u))),'[]'::jsonb),
  'pessoas',coalesce((select jsonb_agg(jsonb_build_object('id',p.id,'nome',p.nome,'papel',p.papel)) from public.perfis p where p.ativo and p.status_aprovacao='aprovado' and (itop_private.eh_admin() or p.id=u or exists(select 1 from public.itop_equipe_membros m where m.usuario_id=p.id and itop_private.pode_equipe(m.equipe_id)) or exists(select 1 from public.itop_equipe_supervisores es where es.supervisor_id=p.id and itop_private.pode_equipe(es.equipe_id)))),'[]'::jsonb));
 end $$;
-create function public.itop_salvar_sondagem(p_id uuid,p_versao integer,p_operacao uuid,p_status text,p_dados jsonb,p_oferecidos jsonb,p_escolhidos jsonb,p_desconto numeric default 0,p_resultado text default '',p_confirmacao text default null,p_teste boolean default null)
+create function itop_private.itop_salvar_sondagem(p_id uuid,p_versao integer,p_operacao uuid,p_status text,p_dados jsonb,p_oferecidos jsonb,p_escolhidos jsonb,p_desconto numeric default 0,p_resultado text default '',p_confirmacao text default null,p_teste boolean default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare u uuid:=auth.uid(); papel text:=itop_private.papel(); s public.itop_sondagens; e uuid; v_bruto numeric:=0; item jsonb; resposta jsonb; op itop_private.operacoes; estado_anterior text; desconto_anterior numeric; teste_anterior boolean;
 begin
@@ -179,7 +181,7 @@ create function public.itop_indicadores(p_filtros jsonb default '{}') returns js
  'diario',coalesce((select jsonb_agg(to_jsonb(dias) order by dia) from dias),'[]'::jsonb),'semanal',coalesce((select jsonb_agg(to_jsonb(semanas) order by semana) from semanas),'[]'::jsonb),'mensal',coalesce((select jsonb_agg(to_jsonb(meses) order by mes) from meses),'[]'::jsonb),
  'produtos',coalesce((select jsonb_agg(to_jsonb(p)) from(select * from produtos order by propostas desc limit 20)p),'[]'::jsonb),'planos',coalesce((select jsonb_agg(to_jsonb(p)) from(select * from planos order by quantidade desc limit 20)p),'[]'::jsonb))
 $$;
-create function public.itop_gerir_equipe(p_acao text,p_nome text default null,p_equipe uuid default null,p_usuario uuid default null) returns uuid language plpgsql security definer set search_path='' as $$
+create function itop_private.itop_gerir_equipe(p_acao text,p_nome text default null,p_equipe uuid default null,p_usuario uuid default null) returns uuid language plpgsql security definer set search_path='' as $$
 declare e uuid:=p_equipe;
 begin
  if not itop_private.eh_admin() then raise exception 'ACESSO_NEGADO'; end if;
@@ -195,7 +197,7 @@ begin
  insert into public.itop_sondagem_auditoria(ator,acao,detalhes)values(auth.uid(),'equipe:'||p_acao,jsonb_build_object('equipe',e,'usuario',p_usuario));
  return e;
 end $$;
-create function public.itop_classificar_sondagem(p_id uuid,p_versao integer,p_teste boolean) returns jsonb language plpgsql security definer set search_path='' as $$
+create function itop_private.itop_classificar_sondagem(p_id uuid,p_versao integer,p_teste boolean) returns jsonb language plpgsql security definer set search_path='' as $$
 declare s public.itop_sondagens; anterior boolean;
 begin
  if p_teste is null or p_versao is null then raise exception 'CLASSIFICACAO_INVALIDA'; end if;
@@ -207,7 +209,7 @@ begin
  insert into public.itop_sondagem_auditoria(sondagem_id,ator,acao,detalhes) values(p_id,auth.uid(),'classificar_teste',jsonb_build_object('antes',anterior,'teste',p_teste,'versao',s.versao));
  return jsonb_build_object('id',s.id,'versao',s.versao,'teste',s.teste);
 end $$;
-create function public.itop_excluir_sondagem(p_id uuid,p_versao integer) returns void language plpgsql security definer set search_path='' as $$
+create function itop_private.itop_excluir_sondagem(p_id uuid,p_versao integer) returns void language plpgsql security definer set search_path='' as $$
 declare s public.itop_sondagens;
 begin
  if not itop_private.eh_admin() then raise exception 'ACESSO_NEGADO'; end if;
@@ -219,7 +221,7 @@ begin
 end $$;
 -- Retenção proposta, NÃO agendada. Valores serão aprovados pelo controlador.
 -- Rascunhos: 90 dias; registros encerrados: 365 dias; auditoria sem conteúdo: 365 dias.
-create function public.itop_aplicar_retencao() returns jsonb language plpgsql security definer set search_path='' as $$
+create function itop_private.itop_aplicar_retencao() returns jsonb language plpgsql security definer set search_path='' as $$
 declare n integer;
 begin
  if not itop_private.eh_admin() then raise exception 'ACESSO_NEGADO'; end if;
@@ -230,7 +232,66 @@ begin
  insert into public.itop_sondagem_auditoria(ator,acao,detalhes)values(auth.uid(),'retencao',jsonb_build_object('registros_removidos',n));
  return jsonb_build_object('removidos',n);
 end $$;
+create function public.itop_comercial_contexto() returns jsonb language sql stable security invoker set search_path='' as $$ select itop_private.itop_comercial_contexto(); $$;
+create function public.itop_salvar_sondagem(p_id uuid,p_versao integer,p_operacao uuid,p_status text,p_dados jsonb,p_oferecidos jsonb,p_escolhidos jsonb,p_desconto numeric default 0,p_resultado text default '',p_confirmacao text default null,p_teste boolean default null) returns jsonb language sql security invoker set search_path='' as $$ select itop_private.itop_salvar_sondagem(p_id,p_versao,p_operacao,p_status,p_dados,p_oferecidos,p_escolhidos,p_desconto,p_resultado,p_confirmacao,p_teste); $$;
+create function public.itop_gerir_equipe(p_acao text,p_nome text default null,p_equipe uuid default null,p_usuario uuid default null) returns uuid language sql security invoker set search_path='' as $$ select itop_private.itop_gerir_equipe(p_acao,p_nome,p_equipe,p_usuario); $$;
+create function public.itop_classificar_sondagem(p_id uuid,p_versao integer,p_teste boolean) returns jsonb language sql security invoker set search_path='' as $$ select itop_private.itop_classificar_sondagem(p_id,p_versao,p_teste); $$;
+create function public.itop_excluir_sondagem(p_id uuid,p_versao integer) returns void language sql security invoker set search_path='' as $$ select itop_private.itop_excluir_sondagem(p_id,p_versao); $$;
+create function public.itop_aplicar_retencao() returns jsonb language sql security invoker set search_path='' as $$ select itop_private.itop_aplicar_retencao(); $$;
 -- Revoga execução implícita para TODOS: somente authenticated pode chamar a API nova.
 revoke all on function public.itop_comercial_contexto(),public.itop_salvar_sondagem(uuid,integer,uuid,text,jsonb,jsonb,jsonb,numeric,text,text,boolean),public.itop_sondagens_filtradas(jsonb),public.itop_listar_sondagens(jsonb,jsonb,integer),public.itop_indicadores(jsonb),public.itop_gerir_equipe(text,text,uuid,uuid),public.itop_classificar_sondagem(uuid,integer,boolean),public.itop_excluir_sondagem(uuid,integer),public.itop_aplicar_retencao() from public,anon;
 grant execute on function public.itop_comercial_contexto(),public.itop_salvar_sondagem(uuid,integer,uuid,text,jsonb,jsonb,jsonb,numeric,text,text,boolean),public.itop_sondagens_filtradas(jsonb),public.itop_listar_sondagens(jsonb,jsonb,integer),public.itop_indicadores(jsonb),public.itop_gerir_equipe(text,text,uuid,uuid),public.itop_classificar_sondagem(uuid,integer,boolean),public.itop_excluir_sondagem(uuid,integer),public.itop_aplicar_retencao() to authenticated;
+
+-- Funções privilegiadas fora do schema exposto; wrappers públicos são invoker.
+revoke all on function itop_private.itop_comercial_contexto(),itop_private.itop_salvar_sondagem(uuid,integer,uuid,text,jsonb,jsonb,jsonb,numeric,text,text,boolean),itop_private.itop_gerir_equipe(text,text,uuid,uuid),itop_private.itop_classificar_sondagem(uuid,integer,boolean),itop_private.itop_excluir_sondagem(uuid,integer),itop_private.itop_aplicar_retencao() from public,anon;
+grant execute on function itop_private.itop_comercial_contexto(),itop_private.itop_salvar_sondagem(uuid,integer,uuid,text,jsonb,jsonb,jsonb,numeric,text,text,boolean),itop_private.itop_gerir_equipe(text,text,uuid,uuid),itop_private.itop_classificar_sondagem(uuid,integer,boolean),itop_private.itop_excluir_sondagem(uuid,integer),itop_private.itop_aplicar_retencao() to authenticated;
+
+-- Vínculos iniciais e novas aprovações reaproveitam o supervisor já definido em perfis.
+create function itop_private.sincronizar_equipe_perfil() returns trigger language plpgsql security definer set search_path='' as $$
+declare equipe uuid; titulo text;
+begin
+ if new.ativo is distinct from true or new.status_aprovacao is distinct from 'aprovado' then return new; end if;
+ if new.papel='supervisor' then
+  titulo:='Equipe · '||left(coalesce(nullif(trim(new.nome),''),'Supervisor'),65);
+  insert into public.itop_equipes(nome,supervisor_origem) values(titulo,new.id) on conflict(supervisor_origem) do update set ativo=true returning id into equipe;
+  insert into public.itop_equipe_supervisores(equipe_id,supervisor_id) values(equipe,new.id) on conflict do nothing;
+ elsif new.papel='vendedor' and new.supervisor_id is not null then
+  select e.id into equipe from public.itop_equipes e join public.perfis p on p.id=e.supervisor_origem where e.supervisor_origem=new.supervisor_id and p.ativo and p.status_aprovacao='aprovado' and p.papel='supervisor';
+  if equipe is not null then
+   if tg_op='INSERT' then
+    insert into public.itop_equipe_membros(usuario_id,equipe_id) values(new.id,equipe) on conflict(usuario_id) do nothing;
+   elsif old.supervisor_id is distinct from new.supervisor_id then
+    insert into public.itop_equipe_membros(usuario_id,equipe_id) values(new.id,equipe) on conflict(usuario_id) do update set equipe_id=excluded.equipe_id;
+   else
+    insert into public.itop_equipe_membros(usuario_id,equipe_id) values(new.id,equipe) on conflict(usuario_id) do nothing;
+   end if;
+  end if;
+ end if;
+ return new;
+end $$;
+revoke all on function itop_private.sincronizar_equipe_perfil() from public,anon,authenticated;
+create trigger itop_vincular_equipe_apos_aprovacao after insert or update of papel,supervisor_id,ativo,status_aprovacao on public.perfis for each row execute function itop_private.sincronizar_equipe_perfil();
+insert into public.itop_equipes(nome,supervisor_origem)
+select 'Equipe · '||left(coalesce(nullif(trim(p.nome),''),'Supervisor'),65),p.id from public.perfis p where p.papel='supervisor' and p.ativo and p.status_aprovacao='aprovado';
+insert into public.itop_equipe_supervisores(equipe_id,supervisor_id) select id,supervisor_origem from public.itop_equipes where supervisor_origem is not null;
+insert into public.itop_equipe_membros(usuario_id,equipe_id) select p.id,e.id from public.perfis p join public.itop_equipes e on e.supervisor_origem=p.supervisor_id where p.papel='vendedor' and p.ativo and p.status_aprovacao='aprovado';
+
+-- Unicidade atômica de solicitação por nome completo normalizado. Emails já são únicos no Auth.
+create function itop_private.normalizar_nome(p_nome text) returns text language sql immutable strict set search_path='' as $$
+ select regexp_replace(translate(lower(trim(p_nome)),'áàâãäéèêëíìîïóòôõöúùûüçñ','aaaaaeeeeiiiiooooouuuucn'),'[[:space:][:punct:]]+','','g')
+$$;
+revoke all on function itop_private.normalizar_nome(text) from public,anon,authenticated;
+create unique index itop_perfis_cadastro_nome_unico on public.perfis(itop_private.normalizar_nome(nome)) where status_aprovacao in('pendente','aprovado') and coalesce(itop_private.normalizar_nome(nome),'')<>'';
+create function itop_private.nome_cadastro_disponivel(p_nome text) returns boolean language sql stable security definer set search_path='' as $$
+ select length(trim(p_nome)) between 3 and 100 and not exists(select 1 from public.perfis p where p.status_aprovacao in('pendente','aprovado') and itop_private.normalizar_nome(p.nome)=itop_private.normalizar_nome(p_nome))
+$$;
+revoke all on function itop_private.nome_cadastro_disponivel(text) from public;
+grant execute on function itop_private.nome_cadastro_disponivel(text) to anon,authenticated;
+grant usage on schema itop_private to anon;
+create function public.itop_nome_cadastro_disponivel(p_nome text) returns boolean language sql stable security invoker set search_path='' as $$ select itop_private.nome_cadastro_disponivel(p_nome); $$;
+revoke all on function public.itop_nome_cadastro_disponivel(text) from public;
+grant execute on function public.itop_nome_cadastro_disponivel(text) to anon,authenticated;
+revoke execute on function public.rls_auto_enable() from public,anon,authenticated;
+notify pgrst,'reload schema';
+
 commit;

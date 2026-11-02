@@ -1865,6 +1865,9 @@ $('itop-register-form').addEventListener('submit',async e=>{
  try{
   const metadata={nome:name,solicitado_papel:regRole};
   if(regRole==='vendedor')metadata.supervisor_id=supervisorId;
+  const disponibilidade=await client.rpc('itop_nome_cadastro_disponivel',{p_nome:name});
+  if(disponibilidade.error)throw Error('Não foi possível verificar o cadastro. Tente novamente.');
+  if(!disponibilidade.data){status('Já existe uma conta ou solicitação com este nome completo. Use Esqueci a senha ou peça ao administrador para conferir seu cadastro.');return;}
   const {data,error}=await client.auth.signUp({email,password,options:{data:metadata,emailRedirectTo:location.origin+location.pathname}});
   if(error)throw error;
   await client.auth.signOut();

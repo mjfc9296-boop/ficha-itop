@@ -1,6 +1,6 @@
 # ITOP — Gestão Comercial e capas de vídeos
 
-**Situação: publicação dos arquivos autorizada pelo proprietário. Gestão Comercial permanece desativada até configuração e homologação do Supabase; capas prontas para uso.**
+**Situação: Supabase conectado e arquitetura real inspecionada. Nova migração preparada e testada localmente; aplicação em produção bloqueada pela revisão automática até aprovação específica do proprietário. Nenhuma tabela da Gestão Comercial foi criada.**
 Base: `mjfc9296-boop/ficha-itop`, commit `31cd46e2d84312955a4d75a18763ffdce19503ff`.
 
 ## O que está preparado
@@ -98,3 +98,13 @@ Não há assinatura Realtime por vendedor nem atualização de dashboard em loop
 ## Reversão
 
 Manter o commit-base e o ZIP de backup. Se houver problema, desativar a integração e restaurar os arquivos do site anterior mediante autorização. Não apagar tabelas de sondagens como forma de reversão: isso destruiria registros novos. Exportar/proteger os dados antes de qualquer decisão de remoção. Nada foi alterado nas políticas antigas ou nos usuários reais.
+
+## Inspeção real de 02/11/2026
+
+Projeto `ITOP SONDAGEM` (`tzvwrcxcubiacvlisvhf`), PostgreSQL 17.11, plano Free e aproximadamente 11 MB. Antes da migração só há a tabela pública `perfis`, com RLS ativa e consulta apenas do próprio perfil. Vendedores não têm permissão direta de alteração de perfil. As funções antigas de aprovação/bloqueio validam aprovador ativo, aprovação e vínculo do supervisor.
+
+A conta duplicada indicada pelo proprietário foi excluída. A conta comercial e sua vendedora vinculada foram preservadas. Nenhuma senha ou chave administrativa foi lida ou alterada.
+
+A nova migração mantém os logins e senhas, cria as tabelas comerciais, implementa as funções privilegiadas em schema privado e usa wrappers invoker no schema público. Novas aprovações são integradas às equipes pelo supervisor já cadastrado. Cadastros pendentes/aprovados terão unicidade de nome completo normalizado (sem diferenças de acentos, caixa, espaços e pontuação). Pessoas distintas com o mesmo nome completo precisarão de conferência administrativa antes de novo cadastro. A tela verificará disponibilidade antes de enviar a solicitação; o índice único protege contra envios simultâneos.
+
+Não há criação de projeto, branch paga, cobrança ou alteração da hospedagem. A retenção continua sem agendamento automático; seus prazos ainda dependem de decisão do controlador. A migração foi submetida uma vez e rejeitada por revisão automática, que exigiu aprovação específica para as alterações de produção. Nenhum contorno desse bloqueio foi utilizado.
