@@ -1,14 +1,9 @@
-# Hierarquia comercial — aplicação pendente
+# Hierarquia comercial — aguardando autorização
 
-A revisão automática bloqueou a migração de produção. Este ramo contém a implementação pronta para revisão; não foi publicado nem aplicado ao banco.
+Este ramo não foi publicado e a migração hierarchy-commercial.sql não foi aplicada. A revisão automática bloqueou a mudança por ampliar permissões de produção e disponibilizar o catálogo mínimo de carteiras antes do login.
 
-- ADM 1 Mario Caputo; ADM 2 Bruno Gomes.
-- Gabriel Martinez: coordenador das equipes Paula e Renato.
-- Coordenador gerencia supervisores e vendedores vinculados; não remove administradores.
-- Supervisores gerenciam somente seus vendedores.
-- Cadastro público e botão + usam a mesma carteira; toda solicitação permanece pendente até aprovação autorizada.
-- Renato é uma carteira reservada, sem conta inventada. O cadastro de supervisor pode solicitar essa carteira.
-- Excluir encerra acesso e preserva histórico comercial.
-- Catálogo público mínimo contém apenas nomes e identificadores das carteiras e respectivos supervisores, necessário antes do login.
+Estrutura preparada: ADM 1 Mario Caputo; ADM 2 Bruno Gomes; coordenador Gabriel Martinez; supervisores Paula e Renato. Renato tem carteira reservada, sem conta inventada. O coordenador gerencia seus supervisores e vendedores; não remove administradores. Supervisores gerenciam apenas seus vendedores. O cadastro público e o botão + usam a mesma carteira, com acesso liberado somente após aprovação. Exclusão preserva autoria comercial e encerra o acesso.
 
-Validação: JavaScript verificado; prévia com dados de demonstração verificou cartões, formulário + e contador 2 → 1 → oculto. Permissões e migração ainda precisam ser verificadas no banco após autorização explícita. Não mesclar este ramo antes dessa etapa.
+O fluxo obrigatório 1–2–3, checklist e diagnóstico final dos vendedores já foi aplicado separadamente e está incluído neste ramo para preservar a atualização. Os três diagnósticos e os bloqueios foram testados no banco com transação revertida. O alerta vermelho de pendências também está na main.
+
+Validação da hierarquia: JavaScript e IDs verificados, cartões e formulário testados em prévia de demonstração. Permissões específicas da hierarquia ainda precisam ser verificadas após autorização e aplicação da migração. Não mesclar este ramo antes dessa etapa.

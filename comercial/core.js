@@ -16,7 +16,7 @@
    this.onState('salvando');
    this.inflight=(async()=>{
     try{const r=await this.send(pending.args);this.version=r.versao;this.status=r.status;this.saved=pending.revision;this.pending=null;this.lastSave=this.clock();this.locked=['finalizada','perdida','venda_confirmada'].includes(r.status);this.onState('salvo',r);}
-    catch(e){const validation=/INVALID|PREENCHA|INFORME|OBRIGATORIA|OBRIGATORIO|TRANSICAO|NAO_PERMITIDO/.test(e.message);if(validation)this.pending=null;this.onState(/CONFLITO_VERSAO/.test(e.message)?'conflito':validation?'validacao':'erro',e);if(/CONFLITO_VERSAO|ACESSO_NEGADO|REGISTRO_FINALIZADO/.test(e.message))this.enabled=false;throw e;}
+    catch(e){const validation=/INVALID|PREENCHA|INFORME|OBRIGATORIA|OBRIGATORIO|TRANSICAO|NAO_PERMITIDO|CONCLUA_|SIGA_AS_|UTILIZE_|CLIENTE_DA_|PROPOSTA_NAO_/.test(e.message);if(validation)this.pending=null;this.onState(/CONFLITO_VERSAO/.test(e.message)?'conflito':validation?'validacao':'erro',e);if(/CONFLITO_VERSAO|ACESSO_NEGADO|REGISTRO_FINALIZADO/.test(e.message))this.enabled=false;throw e;}
     finally{this.inflight=null;}
    })();
    await this.inflight;
