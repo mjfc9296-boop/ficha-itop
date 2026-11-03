@@ -63,7 +63,7 @@
     status.textContent='Criando cadastro…';
     // Cliente isolado: criar o vendedor nunca troca a sessão do gestor.
     const signup=window.supabase.createClient('https://tzvwrcxcubiacvlisvhf.supabase.co','sb_publishable_MLnii3Sz2W_lBfw-0eRKXg_slUZERBm',{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'itop-team-create-'+crypto.randomUUID()}});
-    const{data,error}=await signup.auth.signUp({email,password,options:{data:{nome:name,solicitado_papel:entry.role,equipe_id:entry.team.id},emailRedirectTo:location.origin+location.pathname}});
+    const{data,error}=await signup.auth.signUp({email,password,options:{data:{nome:name,solicitado_papel:entry.role,equipe_id:entry.team.id,telefone:$('itop-team-create-phone').value},emailRedirectTo:location.origin+location.pathname}});
     $('itop-team-create-password').value='';await signup.auth.signOut({scope:'local'});
     if(error)throw Error(error.message);if(!data.user?.id||data.user.identities?.length===0)throw Error('Confira se este e-mail já possui cadastro.');entry.userId=data.user.id;
    }
@@ -81,4 +81,5 @@
  $('itop-team-dialog').addEventListener('cancel',e=>{if(creating)e.preventDefault();else close();});$('itop-team-move-close').onclick=()=>$('itop-team-move-dialog').close();
  client=window.itopAuthClient;if(client)client.auth.getUser().then(async({data:{user}})=>{if(!user)return;const{data:p}=await client.from('perfis').select('papel,ativo,status_aprovacao').eq('id',user.id).maybeSingle();if(p?.ativo&&p.status_aprovacao==='aprovado'&&['administrador','coordenador','supervisor'].includes(p.papel)){$('itop-gestao-tab').hidden=false;load();}}).catch(()=>{});
 })();
+
 

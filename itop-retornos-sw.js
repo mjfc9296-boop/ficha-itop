@@ -1,0 +1,6 @@
+'use strict';
+self.addEventListener('install',()=>self.skipWaiting());
+self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
+self.addEventListener('push',event=>{let data={};try{data=event.data?.json()||{};}catch{}const base=new URL('./',self.registration.scope);let target=base.href;try{const u=new URL(data.url||base.href);if(u.origin===base.origin&&u.pathname.startsWith(base.pathname))target=u.href;}catch{}
+ event.waitUntil(self.registration.showNotification('Retorno comercial ITOP',{body:'Você tem um cliente aguardando retorno. Toque para consultar.',tag:String(data.tag||'itop-retorno'),icon:new URL('logo-itop-oficial.png',base).href,data:{url:target}}));});
+self.addEventListener('notificationclick',event=>{event.notification.close();event.waitUntil((async()=>{const url=event.notification.data?.url||self.registration.scope;const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});const base=new URL(self.registration.scope);for(const win of windows){const u=new URL(win.url);if(u.origin===base.origin&&u.pathname.startsWith(base.pathname)){win.postMessage({type:'itop:open-retornos'});return win.focus();}}return self.clients.openWindow(url);})());});
