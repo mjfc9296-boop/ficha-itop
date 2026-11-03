@@ -19,3 +19,7 @@ html body #procedimentos #usefulLinksPanel .useful-link-copy-fallback{width:100%
 html body #procedimentos .itop-sac-card .useful-link-copy-status{display:block;font-size:10px!important;line-height:1.5;text-align:center;color:#346239!important;overflow-wrap:anywhere}
 html body #procedimentos .itop-sac-card .useful-link-copy-status:empty{display:none}
 html body #procedimentos .itop-sac-card .useful-link-copy-fallback{width:100%;height:36px;font-size:11px;color:#111;background:#fff;border:1px solid #cbd2da;border-radius:6px}
+
+/* ITOP SAC: todos os botões com a mesma dimensão. */
+html body #procedimentos .training-grid .itop-sac-card>.training-actions>:is(a,button){display:flex!important;align-items:center!important;justify-content:center!important;width:150px!important;max-width:150px!important;min-width:0!important;height:34px!important;min-height:34px!important;padding:8px 10px!important;margin:0!important;font-size:10px!important;line-height:16px!important;box-sizing:border-box!important;white-space:nowrap!important;border-radius:9px!important;flex:0 0 auto!important}
+@media(max-width:650px){html body #procedimentos .training-grid .itop-sac-card>.training-actions>:is(a,button){width:auto!important;max-width:180px!important;flex:1 1 110px!important}}
