@@ -122,3 +122,15 @@ html body #seller-diagnostic .seller-diagnostic-name{font-weight:750}
 }
 html body .itop-work-content>.module{background:#fff!important;border-radius:16px!important;padding:12px!important;color:#20242b!important}
 html body #procedimentos #trainingCategoryTitle,html body #procedimentos #trainingCount{color:#20242b!important;-webkit-text-fill-color:#20242b!important}
+
+/* Contraste da memória de energia: valores escuros em células claras. */
+html body #energia #energyMemoryComparison .energy-mini-table tbody :is(th,td),
+html body #energia #energyMemoryComparison .energy-mini-table tbody :is(th,td) *,
+html body #energia .energy-comparison-table tbody :is(th,td),
+html body #energia .energy-comparison-table tbody :is(th,td) *{color:#000000!important;-webkit-text-fill-color:#000000!important;text-shadow:none!important;opacity:1!important}
+html body #energia #energyMemoryComparison .energy-mini-table thead th,
+html body #energia #energyMemoryComparison .energy-mini-table thead th *,
+html body #energia #energyMemoryComparison .energy-mini-table tfoot td,
+html body #energia #energyMemoryComparison .energy-mini-table tfoot td *{color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;text-shadow:none!important}
+html body #energia #energyMemoryComparison .energy-mini-table thead th:last-child,
+html body #energia #energyMemoryComparison .energy-mini-table thead th:last-child *{color:#000000!important;-webkit-text-fill-color:#000000!important}
