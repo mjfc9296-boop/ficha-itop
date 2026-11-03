@@ -6,7 +6,7 @@
  function requireChoice(){if(valid())return true;alert('Selecione primeiro JÁ É CLIENTE ITOP ou NOVO CLIENTE.');choice.focus();return false;}
  const original=window.switchModule;
  window.switchModule=function(id){if(['pacote','fechamento'].includes(id)&&!requireChoice())return;return original(id);};
- document.addEventListener('click',e=>{const b=e.target.closest('#sondagem button');if(b&&!['limparSondagem','itop-flow-new'].includes(b.id)&&!requireChoice()){e.preventDefault();e.stopImmediatePropagation();}},true);
+ document.addEventListener('click',e=>{const b=e.target.closest('#sondagem button');if(b&&!['limparSondagem','itop-flow-new','recover-proposal'].includes(b.id)&&!requireChoice()){e.preventDefault();e.stopImmediatePropagation();}},true);
  document.addEventListener('change',refresh);document.addEventListener('input',refresh);
  const bridge=window.ITOPCommercialBridge;
  window.ITOPCommercialBridge=Object.freeze({...bridge,restore(s){choice.value='';bridge.restore(s);refresh();},clear(){bridge.clear();choice.value='';refresh();}});
@@ -17,3 +17,4 @@
  const client=window.itopAuthClient;if(client)client.auth.getUser().then(async({data})=>{if(!data.user)return;const{data:p}=await client.from('perfis').select('papel,ativo,status_aprovacao').eq('id',data.user.id).maybeSingle();if(p?.ativo&&p.status_aprovacao==='aprovado')role(p.papel);}).catch(()=>{});
  refresh();
 })();
+
