@@ -1,7 +1,7 @@
 (()=>{'use strict';
  const $=id=>document.getElementById(id),steps={sondagem:1,pacote:2,fechamento:3};
  let api=null,required=true,ready=false,record=null,stage=1,closed=false,busy=false,bypass=false,identity=false,epoch=0;
- const say=t=>{for(const el of document.querySelectorAll('.itop-flow-message'))el.textContent=t;};
+ const say=t=>{for(const el of document.querySelectorAll('.itop-flow-message'))el.textContent=t;let near=$('itop-next-message');if(!near&&document.createElement){near=document.createElement('p');near.id='itop-next-message';near.setAttribute('role','status');near.setAttribute('aria-live','polite');near.style.cssText='flex-basis:100%;margin:8px 0;font-weight:600;color:#00134C';$('itop-add-servicos-destaque')?.insertAdjacentElement?.('afterend',near);}if(near)near.textContent=t;};
  const hasData=()=>window.ITOPCommercialBridge?.hasData();
  function lockIdentity(lock){for(const id of ['nome','telefone','pacoteNome','pacoteTelefone','pacoteCidade','pacoteVendedor']){const el=$(id);if(el)el.readOnly=lock||['pacoteNome','pacoteTelefone','pacoteCidade','pacoteVendedor'].includes(id);}identity=lock;}
  function validObservation(){const v=$('survey-result').value.replace(/[\s\u200B-\u200D\uFEFF]/g,'');return Array.from(v).length>=2&&Array.from($('survey-result').value).length<=500&&!/^[\s\u200B-\u200D\uFEFF]*$/.test(v);}
@@ -23,8 +23,14 @@
  }
  async function run(fn){if(busy)return;busy=true;refresh();try{await fn();}catch(e){say(e.message);}finally{busy=false;refresh();}}
  function move(id){bypass=true;try{window.switchModule(id);}finally{bypass=false;}}
- function validSurvey(){if(!['sim','nao'].includes($('clienteItop').value))throw Error('Selecione JÁ É CLIENTE ITOP ou NOVO CLIENTE.');if(!window.ITOPApprovedOperator.valid())throw Error('Informe o primeiro nome do operador conforme o cadastro aprovado.');
-  if($('nome').value.trim().length<2||$('cidade').value.trim().length<2||!/^\d{10,11}$/.test($('telefone').value.replace(/\D/g,'')))throw Error('Conclua a etapa 1: nome do cliente, WhatsApp com DDD e cidade.');}
+ function validSurvey(){
+  const requireField=(id,valid,message)=>{const el=$(id);el?.setAttribute?.('aria-invalid',String(!valid));if(!valid){el?.focus?.();el?.scrollIntoView?.({behavior:'smooth',block:'center'});throw Error(message);}};
+  requireField('clienteItop',['sim','nao'].includes($('clienteItop').value),'Selecione JÁ É CLIENTE ITOP ou NOVO CLIENTE para avançar.');
+  requireField('vendedor',window.ITOPApprovedOperator.valid(),'Informe o primeiro nome do operador conforme o cadastro aprovado.');
+  requireField('nome',$('nome').value.trim().length>=2,'Preencha o nome do cliente para avançar para ADD SERVIÇOS.');
+  requireField('cidade',$('cidade').value.trim().length>=2,'Preencha a cidade do cliente para avançar para ADD SERVIÇOS.');
+  requireField('telefone',/^\d{10,11}$/.test($('telefone').value.replace(/\D/g,'')),'Preencha o WhatsApp do cliente com DDD (10 ou 11 dígitos) para avançar para ADD SERVIÇOS.');
+ }
  function allowNavigation(id){if(bypass||!required||!steps[id])return true;if(!ready){say('Aguarde a conferência da proposta aberta.');return false;}const target=steps[id];if(target<=stage)return true;
   if(closed){say('Esta proposta já foi concluída. Use Nova proposta na etapa 1.');return false;}
   if(target!==stage+1){say('Siga a sequência: primeiro a Sondagem, depois Adicionar produtos e por último o Fechamento.');move(stage===1?'sondagem':'pacote');return false;}
