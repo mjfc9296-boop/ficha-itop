@@ -22,7 +22,7 @@
  }
  async function run(fn){if(busy)return;busy=true;refresh();try{await fn();}catch(e){say(e.message);}finally{busy=false;refresh();}}
  function move(id){bypass=true;try{window.switchModule(id);}finally{bypass=false;}}
- function validSurvey(){if(!window.ITOPApprovedOperator.valid())throw Error('Informe o primeiro nome do operador conforme o cadastro aprovado.');
+ function validSurvey(){if(!['sim','nao'].includes($('clienteItop').value))throw Error('Selecione JÁ É CLIENTE ITOP ou NOVO CLIENTE.');if(!window.ITOPApprovedOperator.valid())throw Error('Informe o primeiro nome do operador conforme o cadastro aprovado.');
   if($('nome').value.trim().length<2||$('cidade').value.trim().length<2||!/^\d{10,11}$/.test($('telefone').value.replace(/\D/g,'')))throw Error('Conclua a etapa 1: nome do cliente, WhatsApp com DDD e cidade.');}
  function allowNavigation(id){if(bypass||!required||!steps[id])return true;if(!ready){say('Aguarde a conferência da proposta aberta.');return false;}const target=steps[id];if(target<=stage)return true;
   if(closed){say('Esta proposta já foi concluída. Use Nova proposta na etapa 1.');return false;}
@@ -44,3 +44,4 @@
  window.addEventListener('itop:logged-out',()=>{++epoch;ready=false;required=true;record=null;stage=1;closed=false;api=null;refresh();});
  window.ITOPSalesFlow=Object.freeze({configure,restore,onSaved,allowNavigation,canClear,canLoad,startNew});refresh();
 })();
+
