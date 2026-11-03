@@ -1,7 +1,7 @@
 (()=>{'use strict';
  const $=id=>document.getElementById(id),steps={sondagem:1,pacote:2,fechamento:3};
  let api=null,required=true,ready=false,record=null,stage=1,closed=false,busy=false,bypass=false,identity=false,epoch=0;
- const say=t=>{for(const el of document.querySelectorAll('.itop-flow-message'))el.textContent=t;let near=$('itop-next-message');if(!near&&document.createElement){near=document.createElement('p');near.id='itop-next-message';near.setAttribute('role','status');near.setAttribute('aria-live','polite');near.style.cssText='flex-basis:100%;margin:8px 0;font-weight:600;color:#00134C';$('itop-add-servicos-destaque')?.insertAdjacentElement?.('afterend',near);}if(near)near.textContent=t;};
+ const say=t=>{for(const el of document.querySelectorAll('.itop-flow-message'))el.textContent=t;let near=$('itop-next-message');if(!near&&document.createElement){near=document.createElement('p');near.id='itop-next-message';near.setAttribute('role','status');near.setAttribute('aria-live','polite');near.style.cssText='flex-basis:100%;margin:8px 0;font-weight:600;color:#00134C';$('itop-add-servicos-destaque')?.closest?.('.itop-one-line-actions')?.insertAdjacentElement?.('afterend',near);}if(near)near.textContent=t;};
  const hasData=()=>window.ITOPCommercialBridge?.hasData();
  function lockIdentity(lock){for(const id of ['nome','telefone','pacoteNome','pacoteTelefone','pacoteCidade','pacoteVendedor']){const el=$(id);if(el)el.readOnly=lock||['pacoteNome','pacoteTelefone','pacoteCidade','pacoteVendedor'].includes(id);}identity=lock;}
  function validObservation(){const v=$('survey-result').value.replace(/[\s\u200B-\u200D\uFEFF]/g,'');return Array.from(v).length>=2&&Array.from($('survey-result').value).length<=500&&!/^[\s\u200B-\u200D\uFEFF]*$/.test(v);}

@@ -1,0 +1,15 @@
+html body #itop-survey-record{display:none!important}
+html body #sondagem .itop-survey-toolbar-actions{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;flex-wrap:wrap!important}
+html body #itop-proposal-number{color:#00134C!important;font-size:14px;font-weight:700;overflow-wrap:anywhere;margin-bottom:14px}
+html body #itop-proposal-number strong{color:#00134C!important}
+html body #itop-survey-toolbar #itop-test-control{margin:0 0 0 auto;padding:10px 14px;border:1px solid #D27A2F;border-radius:10px;flex:0 1 auto}
+html body #itop-survey-toolbar #itop-test-control[hidden]{display:none!important}
+html body #itop-survey-toolbar .commercial-test-toggle{margin:0!important;white-space:normal}
+html body #itop-survey-toolbar #survey-test-hint{margin:5px 0 0!important;font-size:11px;max-width:340px}
+html body #sondagem .itop-one-line-actions{display:flex!important;flex-direction:row!important;justify-content:center!important;align-items:center!important;flex-wrap:wrap!important;gap:12px!important;width:100%;margin:18px auto!important}
+html body #sondagem .itop-one-line-actions>button:not([hidden]){display:inline-flex!important;align-items:center;justify-content:center;flex:0 1 auto!important;width:auto!important;min-width:170px;max-width:100%;margin:0!important;min-height:44px;white-space:normal;text-align:center}
+html body #sondagem #itop-next-message{width:100%;text-align:center;margin:10px auto!important}
+@media(min-width:1050px){html body #sondagem .itop-one-line-actions{flex-wrap:nowrap!important}}
+@media(max-width:600px){html body #itop-survey-toolbar #itop-test-control{margin:0;width:100%}html body #sondagem .itop-one-line-actions>button:not([hidden]){flex:1 1 150px!important;min-width:0}}
+
+html body #itop-survey-toolbar .itop-survey-toolbar-actions>button{width:auto!important;flex:0 1 auto!important;margin:0!important}
