@@ -68,3 +68,57 @@ html body #sondagem #recommend .promotion-summary{background:#f8fafc!important;b
  html body #sondagem #recommend .proposal-row{grid-template-columns:minmax(0,1fr) 85px!important;gap:7px!important}
  html body #sondagem #recommend .proposal-row label{grid-column:1/-1!important}
 }
+
+/* Refinamento visual: cartões compactos, alinhamento central e cantos suaves. */
+html body .itop-work-content :is(section,.tile,.pill,.recommend,.report-total,.closing-controls,.closing-report,.energy-impact,.energy-memory-comparison,.energy-package-strip,.promotion-summary,.training-card,.hub-material,.commercial-card,.commercial-chart,.itop-gestao-person){border-radius:14px!important;overflow-wrap:anywhere}
+html body .itop-work-content :is(button,input,select,textarea,.survey-table,.compact-table,.closing-table,.energy-comparison-table,.energy-mini-table){border-radius:9px!important}
+html body .itop-work-content :is(.hub-material img,.hub-material video,.training-cover,.training-cover img){border-radius:12px!important;overflow:hidden}
+html body #energia #energyPackageResult,html body #pacote #energyImpact>.energy-impact,html body #fechamento #closingPreview .energy-impact{background:#fff!important;background-image:none!important;border-radius:14px!important;padding:16px!important;color:#111!important}
+html body #energia #energyPackageResult *,html body #pacote #energyImpact *,html body #fechamento #closingPreview .energy-impact *{color:#111!important;-webkit-text-fill-color:#111!important;text-shadow:none!important}
+html body #energia #energyPackageResult .package-impact-line,html body #pacote #energyImpact .package-impact-line,html body #fechamento #closingPreview .package-impact-line{display:grid!important;grid-template-columns:minmax(0,180px) 18px minmax(0,180px) 18px minmax(0,180px)!important;justify-content:center!important;align-items:center!important;gap:10px!important;max-width:660px;margin:12px auto!important}
+html body #energia #energyPackageResult .package-impact-line>div,html body #pacote #energyImpact .package-impact-line>div,html body #fechamento #closingPreview .package-impact-line>div{background:#fff!important;background-image:none!important;border:1px solid #d27a2f!important;border-radius:12px!important;min-height:76px;display:flex;flex-direction:column;justify-content:center;padding:10px!important;text-align:center!important}
+html body #energia #energyPackageResult .package-impact-line b,html body #pacote #energyImpact .package-impact-line b,html body #fechamento #closingPreview .package-impact-line b{font-size:17px!important;line-height:1.35!important}
+html body #energia #energyPackageResult .energy-note,html body #pacote #energyImpact .energy-note,html body #fechamento #closingPreview .energy-note{text-align:center!important;font-size:11px!important;line-height:1.6!important;max-width:640px;margin:12px auto 0!important;color:#333!important;-webkit-text-fill-color:#333!important}
+html body #simulateEnergy,html body #closingPreview button[onclick="goToEnergy()"]{background:#D27A2F!important;background-image:none!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #b36120!important;border-radius:10px!important;box-shadow:none!important;max-width:360px;padding:12px 18px!important;white-space:normal}
+html body .module .actions,html body #itop-survey-record .commercial-line{justify-content:center!important;align-items:center!important;gap:12px!important;margin-top:20px!important;margin-bottom:20px!important;flex-wrap:wrap!important}
+html body .module .actions button{min-height:40px;max-width:280px}
+html body #pacote>.actions{display:flex;justify-content:center;max-width:100%;padding:10px;background:#fff;border-radius:14px}
+html body #pacote .totals,html body #energia .energy-highlights,html body #fechamento .closing-totals{display:flex!important;justify-content:center!important;align-items:stretch!important;gap:16px!important;flex-wrap:wrap!important;margin:22px auto!important}
+html body #pacote .totals>.tile,html body #energia .energy-highlights>.tile{flex:0 1 260px;max-width:300px;text-align:center!important;padding:18px!important;border-radius:14px!important}
+html body .training-grid .training-cover{position:relative!important;inset:auto!important;width:100%!important;margin:0 0 14px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#f4f5f7!important;border-radius:12px!important;overflow:hidden!important}
+html body .training-grid .training-cover img{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;margin:0!important;transform:none!important}
+html body .training-grid.training-list .training-card{grid-template-columns:120px minmax(0,1fr) 150px!important;padding:16px!important;gap:16px!important;align-items:center!important}
+html body .training-grid.training-list .training-cover{grid-column:1!important;grid-row:1 / span 4!important;width:120px!important;min-width:0!important;max-width:120px!important;height:90px!important;margin:0!important}
+html body .training-grid.training-list .training-actions{grid-column:3!important;width:150px!important;min-width:0!important;max-width:150px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:8px!important;margin:0!important}
+html body #procedimentos .training-filters{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:10px!important;justify-content:center!important;margin:24px 0!important;padding-top:20px!important}
+html body #procedimentos .training-filter{display:flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;gap:5px!important;min-height:50px!important;width:100%!important;padding:8px 5px!important;white-space:normal!important;font-size:10px!important;line-height:1.35!important;border-radius:10px!important;box-shadow:none!important}
+html body #procedimentos .training-placeholder{background:#f4f5f7!important;border:1px dashed #cbd2da!important;box-shadow:none!important}
+html body #procedimentos .training-grid{margin-bottom:30px!important}
+html body #procedimentos .itop-hub{margin-top:30px!important}
+html body .survey-customer-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+html body .survey-customer-heading h2{margin:0!important}
+html body #itop-test-control{max-width:290px;text-align:right}
+html body #itop-test-control[hidden]{display:none!important}
+html body #itop-test-control .commercial-test-toggle{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:8px 10px;border:1px solid #d27a2f;border-radius:10px;color:#111!important;font-size:11px!important;background:#fff!important}
+html body #itop-test-control input{width:17px!important;height:17px!important;accent-color:#d27a2f}
+html body #itop-test-control p{font-size:10px;line-height:1.4;margin:5px 0 0;color:#555!important}
+html body #itop-survey-record .commercial-line{display:flex!important;padding:4px 0}
+html body #itop-survey-record :is(input,select,textarea){margin:6px 0!important}
+html body #comercial>.actions{padding:12px!important;border-top:1px solid #e7e9ed;border-bottom:1px solid #e7e9ed;margin:24px 0!important}
+html body #comercial .commercial-filters{gap:18px!important;margin:22px 0!important}
+html body #comercial .commercial-grid{gap:14px!important;margin:22px 0!important}
+html body #seller-diagnostic{background:#f8fafc!important;border:1px solid #d9dfe7!important;border-radius:14px!important;padding:18px!important;margin:22px 0!important}
+html body #seller-diagnostic p,html body #seller-diagnostic li{color:#222!important;line-height:1.65!important}
+html body #seller-diagnostic .seller-diagnostic-name{font-weight:750}
+@media(max-width:650px){
+ html body #energia #energyPackageResult .package-impact-line,html body #pacote #energyImpact .package-impact-line,html body #fechamento #closingPreview .package-impact-line{grid-template-columns:minmax(0,260px)!important;gap:10px!important}
+ html body .package-impact-line .math-sign{display:none!important}
+ html body #procedimentos .training-filters{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html body .training-grid.training-list .training-card{grid-template-columns:95px minmax(0,1fr)!important;gap:12px!important}
+ html body .training-grid.training-list .training-cover{width:95px!important;height:78px!important;max-width:95px!important}
+ html body .training-grid.training-list .training-actions{grid-column:1/-1!important;grid-row:auto!important;flex-direction:row!important;width:100%!important;max-width:100%!important;flex-wrap:wrap!important}
+ html body #itop-test-control{max-width:100%;width:100%;text-align:left}
+ html body #itop-test-control .commercial-test-toggle{justify-content:flex-start}
+}
+html body .itop-work-content>.module{background:#fff!important;border-radius:16px!important;padding:12px!important;color:#20242b!important}
+html body #procedimentos #trainingCategoryTitle,html body #procedimentos #trainingCount{color:#20242b!important;-webkit-text-fill-color:#20242b!important}

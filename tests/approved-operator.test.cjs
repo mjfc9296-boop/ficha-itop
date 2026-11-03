@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+const source=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const start=source.indexOf('window.ITOPApprovedOperator={'),end=source.indexOf("window.addEventListener('itop:authorized'",start);
+const field={value:''},scope={window:{},document:{getElementById:()=>field},recalc(){}};vm.createContext(scope);vm.runInContext(source.slice(start,end),scope);
+const operator=scope.window.ITOPApprovedOperator;
+assert.equal(operator.valid(),false);operator.set('Mario Caputo');assert.equal(operator.valid(),false);
+field.value='Outro';assert.equal(operator.valid(),false);
+field.value='Mario';assert.equal(operator.valid(),true);
+field.value=' MARIO CAPUTO ';assert.equal(operator.valid(),true);
+field.value='Mariox';assert.equal(operator.valid(),false);
+operator.set('GABRIEL NOGUEIRA MARTINES');field.value='Gabriel';assert.equal(operator.valid(),true);
+operator.set('');assert.equal(operator.valid(),false);
+console.log('Approved operator: 8 checks passed.');

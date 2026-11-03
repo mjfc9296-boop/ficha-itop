@@ -16,7 +16,7 @@
    this.onState('salvando');
    this.inflight=(async()=>{
     try{const r=await this.send(pending.args);this.version=r.versao;this.status=r.status;this.saved=pending.revision;this.pending=null;this.lastSave=this.clock();this.locked=['finalizada','perdida','venda_confirmada'].includes(r.status);this.onState('salvo',r);}
-    catch(e){const validation=/INVALID|PREENCHA|INFORME|OBRIGATORIA|TRANSICAO|NAO_PERMITIDO/.test(e.message);if(validation)this.pending=null;this.onState(/CONFLITO_VERSAO/.test(e.message)?'conflito':validation?'validacao':'erro',e);if(/CONFLITO_VERSAO|ACESSO_NEGADO|REGISTRO_FINALIZADO/.test(e.message))this.enabled=false;throw e;}
+    catch(e){const validation=/INVALID|PREENCHA|INFORME|OBRIGATORIA|OBRIGATORIO|TRANSICAO|NAO_PERMITIDO/.test(e.message);if(validation)this.pending=null;this.onState(/CONFLITO_VERSAO/.test(e.message)?'conflito':validation?'validacao':'erro',e);if(/CONFLITO_VERSAO|ACESSO_NEGADO|REGISTRO_FINALIZADO/.test(e.message))this.enabled=false;throw e;}
     finally{this.inflight=null;}
    })();
    await this.inflight;
@@ -31,3 +31,4 @@
  const rowsForExport=(items,names={})=>items.map(s=>({Proposta:s.id,Data:new Date(s.created_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}),Vendedor:names[s.vendedor_id]||s.vendedor_id,Situacao:s.status,Tipo:s.teste?'TESTE':'NEGOCIAÇÃO REAL',Cliente:s.dados?.campos?.nome||'',Produtos:(s.escolhidos||[]).map(p=>`${p.q} × ${p.name}`).join('; '),Bruto:Number(s.bruto),Desconto:Number(s.desconto),Total:Number(s.total),Resultado:s.resultado||'',Confirmacao:s.confirmacao_ref||''}));
  return {DraftSync,money,rowsForExport};
 });
+
