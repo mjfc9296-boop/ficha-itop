@@ -15,3 +15,7 @@ html body #procedimentos #usefulLinksPanel .useful-link-copy-status{font-size:10
 html body #procedimentos #usefulLinksPanel .useful-link-copy-status:empty{display:none}
 html body #procedimentos #usefulLinksPanel .useful-link-copy-fallback{width:100%;height:36px;font-size:11px;color:#111;background:#fff;border:1px solid #cbd2da;border-radius:6px}
 @media(max-width:650px){html body #procedimentos #usefulLinksPanel .useful-link-actions{flex-wrap:wrap}html body #procedimentos #usefulLinksPanel .useful-link-actions>button,html body #procedimentos #usefulLinksPanel .useful-link-actions>a{flex:1 1 90px}html body #procedimentos #usefulLinksPanel .useful-link-copy-status{flex-basis:100%}}
+
+html body #procedimentos .itop-sac-card .useful-link-copy-status{display:block;font-size:10px!important;line-height:1.5;text-align:center;color:#346239!important;overflow-wrap:anywhere}
+html body #procedimentos .itop-sac-card .useful-link-copy-status:empty{display:none}
+html body #procedimentos .itop-sac-card .useful-link-copy-fallback{width:100%;height:36px;font-size:11px;color:#111;background:#fff;border:1px solid #cbd2da;border-radius:6px}
