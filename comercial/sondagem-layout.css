@@ -13,3 +13,9 @@ html body #sondagem #itop-next-message{width:100%;text-align:center;margin:10px 
 @media(max-width:600px){html body #itop-survey-toolbar #itop-test-control{margin:0;width:100%}html body #sondagem .itop-one-line-actions>button:not([hidden]){flex:1 1 150px!important;min-width:0}}
 
 html body #itop-survey-toolbar .itop-survey-toolbar-actions>button{width:auto!important;flex:0 1 auto!important;margin:0!important}
+
+html body #fechamento #itop-closing-actions{display:flex!important;flex-direction:row!important;align-items:stretch!important;justify-content:center!important;flex-wrap:nowrap!important;gap:10px!important}
+html body #fechamento #itop-closing-actions>button{flex:1 1 0!important;min-width:0!important;width:auto!important;margin:0!important;min-height:48px;white-space:normal!important}
+html body #fechamento #itop-closing-actions :is(#pdf-with-energy,#pdf-without-energy,#itop-closing-adjust){background:#00134C!important;background-image:none!important;border:1px solid #00134C!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+html body #fechamento #itop-closing-actions #itop-flow-finish{background:#D27A2F!important;background-image:none!important;border:1px solid #D27A2F!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
+@media(max-width:600px){html body #fechamento #itop-closing-actions{flex-wrap:wrap!important}html body #fechamento #itop-closing-actions>button{flex:1 1 calc(50% - 10px)!important}}

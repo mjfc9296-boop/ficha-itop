@@ -8,6 +8,11 @@
  const old=$('itop-survey-record');if(old){old.hidden=true;old.setAttribute('aria-hidden','true');old.inert=true;}
  // Campos internos são conservados para o histórico e os scripts já existentes.
  // A observação obrigatória permanece no bloco de finalização, fora desta seção.
+ const observation=$('final-observation'),agenda=document.querySelector('.itop-return-panel');
+ if(observation&&agenda)observation.insertAdjacentElement('afterend',agenda);
+ const finish=$('itop-flow-finish'),closingActions=finish?.closest('.actions');
+ const adjust=document.querySelector('#fechamento button[onclick="switchModule(\'pacote\')"]');
+ if(closingActions&&adjust){closingActions.id='itop-closing-actions';adjust.id='itop-closing-adjust';adjust.textContent='AJUSTAR SERVIÇOS';for(const button of [$('pdf-with-energy'),$('pdf-without-energy'),adjust,finish])if(button)closingActions.append(button);}
  const bar=document.querySelector('#sondagem .itop-one-line-actions');
  const message=$('itop-next-message');if(bar&&message&&bar.contains(message))bar.insertAdjacentElement('afterend',message);
 })();
