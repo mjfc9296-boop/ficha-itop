@@ -2101,16 +2101,42 @@ function pdf(){
  ['NETZ: '+d.excess+' kWh x '+rate(d.netz),brl(netzCents/100)],
  ['Economia mensal no excedente',brl(saving)]
  ]);
- y=box(y,'ECONOMIA E DIVISÃO DA CONTA',[
- ['COMPOSIÇÃO','CEMIG | ITOP NETZ'],
- ['Tarifa por kWh',rate(d.tariff)+' | '+rate(d.netz)],
- ['kWh em cada conta',kept+' kWh | '+d.excess+' kWh'],
- ['Energia em cada conta',brl(keptValue)+' | '+brl(netzCents/100)],
- ['Demais valores preservados na Cemig',brl(other)],
- ['VALOR DE CADA CONTA',brl(residual)+' | '+brl(netzCents/100)],
- ['HOJE: SOMENTE CEMIG',brl(d.bill)],
- ['COM CEMIG + NETZ: TOTAL',brl(combined)]
- ]);
+ // Composição com colunas independentes para cada fornecedora.
+ const divisionRows=[
+  ['Tarifa por kWh',rate(d.tariff),rate(d.netz)],
+  ['kWh em cada conta',kept+' kWh',d.excess+' kWh'],
+  ['Energia em cada conta',brl(keptValue),brl(netzCents/100)],
+  ['Demais valores preservados',brl(other),'—'],
+  ['VALOR DE CADA CONTA',brl(residual),brl(netzCents/100)]
+ ];
+ const tableY=y,tableHeight=53.5;
+ doc.setDrawColor(226,211,198);doc.setFillColor(255,255,255);
+ doc.roundedRect(11,tableY,188,tableHeight,2,2,'FD');
+ txt('ECONOMIA E DIVISÃO DA CONTA',16,tableY+6.5,9,true,[160,80,24]);
+ doc.setFillColor(19,19,20);doc.rect(12,tableY+9,186,6,'F');
+ txt('COMPOSIÇÃO',16,tableY+13,8,true,[255,255,255]);
+ txt('CEMIG',131.5,tableY+13,8,true,[255,255,255],'center');
+ txt('NETZ',176.5,tableY+13,8,true,[255,255,255],'center');
+ let rowY=tableY+15;
+ divisionRows.forEach((row,i)=>{
+  if(i%2===0){doc.setFillColor(248,249,250);doc.rect(12,rowY,186,5.5,'F')}
+  const bold=i===divisionRows.length-1;
+  txt(row[0],16,rowY+3.8,8,bold);
+  txt(row[1],150,rowY+3.8,8,bold,black,'right');
+  txt(row[2],195,rowY+3.8,8,bold,black,'right');
+  doc.setDrawColor(222,225,229);doc.setLineWidth(.2);
+  doc.line(12,rowY+5.5,198,rowY+5.5);
+  rowY+=5.5;
+ });
+ doc.setDrawColor(222,225,229);
+ doc.line(109,tableY+9,109,rowY);doc.line(154,tableY+9,154,rowY);
+ [['HOJE: SOMENTE CEMIG',brl(d.bill)],['TOTAL COM CEMIG + NETZ',brl(combined)]].forEach((row,i)=>{
+  if(i===1){doc.setFillColor(248,240,232);doc.rect(12,rowY,186,5.5,'F')}
+  txt(row[0],16,rowY+3.8,8,true);
+  txt(row[1],195,rowY+3.8,8,true,black,'right');
+  rowY+=5.5;
+ });
+ y=tableY+tableHeight+5;
  txt(brl(residual)+' (Cemig) + '+brl(netzCents/100)+' (NETZ) = '+brl(combined),105,y+2,10,true,[160,80,24],'center');
  y+=9;
  doc.setFillColor(...black);doc.roundedRect(11,y,188,25,3,3,'F');
