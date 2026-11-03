@@ -9,6 +9,7 @@ INSERT INTO public.itop_sondagens(id,vendedor_id,status,dados) SELECT current_se
 SELECT set_config('request.jwt.claim.sub',current_setting('itop.test_seller'),true);
 SET LOCAL ROLE authenticated;
 DO $$ DECLARE r jsonb; denied boolean:=false;t text;BEGIN
+ PERFORM public.itop_registrar_consentimento_push(true,public.itop_termo_push()->>'versao');
  t:=public.itop_salvar_meu_telefone('(99) 99999-9999');IF t<>'5599999999999' THEN RAISE EXCEPTION 'TESTE_TELEFONE';END IF;
  BEGIN PERFORM public.itop_agendar_retorno(current_setting('itop.test_retorno')::uuid,now()-interval '1 minute','passado');EXCEPTION WHEN OTHERS THEN denied:=true;END;IF NOT denied THEN RAISE EXCEPTION 'TESTE_DATA_PASSADA';END IF;
  r:=public.itop_agendar_retorno(current_setting('itop.test_retorno')::uuid,now()+interval '1 day','Retornar ao cliente');IF r->>'status'<>'rascunho' THEN RAISE EXCEPTION 'TESTE_AGENDAMENTO_PREMATURO';END IF;

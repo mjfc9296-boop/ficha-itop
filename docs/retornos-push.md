@@ -27,3 +27,7 @@ Cada entrega tem lease, revisão e tentativas limitadas. HTTP 404/410 desativa a
 ## Transferência para a TI
 
 Preservar banco, Auth, políticas, cron, Edge Function, manifesto e service worker ao migrar. Mudanças de domínio exigem atualizar CORS, URLs, escopo e novas inscrições dos aparelhos. Conservar o par VAPID do ambiente para assinaturas existentes ou planejar nova ativação. Fazer a transferência dos segredos por canal seguro, sem registrá-los no repositório. Configurar cron no servidor de destino antes de desligar o atual para evitar entregas concorrentes.
+
+## Autorização opcional (2026-11-03-v1)
+
+A autorização é registrada separadamente da aprovação da conta. Cadastro sem aceite não bloqueia o painel. O envio e a inscrição exigem consentimento vigente. O titular pode revogar em MEU CELULAR > AUTORIZAÇÃO E REVOGAÇÃO DO PUSH; a revogação suspende as inscrições no servidor. A trilha privada registra usuário, escolha, data, versão e o texto apresentado. O gestor não autoriza em nome de outro usuário. O texto registra uma escolha voluntária, não uma renúncia de direitos nem uma garantia de inexistência de reclamações; a ITOP deve validar seu uso e sua política com o jurídico.

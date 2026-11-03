@@ -18,7 +18,7 @@
  }
  function onSaved(r){if(!required)return;record=r.id;stage=Number(r.fluxo_etapa)||stage;closed=!!r.diagnostico_final;refresh();}
  async function configure(options){api=options;const version=++epoch;ready=false;required=['vendedor','administrador','supervisor','coordenador'].includes(options.role);record=null;stage=1;closed=false;refresh();if(!required){for(const id of ['nome','telefone','pacoteNome','pacoteTelefone','pacoteCidade','pacoteVendedor'])$(id).readOnly=false;ready=true;refresh();return;}
-  try{const ctx=await api.rpc('itop_fluxo_contexto');if(version!==epoch)return;if(ctx.proposta)await api.load(ctx.proposta.id);ready=true;refresh();say(ctx.proposta?'Proposta aberta recuperada. Continue a partir da etapa registrada.':'Comece pelos dados do cliente na etapa 1.');}
+  try{const ctx=await api.rpc('itop_fluxo_contexto');if(version!==epoch)return;if(ctx.proposta)await api.load(ctx.proposta.id);else api.reset?.();ready=true;refresh();say(ctx.proposta?'Proposta aberta recuperada. Continue a partir da etapa registrada.':'Comece pelos dados do cliente na etapa 1.');}
   catch(e){say('Não foi possível conferir a proposta aberta. O avanço permanece bloqueado: '+e.message);}
  }
  async function run(fn){if(busy)return;busy=true;refresh();try{await fn();}catch(e){say(e.message);showErrors(e);}finally{busy=false;refresh();}}
@@ -44,7 +44,7 @@
   const list=errorDialog.querySelector('ul');list.replaceChildren();for(const field of fields){const li=document.createElement('li');li.textContent=field.message;list.append(li);}
   if(!errorDialog.open)errorDialog.showModal();
  }
- function allowNavigation(id){if(bypass||!required||!steps[id])return true;if(!ready){say('Aguarde a conferência da proposta aberta.');return false;}const target=steps[id];if(target<=stage)return true;
+ function allowNavigation(id){if(bypass||!required||!steps[id])return true;if(!ready){say('Aguarde a conferência da proposta aberta.');return false;}if(id==='sondagem'&&closed){startNew();return false;}const target=steps[id];if(target<=stage)return true;
   if(closed){say('Esta proposta já foi concluída. Use Nova proposta na etapa 1.');return false;}
   if(target!==stage+1){say('Siga a sequência: primeiro a Sondagem, depois Adicionar produtos e por último o Fechamento.');move(stage===1?'sondagem':'pacote');return false;}
   run(async()=>{if(target===2)validSurvey();
@@ -65,5 +65,6 @@
  window.addEventListener('itop:logged-out',()=>{errorTarget=null;errorDialog?.close();++epoch;ready=false;required=true;record=null;stage=1;closed=false;api=null;refresh();});
  window.ITOPSalesFlow=Object.freeze({configure,restore,onSaved,allowNavigation,canClear,canLoad,startNew,canRecover(){return !busy&&ready&&(closed||(!record&&!hasData()));}});refresh();
 })();
+
 
 
