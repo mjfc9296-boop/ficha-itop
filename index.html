@@ -2065,11 +2065,11 @@ function pdf(){
  function box(y,title,items){
   doc.setFontSize(8);
   const rows=items.map(r=>({label:doc.splitTextToSize(String(r[0]),85),value:doc.splitTextToSize(String(r[1]),85)}));
-  const heights=rows.map(r=>Math.max(5.5,Math.max(r.label.length,r.value.length)*3.5+2));
-  const height=10+heights.reduce((a,b)=>a+b,0);
+  const heights=rows.map(r=>Math.max(4.4,Math.max(r.label.length,r.value.length)*3.2+1));
+  const height=9+heights.reduce((a,b)=>a+b,0);
   doc.setDrawColor(226,211,198);doc.setFillColor(255,250,245);doc.roundedRect(11,y,188,height,2,2,'FD');
   txt(title,16,y+7,9,true,[160,80,24]);
-  let rowY=y+10;
+  let rowY=y+9;
   rows.forEach((r,i)=>{
    if(i%2===1){doc.setFillColor(249,240,230);doc.rect(12,rowY-1,186,heights[i],'F')}
    if(i>0){doc.setDrawColor(218,203,190);doc.setLineWidth(.2);doc.line(15,rowY-1,195,rowY-1)}
@@ -2078,7 +2078,7 @@ function pdf(){
    rowY+=heights[i];
    if(i<rows.length-1){doc.setDrawColor(218,203,190);doc.setLineWidth(.2);doc.line(15,rowY-1,195,rowY-1)}
   });
-  return y+height+5;
+  return y+height+4;
  }
  let y=37;
  y=box(y,'DADOS DO CLIENTE',[['Cliente',d.name||'Não informado'],['WhatsApp',d.phone||'Não informado'],['Cidade',d.city||'Não informada'],['Consultor',d.seller||'Não informado']]);
@@ -2139,10 +2139,30 @@ function pdf(){
  y=tableY+tableHeight+5;
  txt(brl(residual)+' (Cemig) + '+brl(netzCents/100)+' (NETZ) = '+brl(combined),105,y+2,10,true,[160,80,24],'center');
  y+=9;
- doc.setFillColor(...black);doc.roundedRect(11,y,188,25,3,3,'F');
- txt('ECONOMIA MENSAL',17,y+8,8,true,[255,195,140]);txt(brl(saving),17,y+19,16,true,[255,255,255]);
- txt('ECONOMIA EM 12 MESES',112,y+8,8,true,[255,195,140]);txt(brl(saving*12),112,y+19,16,true,[255,255,255]);
- y+=33;
+ doc.setFillColor(...black);doc.roundedRect(11,y,188,21,3,3,'F');
+ txt('ECONOMIA MENSAL',17,y+8,8,true,[255,195,140]);txt(brl(saving),17,y+17,14,true,[255,255,255]);
+ txt('ECONOMIA EM 12 MESES',112,y+8,8,true,[255,195,140]);txt(brl(saving*12),112,y+17,14,true,[255,255,255]);
+ y+=27;
+
+ // Impacto econômico do pacote efetivamente escolhido, separado da fatura de energia.
+ const chosenPackage=typeof total==='number'&&Number.isFinite(total)?Math.max(0,total):0;
+ const hasChosenPackage=typeof selected!=='undefined'&&selected.length>0&&chosenPackage>0;
+ const equivalent=Math.max(0,Math.round((chosenPackage-saving)*100)/100);
+ doc.setDrawColor(210,122,47);doc.setFillColor(255,255,255);
+ doc.roundedRect(11,y,188,25,2,2,'FD');
+ txt('IMPACTO NO PACOTE ESCOLHIDO',16,y+5.5,8.5,true,[160,80,24]);
+ if(hasChosenPackage){
+  const cells=[['PACOTE ITOP / MÊS',brl(chosenPackage)],['ECONOMIA NETZ / MÊS',brl(saving)],['CUSTO LÍQUIDO EQUIVALENTE',brl(equivalent)]];
+  cells.forEach((cell,i)=>{const x=16+i*61;doc.setDrawColor(226,211,198);doc.roundedRect(x,y+8,56,12,1.5,1.5,'S');txt(cell[0],x+28,y+11.5,6.3,true,black,'center');txt(cell[1],x+28,y+17,10,true,black,'center')});
+  txt('-',74.5,y+16,10,true);txt('=',135.5,y+16,10,true);
+  const excess=Math.max(0,Math.round((saving-chosenPackage)*100)/100);
+  txt('Compensação: '+(saving/chosenPackage*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%'+(excess>0?' | Economia excedente: '+brl(excess):'')+' | Mensalidade ITOP permanece '+brl(chosenPackage)+'.',16,y+23,6.5,false);
+ }else{
+  txt('Nenhum pacote ITOP selecionado. Escolha os serviços na etapa 2 para incluir o impacto.',16,y+13,8,false);
+  txt('A economia NETZ da simulação permanece indicada acima.',16,y+19,8,false);
+ }
+ y+=30;
+
  txt('DUAS CONTAS, UM TOTAL MENOR NESTA SIMULAÇÃO',13,y,9,true,[160,80,24]);y+=6;
  const notes=[
  'A conta Cemig estimada mantém o consumo mínimo e os demais valores da fatura informada. A NETZ cobra o consumo excedente com desconto estimado de 20%.',
