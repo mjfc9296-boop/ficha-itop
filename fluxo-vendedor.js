@@ -21,15 +21,28 @@
   try{const ctx=await api.rpc('itop_fluxo_contexto');if(version!==epoch)return;if(ctx.proposta)await api.load(ctx.proposta.id);ready=true;refresh();say(ctx.proposta?'Proposta aberta recuperada. Continue a partir da etapa registrada.':'Comece pelos dados do cliente na etapa 1.');}
   catch(e){say('Não foi possível conferir a proposta aberta. O avanço permanece bloqueado: '+e.message);}
  }
- async function run(fn){if(busy)return;busy=true;refresh();try{await fn();}catch(e){say(e.message);}finally{busy=false;refresh();}}
+ async function run(fn){if(busy)return;busy=true;refresh();try{await fn();}catch(e){say(e.message);showErrors(e);}finally{busy=false;refresh();}}
  function move(id){bypass=true;try{window.switchModule(id);}finally{bypass=false;}}
- function validSurvey(){
-  const requireField=(id,valid,message)=>{const el=$(id);el?.setAttribute?.('aria-invalid',String(!valid));if(!valid){el?.focus?.();el?.scrollIntoView?.({behavior:'smooth',block:'center'});throw Error(message);}};
-  requireField('clienteItop',['sim','nao'].includes($('clienteItop').value),'Selecione JÁ É CLIENTE ITOP ou NOVO CLIENTE para avançar.');
-  requireField('vendedor',window.ITOPApprovedOperator.valid(),'Informe o primeiro nome do operador conforme o cadastro aprovado.');
-  requireField('nome',$('nome').value.trim().length>=2,'Preencha o nome do cliente para avançar para ADD SERVIÇOS.');
-  requireField('cidade',$('cidade').value.trim().length>=2,'Preencha a cidade do cliente para avançar para ADD SERVIÇOS.');
-  requireField('telefone',/^\d{10,11}$/.test($('telefone').value.replace(/\D/g,'')),'Preencha o WhatsApp do cliente com DDD (10 ou 11 dígitos) para avançar para ADD SERVIÇOS.');
+ function surveyErrors(){return [
+  ['clienteItop',['sim','nao'].includes($('clienteItop').value),'Favor selecionar JÁ É CLIENTE ITOP ou NOVO CLIENTE.'],
+  ['vendedor',window.ITOPApprovedOperator.valid(),'Favor preencher o operador com o primeiro nome do cadastro aprovado.'],
+  ['nome',$('nome').value.trim().length>=2,'Favor preencher o nome do cliente (mínimo de 2 caracteres).'],
+  ['cidade',$('cidade').value.trim().length>=2,'Favor preencher a cidade do cliente (mínimo de 2 caracteres).'],
+  ['telefone',/^\d{10,11}$/.test($('telefone').value.replace(/\D/g,'')),'Favor preencher o campo WhatsApp com DDD (10 ou 11 dígitos).']
+ ].filter(([id,valid])=>{$(id)?.setAttribute?.('aria-invalid',String(!valid));return !valid;}).map(([id,,message])=>({id,message}));}
+ function validSurvey(){const fields=surveyErrors();if(fields.length){const error=Error(fields.map(f=>f.message).join('\n'));error.fields=fields;throw error;}}
+ let errorDialog=null,errorTarget=null;
+ function focusError(){const el=errorTarget&&$(errorTarget);el?.focus?.();el?.scrollIntoView?.({behavior:'smooth',block:'center'});}
+ function showErrors(error){const fields=error.fields||[{message:error.message}];errorTarget=fields.find(f=>f.id)?.id||null;
+  if(!document.createElement){window.alert?.(fields.map(f=>f.message).join('\n'));focusError();return;}
+  if(!errorDialog){
+   errorDialog=document.createElement('dialog');errorDialog.id='itop-flow-error-dialog';errorDialog.setAttribute('aria-labelledby','itop-flow-error-title');errorDialog.setAttribute('aria-describedby','itop-flow-error-description');errorDialog.style.cssText='width:min(520px,92vw);max-height:85vh;overflow:auto;padding:24px;border:2px solid #D27A2F;border-radius:16px;background:#fff;color:#00134C;box-shadow:0 20px 80px #0006';
+   errorDialog.innerHTML='<h2 id="itop-flow-error-title" style="margin:0 0 12px">Não foi possível avançar</h2><p id="itop-flow-error-description">Confira as pendências abaixo e corrija para continuar.</p><ul id="itop-flow-error-list" style="padding-left:22px;line-height:1.7"></ul><button type="button" autofocus style="padding:12px 20px;border:0;border-radius:10px;background:#D27A2F;color:#fff;font-weight:700;cursor:pointer">CORRIGIR CAMPOS</button>';
+   errorDialog.querySelector('button').addEventListener('click',()=>errorDialog.close());errorDialog.addEventListener('close',focusError);document.body.append(errorDialog);
+   const style=document.createElement('style');style.textContent='#itop-flow-error-dialog::backdrop{background:#0009}#sondagem [aria-invalid="true"]{outline:2px solid #b42318;outline-offset:2px}';document.head.append(style);
+  }
+  const list=errorDialog.querySelector('ul');list.replaceChildren();for(const field of fields){const li=document.createElement('li');li.textContent=field.message;list.append(li);}
+  if(!errorDialog.open)errorDialog.showModal();
  }
  function allowNavigation(id){if(bypass||!required||!steps[id])return true;if(!ready){say('Aguarde a conferência da proposta aberta.');return false;}const target=steps[id];if(target<=stage)return true;
   if(closed){say('Esta proposta já foi concluída. Use Nova proposta na etapa 1.');return false;}
@@ -47,9 +60,9 @@
   await api.save();const s=api.sync();const result=await api.rpc('itop_concluir_proposta',{p_id:s.id,p_versao:s.version,p_diagnostico:diagnosis,p_checklist:checklist});await api.load(result.id);restore(result);
   say(diagnosis==='venda_fechada'?'Venda fechada registrada. A confirmação comercial será validada pela gestão. Você já pode iniciar outra proposta.':'Diagnóstico registrado. Você já pode iniciar outra proposta.');
  });}
- document.addEventListener('input',e=>{if(e.target.id==='survey-result')refresh();});document.addEventListener('change',e=>{if(e.target.id==='itop-flow-diagnosis')refresh();});
+ document.addEventListener('input',e=>{if(e.target.id==='survey-result')refresh();if(e.target.closest?.('#sondagem')&&e.target.getAttribute?.('aria-invalid')==='true'&&['clienteItop','nome','cidade','telefone','vendedor'].includes(e.target.id))surveyErrors();});document.addEventListener('change',e=>{if(e.target.id==='itop-flow-diagnosis')refresh();});
  document.addEventListener('click',e=>{if(e.target.closest('#itop-flow-new'))startNew();if(e.target.closest('#itop-flow-finish'))finish();});
- window.addEventListener('itop:logged-out',()=>{++epoch;ready=false;required=true;record=null;stage=1;closed=false;api=null;refresh();});
+ window.addEventListener('itop:logged-out',()=>{errorTarget=null;errorDialog?.close();++epoch;ready=false;required=true;record=null;stage=1;closed=false;api=null;refresh();});
  window.ITOPSalesFlow=Object.freeze({configure,restore,onSaved,allowNavigation,canClear,canLoad,startNew,canRecover(){return !busy&&ready&&(closed||(!record&&!hasData()));}});refresh();
 })();
 
