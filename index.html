@@ -1732,9 +1732,23 @@ function buildClosingPDF(){
  if(r.schedule){doc.setFontSize(7.5);doc.setFont('helvetica','bold');const promoLines=doc.splitTextToSize('PROMOÇÃO · '+r.schedule,178);doc.text(promoLines,left+width/2,y+3,{align:'center'});y+=promoLines.length*4+5;}
  doc.setFillColor(255,244,233);doc.rect(left,y,width,19,'F');doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text('VALOR MENSAL REGULAR: '+money(r.total),left+4,y+7);doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(r.saving>0?'ECONOMIA MENSAL REGULAR: '+money(r.saving)+' | '+money(r.annualSaving)+'/NOS PRIMEIROS 12 MESES':'FOCO NOS BENEFÍCIOS E SERVIÇOS SELECIONADOS ACIMA.',left+4,y+14);y+=24;
  if(r.include){
- doc.setFontSize(9);doc.setFont('helvetica','bold');doc.text('ECONOMIA ESTIMADA COM ENERGIA NETZ',left,y+4);y+=10;
- const metrics=['Economia mensal: '+money(energy.saving)+' | Economia anual: '+money(energy.annual),'Custo líquido equivalente: '+money(r.total-energy.saving)+'/mês','Compensação estimada do pacote: '+(r.total>0?100*energy.saving/r.total:0).toFixed(1)+'%'];
- doc.setFontSize(8);doc.setFont('helvetica','normal');for(const line of metrics){doc.text(line,left,y);y+=5;}
+ const equivalent=Math.round((r.total-energy.saving)*100)/100;
+ // Destaca a relação entre o pacote escolhido e a economia separada da energia.
+ if(y+92>277){doc.addPage();y=22;}
+ doc.setFillColor(0,19,76);doc.rect(left,y,width,35,'F');
+ doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255);
+ const centers=[left+27,left+91,left+155];
+ ['PLANO ITOP','ECONOMIA NA ENERGIA','CUSTO EQUIVALENTE'].forEach((label,i)=>doc.text(label,centers[i],y+8,{align:'center'}));
+ const amounts=[money(r.total),money(energy.saving),money(equivalent)];
+ let amountFont=15;while(amountFont>9){doc.setFontSize(amountFont);if(amounts.every(value=>doc.getTextWidth(value)<=52))break;amountFont--;}
+ amounts.forEach((value,i)=>{doc.setTextColor(...(i===2?[255,178,100]:[255,255,255]));doc.text(value,centers[i],y+20,{align:'center'});});
+ doc.setTextColor(255);doc.setFontSize(18);doc.text('-',left+59,y+20,{align:'center'});doc.text('=',left+123,y+20,{align:'center'});
+ doc.setFontSize(7);doc.setFont('helvetica','normal');doc.text('VALORES MENSAIS · SIMULAÇÃO ECONÔMICA',left+width/2,y+29,{align:'center'});y+=42;
+ doc.setTextColor(30);doc.setFontSize(8);
+ const equation='PLANO - ECONOMIA NA ENERGIA = CUSTO LÍQUIDO EQUIVALENTE';
+ doc.setFont('helvetica','bold');doc.text(equation,left,y);y+=5;doc.setFont('helvetica','normal');
+ const metrics=['Economia mensal: '+money(energy.saving)+' | Economia anual: '+money(energy.annual),'Custo líquido equivalente: '+money(equivalent)+'/mês','Compensação estimada do pacote: '+(r.total>0?100*energy.saving/r.total:0).toFixed(1)+'%'];
+ for(const line of metrics){doc.text(line,left,y);y+=5;}
  const note=doc.splitTextToSize('A mensalidade ITOP de '+money(r.total)+' é cobrada integralmente. A economia estimada ocorre separadamente na conta de energia e não é desconto na mensalidade ITOP. Equivalência econômica estimada, sujeita à fatura, tributos, encargos e regras da distribuidora.',width);doc.text(note,left,y+2);y+=note.length*4+5;
  }
  doc.setFontSize(7);doc.setTextColor(90);doc.text(['Composição escolhida para conferência e registro. Cobertura, condições e ativação sujeitas à validação.',...(r.include?['Energia: estimativa sobre kWh excedentes, sujeita a tributos, encargos e regras da distribuidora.']:[])],left,282);
