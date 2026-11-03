@@ -78,7 +78,7 @@ begin
  resposta:=jsonb_build_object('id',s.id,'versao',s.versao,'updated_at',s.updated_at,'status',s.status,'total',s.total,'teste',s.teste,'fluxo_etapa',s.fluxo_etapa,'diagnostico_final',s.diagnostico_final);
  insert into itop_private.operacoes(id,ator,sondagem_id,resposta) values(p_operacao,u,p_id,resposta);
  return resposta;
-end $function$
+end $function$;
 
 
 CREATE OR REPLACE FUNCTION itop_private.concluir_proposta(p_id uuid,p_versao integer,p_diagnostico text,p_checklist jsonb) RETURNS public.itop_sondagens LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
