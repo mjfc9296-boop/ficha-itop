@@ -1,5 +1,5 @@
 (()=>{'use strict';
- const $=id=>document.getElementById(id),roles={administrador:'Administrador',coordenador:'Coordenador',supervisor:'Supervisor',vendedor:'Vendedor'};
+ const $=id=>document.getElementById(id),roles={administrador:'Administrador',coordenador:'Coordenador',supervisor:'Supervisor',vendedor:'Vendedor',convidado:'Convidado'};
  let client,model,loading=false,epoch=0,creating=false,registration;
  const node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
  const notify=t=>{$('itop-gestao-message').textContent=t;};
@@ -27,14 +27,16 @@
   if(!pend.length)list.append(node('p','Nenhuma solicitação pendente.','itop-team-empty'));
   for(const p of pend){const row=person(p),team=model.equipes.find(e=>e.id===p.equipe_id);row.firstChild.append(node('small',team?.nome||'Equipe a definir'));list.append(row);}
   for(const team of model.equipes){
+   const personal=team.codigo==='adm-mario';
    const card=node('section',undefined,'itop-team-card'),head=node('div',undefined,'itop-team-card-head'),info=node('div');
-   info.append(node('small','SUPERVISOR'),node('h3',team.supervisor_nome||team.nome.replace(/^Equipe\s*/i,'')));
+   info.append(node('small',personal?'CARTEIRA DO ADMINISTRADOR':'SUPERVISOR'),node('h3',personal?team.nome:team.supervisor_nome||team.nome.replace(/^Equipe\s*/i,'')));
+   if(personal&&model.papel==='administrador')head.append(button('Cadastrar convidado',()=>openCreate(team,'convidado'),'itop-team-secondary'));
    head.append(info,button('+',()=>openCreate(team,'vendedor'),'itop-team-plus'));head.lastChild.setAttribute('aria-label','Cadastrar vendedor na '+team.nome);
-   card.append(head,node('p','Coordenação: '+team.coordenador_nome,'itop-team-meta'));
+   card.append(head,node('p',personal?'Gestão: ADM Mario Caputo':'Coordenação: '+(team.coordenador_nome||'A definir'),'itop-team-meta'));
    const sup=all.find(p=>p.id===team.supervisor_id);if(sup)card.append(person(sup));
-   if(!team.supervisor_id){const empty=node('div',undefined,'itop-team-notice');empty.append(node('p','Equipe preparada · conta do supervisor ainda não cadastrada.'));
+   if(!team.supervisor_id&&!personal){const empty=node('div',undefined,'itop-team-notice');empty.append(node('p','Equipe preparada · conta do supervisor ainda não cadastrada.'));
     if(['administrador','coordenador'].includes(model.papel))empty.append(button('Cadastrar supervisor',()=>openCreate(team,'supervisor'),'itop-team-secondary'));card.append(empty);}
-   const sellers=all.filter(p=>p.papel==='vendedor'&&!pending(p)&&p.equipe_id===team.id);card.append(node('h4',sellers.length+' vendedor(es)'));
+   const sellers=all.filter(p=>['vendedor','convidado'].includes(p.papel)&&!pending(p)&&p.equipe_id===team.id);card.append(node('h4',sellers.length+' usuário(s) · vendedores e convidados'));
    if(!sellers.length)card.append(node('p','Use o + para cadastrar. Solicitações feitas na entrada do site também chegam a esta equipe.','itop-team-empty'));
    for(const p of sellers)card.append(person(p));teams.append(card);
   }
@@ -49,7 +51,7 @@
  }
  function close(){if(creating)return;$('itop-team-dialog').close();$('itop-team-create-form').reset();$('itop-team-create-status').textContent='';registration=null;}
  function openCreate(team,role){registration={team,role,userId:null};const form=$('itop-team-create-form');form.reset();form.hidden=false;$('itop-team-create-submit').hidden=false;
-  $('itop-team-create-title').textContent=role==='supervisor'?'Cadastrar supervisor':'Cadastrar vendedor';$('itop-team-create-destination').textContent=team.nome+' · Coordenação: '+team.coordenador_nome;
+  $('itop-team-create-title').textContent=role==='supervisor'?'Cadastrar supervisor':role==='convidado'?'Cadastrar convidado':'Cadastrar vendedor';$('itop-team-create-destination').textContent=team.nome+' · Coordenação: '+team.coordenador_nome;
   $('itop-team-create-status').textContent='O cadastro será criado nesta equipe e aprovado com a sua permissão. O e-mail deverá ser confirmado quando solicitado.';
   if(role==='supervisor')$('itop-team-create-name').value='';$('itop-team-dialog').showModal();
  }
@@ -79,3 +81,4 @@
  $('itop-team-dialog').addEventListener('cancel',e=>{if(creating)e.preventDefault();else close();});$('itop-team-move-close').onclick=()=>$('itop-team-move-dialog').close();
  client=window.itopAuthClient;if(client)client.auth.getUser().then(async({data:{user}})=>{if(!user)return;const{data:p}=await client.from('perfis').select('papel,ativo,status_aprovacao').eq('id',user.id).maybeSingle();if(p?.ativo&&p.status_aprovacao==='aprovado'&&['administrador','coordenador','supervisor'].includes(p.papel)){$('itop-gestao-tab').hidden=false;load();}}).catch(()=>{});
 })();
+

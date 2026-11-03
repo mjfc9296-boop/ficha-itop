@@ -1839,7 +1839,7 @@ $('webPDF').addEventListener('click',()=>{if(/iPhone|iPad|iPod|Android/i.test(na
    try{
      const {data:{user},error}=await client.auth.getUser();if(error||!user){lock();return;}
      const {data:profile,error:pe}=await client.from('perfis').select('papel,ativo,nome,status_aprovacao').eq('id',user.id).single();
-     if(pe||!profile||!profile.ativo||profile.status_aprovacao!=='aprovado'||!['administrador','coordenador','supervisor','vendedor'].includes(profile.papel)){lock();notice('Acesso não autorizado ou aguardando aprovação.');return;}
+     if(pe||!profile||!profile.ativo||profile.status_aprovacao!=='aprovado'||!['administrador','coordenador','supervisor','vendedor','convidado'].includes(profile.papel)){lock();notice('Acesso não autorizado ou aguardando aprovação.');return;}
      unlock();notice('');window.dispatchEvent(new CustomEvent('itop:authorized',{detail:{papel:profile.papel,nome:profile.nome}}));
    }catch(e){lock();notice('Não foi possível verificar sua autorização.');}
  }
@@ -2344,4 +2344,4 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 
-<script src="comercial/config.js?v=20261102-ativacao"></script><script src="comercial/core.js?v=20261103-fluxo"></script><script src="comercial/bridge.js?v=20261103-cliente"></script><script src="fluxo-vendedor.js?v=2"></script><script src="comercial/inteligencia.js?v=1"></script><script src="comercial/comercial.js?v=20261103-inteligencia"></script><script>(()=>{const day=new Date().toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'});const date=new Date();date.setDate(date.getDate()-29);document.getElementById('commercial-start').value=date.toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'});document.getElementById('commercial-end').value=day;})();</script><script src="layout-20261102.js?v=4"></script><script src="equipes-20261103.js?v=2"></script><script src="cadastros-alerta.js?v=1"></script><script src="uvi-links-horizontal.js?v=2"></script><script src="ajustes-trilha-20261103.js?v=1"></script></body></html>
+<script src="comercial/config.js?v=20261102-ativacao"></script><script src="comercial/core.js?v=20261103-fluxo"></script><script src="comercial/bridge.js?v=20261103-cliente"></script><script src="fluxo-vendedor.js?v=2"></script><script src="comercial/inteligencia.js?v=1"></script><script src="comercial/comercial.js?v=20261103-inteligencia"></script><script>(()=>{const day=new Date().toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'});const date=new Date();date.setDate(date.getDate()-29);document.getElementById('commercial-start').value=date.toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'});document.getElementById('commercial-end').value=day;})();</script><script src="layout-20261102.js?v=4"></script><script src="equipes-20261103.js?v=3"></script><script src="cadastros-alerta.js?v=1"></script><script src="uvi-links-horizontal.js?v=2"></script><script src="ajustes-trilha-20261103.js?v=1"></script></body></html>
