@@ -134,3 +134,7 @@ html body #energia #energyMemoryComparison .energy-mini-table tfoot td,
 html body #energia #energyMemoryComparison .energy-mini-table tfoot td *{color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;text-shadow:none!important}
 html body #energia #energyMemoryComparison .energy-mini-table thead th:last-child,
 html body #energia #energyMemoryComparison .energy-mini-table thead th:last-child *{color:#000000!important;-webkit-text-fill-color:#000000!important}
+
+/* Cabeçalhos dos menus laterais centralizados. */
+html body .itop-work-rail details>summary{text-align:center!important;list-style-position:inside}
+html body .itop-work-rail details>summary span{text-align:center!important}
