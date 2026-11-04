@@ -1,0 +1,12 @@
+/* Convidado usa ferramentas e suas próprias simulações; não recebe funções de gestão. */
+(()=>{'use strict';
+ const $=id=>document.getElementById(id);
+ const survey=document.createElement('section');survey.hidden=true;survey.className='itop-guest-panel';survey.innerHTML='<h2>Acesso de convidado</h2><p>Financeiro e retenção · carteira ADM Mario Caputo. Suas simulações são salvas separadamente e não entram nos indicadores comerciais.</p><button type="button" id="itop-guest-new">NOVA SIMULAÇÃO</button><p id="itop-guest-status" role="status"></p>';$('sondagem').prepend(survey);
+ const closing=document.createElement('section');closing.hidden=true;closing.className='itop-guest-panel';closing.innerHTML='<h2>Simulação do convidado</h2><div class="actions"><button type="button" id="itop-guest-pdf-energy">PDF COM ENERGIA</button><button type="button" id="itop-guest-pdf">PDF SEM ENERGIA</button><button type="button" id="itop-guest-save">SALVAR SIMULAÇÃO</button></div>';$('fechamento').prepend(closing);
+ $('itop-guest-new').onclick=async()=>{try{if(!window.ITOPSalesFlow.canSave())throw Error('Aguarde a inicialização do painel.');await window.ITOPSalesFlow.startNew();$('itop-guest-status').textContent='Nova simulação. Os dados anteriores foram limpos.';}catch(e){$('itop-guest-status').textContent=e.message;}};
+ $('itop-guest-pdf-energy').onclick=()=>$('pdf-with-energy').click();$('itop-guest-pdf').onclick=()=>$('pdf-without-energy').click();
+ $('itop-guest-save').onclick=async()=>{const button=$('itop-guest-save');button.disabled=true;try{if(!window.ITOPSalesFlow.canSave())throw Error('Aguarde a inicialização do painel.');await window.ITOPProposalSave();$('pdfStatus').textContent='Simulação salva. Este registro de convidado não entra nos indicadores comerciais.';}catch(e){$('pdfStatus').textContent=e.message;}finally{button.disabled=false;}};
+ const set=role=>{const guest=role==='convidado';survey.hidden=closing.hidden=!guest;document.body.classList.toggle('itop-guest-mode',guest);};
+ window.addEventListener('itop:authorized',e=>set(e.detail?.papel));window.addEventListener('itop:logged-out',()=>set(null));
+ const client=window.itopAuthClient;if(client)client.auth.getUser().then(async({data})=>{if(!data.user)return;const {data:p}=await client.from('perfis').select('papel,ativo,status_aprovacao').eq('id',data.user.id).maybeSingle();if(p?.ativo&&p.status_aprovacao==='aprovado')set(p.papel);}).catch(()=>{});
+})();

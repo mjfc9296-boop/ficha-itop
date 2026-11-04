@@ -48,3 +48,5 @@ html body #itop-push-consent-dialog::backdrop{background:#000b!important}
 html body #itop-push-consent-dialog h2{color:#202020!important;-webkit-text-fill-color:#202020!important;font-size:18px!important;line-height:1.4!important}
 html body #itop-push-consent-dialog .actions{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:10px!important}
 html body #itop-push-consent-dialog .actions button{min-height:44px!important;white-space:normal!important;background:#d57a2f!important;background-image:none!important;color:#111!important;-webkit-text-fill-color:#111!important}
+html body .itop-guest-panel{border:2px solid #d57a2f!important;border-radius:14px;padding:16px;background:#fff;color:#202020}
+html body .itop-guest-panel h2,html body .itop-guest-panel p{color:#202020!important;-webkit-text-fill-color:#202020!important;line-height:1.6}
