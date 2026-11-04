@@ -1,0 +1,17 @@
+html body.itop-existing-client #recommend,html body.itop-existing-client #sondagem .summary-saving,html body.itop-existing-client #sondagem button[onclick*="restoreProposal"]{display:none!important}
+#budget-panel,#itop-current-extras,#itop-client-comparison,#itop-uvi-tools article,#budget-metrics{padding:20px;margin:16px 0;border:1px solid #d57a2f;border-radius:14px;background:#fff;color:#222}
+#budget-panel[hidden],#itop-current-extras[hidden],#itop-client-comparison[hidden],#itop-uvi-tools article[hidden]{display:none!important}
+.budget-fields,.itop-financial-grid,.itop-package-columns,.budget-metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#budget-panel input:not([type=checkbox]),#budget-panel select,#budget-panel textarea,.current-extra-row input{width:100%;min-width:0;display:block;margin:6px 0 12px;padding:10px;border:1px solid #aaa;border-radius:8px;background:#fff;color:#222}
+.current-extra-row{display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:10px;align-items:end}
+.itop-package-columns>div,.itop-financial-grid>div,.budget-metric-grid>div{padding:14px;border:1px solid #ddd;border-radius:10px}
+.budget-metric-grid strong{display:block;font-size:22px;margin-top:8px;color:#00134c}
+#budget-current-dialog{width:min(1000px,96vw);max-height:90vh;overflow:auto;border:2px solid #d57a2f;border-radius:14px;padding:20px}
+#budget-current-dialog::backdrop{background:#0009}
+#budget-panel .actions{display:flex;flex-wrap:wrap;gap:8px}
+html body.itop-budget-active #pacote>.itop-sales-flow{display:none!important}
+@media(max-width:650px){.budget-fields,.itop-financial-grid,.itop-package-columns,.budget-metric-grid,.current-extra-row{grid-template-columns:1fr}#budget-panel .actions button{width:100%;min-height:44px}#budget-panel{padding:12px}#budget-current-content{overflow-x:auto}}
+
+html body.itop-existing-client .itop-recommend-section>h2,html body.itop-existing-client .itop-recommend-section>.hint{display:none!important}
+
+html body.itop-budget-active .budget-legacy-identity,html body.itop-budget-active #pacote button[onclick*="fechamento"]{display:none!important}

@@ -27,7 +27,7 @@
   ['clienteItop',['sim','nao'].includes($('clienteItop').value),'Favor selecionar JÁ É CLIENTE ITOP ou NOVO CLIENTE.'],
   ['vendedor',window.ITOPApprovedOperator.valid(),'Favor preencher o operador com o primeiro nome do cadastro aprovado.'],
   ['nome',$('nome').value.trim().length>=2,'Favor preencher o nome do cliente (mínimo de 2 caracteres).'],
-  ['cidade',$('cidade').value.trim().length>=2,'Favor preencher a cidade do cliente (mínimo de 2 caracteres).'],
+  ['cidade',$('clienteItop').value==='sim'||$('cidade').value.trim().length>=2,'Favor preencher a cidade do cliente (mínimo de 2 caracteres).'],
   ['telefone',/^\d{10,11}$/.test($('telefone').value.replace(/\D/g,'')),'Favor preencher o campo WhatsApp com DDD (10 ou 11 dígitos).']
  ].filter(([id,valid])=>{$(id)?.setAttribute?.('aria-invalid',String(!valid));return !valid;}).map(([id,,message])=>({id,message}));}
  function validSurvey(){const fields=surveyErrors();if(fields.length){const error=Error(fields.map(f=>f.message).join('\n'));error.fields=fields;throw error;}}
@@ -44,7 +44,7 @@
   const list=errorDialog.querySelector('ul');list.replaceChildren();for(const field of fields){const li=document.createElement('li');li.textContent=field.message;list.append(li);}
   if(!errorDialog.open)errorDialog.showModal();
  }
- function allowNavigation(id){if(bypass||!required||!steps[id])return true;if(!ready){say('Aguarde a conferência da proposta aberta.');return false;}if(id==='sondagem'&&closed){startNew();return false;}const target=steps[id];if(target<=stage)return true;
+ function allowNavigation(id){if(window.ITOPBudget?.active&&id==='pacote')return true;if(window.ITOPBudget?.active&&id==='fechamento'){say('Use CONVERTER EM VENDA no orçamento para completar os dados e o checklist.');return false;}if(bypass||!required||!steps[id])return true;if(!ready){say('Aguarde a conferência da proposta aberta.');return false;}if(id==='sondagem'&&closed){startNew();return false;}const target=steps[id];if(target<=stage)return true;
   if(closed){say('Esta proposta já foi concluída. Use Nova proposta na etapa 1.');return false;}
   if(target!==stage+1){say('Siga a sequência: primeiro a Sondagem, depois Adicionar produtos e por último o Fechamento.');move(stage===1?'sondagem':'pacote');return false;}
   run(async()=>{if(target===2)validSurvey();
@@ -55,7 +55,7 @@
   for(const id of ['nome','telefone','pacoteNome','pacoteTelefone','pacoteCidade','pacoteVendedor'])$(id).readOnly=false;api.reset();record=null;stage=1;closed=false;restore(null);move('sondagem');say('Nova proposta. Comece pela etapa 1.');});}
  function canLoad(id){if(required&&!closed&&record&&record!==id){say('Finalize a sondagem da proposta aberta antes de abrir outra.');return false;}return true;}
  async function finish(){if(!required||!ready||closed)return;await run(async()=>{
-  if(stage!==3)throw Error('Conclua as etapas 1 e 2 antes do fechamento.');const checklist=Object.fromEntries(['cliente','produtos','condicoes'].map(k=>[k,$('itop-flow-check-'+k).checked]));
+  validSurvey();if($('cidade').value.trim().length<2)throw Error('Preencha a cidade do cliente antes do fechamento.');if(stage!==3)throw Error('Conclua as etapas 1 e 2 antes do fechamento.');const checklist=Object.fromEntries(['cliente','produtos','condicoes'].map(k=>[k,$('itop-flow-check-'+k).checked]));
   if(!validObservation())throw Error('Preencha as observações com 2 a 500 caracteres válidos.');const diagnosis=$('itop-flow-diagnosis').value;if(!diagnosis)throw Error('Selecione Venda fechada, Desistência ou Cliente ficou de pensar.');
   await api.save();const s=api.sync();const result=await api.rpc('itop_concluir_proposta',{p_id:s.id,p_versao:s.version,p_diagnostico:diagnosis,p_checklist:checklist});await api.load(result.id);restore(result);
   say(diagnosis==='venda_fechada'?'Venda fechada registrada. A confirmação comercial será validada pela gestão. Você já pode iniciar outra proposta.':'Diagnóstico registrado. Você já pode iniciar outra proposta.');

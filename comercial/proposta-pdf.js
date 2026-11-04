@@ -12,7 +12,7 @@
   if((includeEnergy||energyOnly)&&!valid)throw Error('Preencha uma simulação de energia válida, incluindo fatura, tarifa, categoria e consumo.');
   const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4',compress:true,putOnlyUsedFonts:true});
   let y=43;
-  doc.addImage(LOGO,'PNG',76,9,58,22.56,'itop-logo','FAST');doc.setTextColor(25);doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text(energyOnly?'SIMULAÇÃO DE ENERGIA':'PROPOSTA COMERCIAL',105,39,{align:'center'});
+  doc.addImage(LOGO,'PNG',76,9,58,22.56,'itop-logo','FAST');doc.setTextColor(25);doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text(energyOnly?'SIMULAÇÃO DE ENERGIA':f.origemAtendimento==='Orçamento U.V.I.'?'ORÇAMENTO COMERCIAL':'PROPOSTA COMERCIAL',105,39,{align:'center'});
   const ensure=h=>{if(y+h>276){doc.addPage();y=18;}};
   function text(value,{bold=false,color=30,size=9}={}){doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);doc.setTextColor(color);const lines=doc.splitTextToSize(String(value),178);for(const line of lines){ensure(5);doc.text(line,16,y+4);y+=5;}y+=2;}
   function title(value){ensure(15);y+=3;doc.setFillColor(247,238,229);doc.rect(14,y,182,8,'F');doc.setFont('helvetica','bold');doc.setTextColor(137,69,17);doc.setFontSize(9);doc.text(value,17,y+5.5);y+=11;}
@@ -28,12 +28,13 @@
    if(number(f.fixoValor)||f.fixoNumero||f.fixoOperadora){row('FIXO - '+(f.fixoOperadora||'')+' - '+(f.fixoNumero||''),money(number(f.fixoValor)));current+=number(f.fixoValor);}
    const mobileIds=[...new Set(Object.keys(f).filter(k=>/^m(valor|numero|gb|op)\d+$/.test(k)).map(k=>k.match(/\d+$/)[0]))].sort((a,b)=>a-b);
    for(const i of mobileIds)if(number(f['mvalor'+i])||f['mnumero'+i]||number(f['mgb'+i])){row('MÓVEL '+(+i+1)+' - '+(f['mnumero'+i]||'')+' - '+(f['mop'+i]||'')+' - '+(f['mgb'+i]||0)+' GB',money(number(f['mvalor'+i])));current+=number(f['mvalor'+i]);}
+   for(const p of f.servicosAtuais||[]){row(p.category+' - '+p.name,money(number(p.price)));current+=number(p.price);}
    row('GASTO ATUAL TOTAL',money(current));title('ESCOLHA FINAL - SERVIÇOS CONTRATADOS');
    let mobile=0;
    for(const p of products){const line=number(p.q)*number(p.price);total+=line;const isMobile=/móvel|movel/i.test(p.category)||/combo/i.test(p.name);const role=isMobile?(mobile++?'DEPENDENTE - ':'TITULAR - '):'';const phone=/fixo/i.test(p.category)?f.fixoNumero:isMobile&&p.sourceIndex!==undefined?f['mnumero'+p.sourceIndex]:'';row(role+p.category+' - '+p.name+' - '+p.q+' un.'+(phone?' - '+phone:''),money(line));const promo=typeof planPromotion==='function'?planPromotion(p.name):null;if(promo)text('Condição promocional: '+promo.label+'; depois '+money(p.price)+'/mês.',{size:8});}
    row('VALOR MENSAL REGULAR DO PACOTE',money(total));
    if(number(record.desconto)>0){row('DESCONTO COMERCIAL REGISTRADO',money(number(record.desconto)));row('TOTAL COM DESCONTO',money(Math.max(0,total-number(record.desconto))));}
-   if(current>total)text('Economia mensal regular nos serviços: '+money(current-total),{bold:true});
+   if(f.clienteItop==='sim'){const diff=cents(total-number(record.desconto)-current);text((diff>0?'Aumento':diff<0?'Redução':'Diferença')+' da mensalidade: '+money(Math.abs(diff)),{bold:true});}else if(current>total)text('Economia mensal regular nos serviços: '+money(current-total),{bold:true});
    if(record.resultado){title('OBSERVAÇÃO COMERCIAL');text(record.resultado);}
   }else total=products.reduce((s,p)=>s+number(p.q)*number(p.price),0);
   if(includeEnergy||energyOnly){
