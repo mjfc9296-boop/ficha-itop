@@ -50,3 +50,6 @@ html body #itop-push-consent-dialog .actions{display:flex!important;flex-wrap:wr
 html body #itop-push-consent-dialog .actions button{min-height:44px!important;white-space:normal!important;background:#d57a2f!important;background-image:none!important;color:#111!important;-webkit-text-fill-color:#111!important}
 html body .itop-guest-panel{border:2px solid #d57a2f!important;border-radius:14px;padding:16px;background:#fff;color:#202020}
 html body .itop-guest-panel h2,html body .itop-guest-panel p{color:#202020!important;-webkit-text-fill-color:#202020!important;line-height:1.6}
+html body #itop-auth-screen #itop-register-form #itop-reg-sector-fields label{display:block!important;margin:12px 0 7px!important;line-height:1.5!important}
+html body #itop-auth-screen #itop-register-form #itop-reg-sector-fields select{width:100%!important;min-width:0!important;margin:0!important;min-height:42px!important}
+html body #itop-auth-screen #itop-reg-responsible-status{font-size:12px;line-height:1.5;margin:8px 0;color:#eee!important;-webkit-text-fill-color:#eee!important}

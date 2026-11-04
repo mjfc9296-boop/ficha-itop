@@ -1,5 +1,6 @@
 (()=>{'use strict';
  const $=id=>document.getElementById(id),roles={administrador:'Administrador',coordenador:'Coordenador',supervisor:'Supervisor',vendedor:'Vendedor',convidado:'Convidado'};
+ const sectorField=document.createElement('div');sectorField.id='itop-team-sector-field';sectorField.innerHTML='<label for="itop-team-sector">Setor</label><select id="itop-team-sector"><option value="comercial_vendas">Comercial / Vendas</option><option value="financeiro">Financeiro</option><option value="suporte">Suporte</option><option value="back_office">Back Office</option></select>';$('itop-team-create-submit').before(sectorField);
  let client,model,loading=false,epoch=0,creating=false,registration;
  const node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
  const notify=t=>{$('itop-gestao-message').textContent=t;};
@@ -25,14 +26,14 @@
   let admin=0;for(const p of model.lideranca){const card=node('div',undefined,'itop-leader');card.append(node('small',p.papel==='administrador'?'ADM '+(++admin):'COORDENADOR'),node('strong',p.nome));leadership.append(card);}
   const all=model.pessoas||[],pend=all.filter(pending),badge=$('itop-pending-badge');badge.hidden=!pend.length;badge.textContent=String(pend.length);
   if(!pend.length)list.append(node('p','Nenhuma solicitação pendente.','itop-team-empty'));
-  for(const p of pend){const row=person(p),team=model.equipes.find(e=>e.id===p.equipe_id);row.firstChild.append(node('small',team?.nome||'Equipe a definir'));list.append(row);}
+  for(const p of pend){const row=person(p),team=model.equipes.find(e=>e.id===p.equipe_id);row.firstChild.append(node('small',(window.ITOPSectors?.sectors[p.setor]||'Comercial / Vendas')+' · '+(p.responsavel_nome||team?.nome||'Equipe a definir')));list.append(row);}
   for(const team of model.equipes){
-   const personal=team.codigo==='adm-mario';
+   const personal=!!team.administrador_id||team.codigo==='adm-mario';
    const card=node('section',undefined,'itop-team-card'),head=node('div',undefined,'itop-team-card-head'),info=node('div');
    info.append(node('small',personal?'CARTEIRA DO ADMINISTRADOR':'SUPERVISOR'),node('h3',personal?team.nome:team.supervisor_nome||team.nome.replace(/^Equipe\s*/i,'')));
-   if(personal&&model.papel==='administrador')head.append(button('Cadastrar convidado',()=>openCreate(team,'convidado'),'itop-team-secondary'));
+   if(team.responsavel_id)head.append(button('Cadastrar convidado',()=>openCreate(team,'convidado'),'itop-team-secondary'));
    head.append(info,button('+',()=>openCreate(team,'vendedor'),'itop-team-plus'));head.lastChild.setAttribute('aria-label','Cadastrar vendedor na '+team.nome);
-   card.append(head,node('p',personal?'Gestão: ADM Mario Caputo':'Coordenação: '+(team.coordenador_nome||'A definir'),'itop-team-meta'));
+   card.append(head,node('p',personal?'Gestão: ADM '+(team.responsavel_nome||'Mario Caputo'):'Setor: '+(window.ITOPSectors?.sectors[team.setor]||'Comercial / Vendas')+' · Coordenação: '+(team.coordenador_nome||'A definir'),'itop-team-meta'));
    const sup=all.find(p=>p.id===team.supervisor_id);if(sup)card.append(person(sup));
    if(!team.supervisor_id&&!personal){const empty=node('div',undefined,'itop-team-notice');empty.append(node('p','Equipe preparada · conta do supervisor ainda não cadastrada.'));
     if(['administrador','coordenador'].includes(model.papel))empty.append(button('Cadastrar supervisor',()=>openCreate(team,'supervisor'),'itop-team-secondary'));card.append(empty);}
@@ -51,6 +52,7 @@
  }
  function close(){if(creating)return;$('itop-team-dialog').close();$('itop-team-create-form').reset();$('itop-team-create-status').textContent='';registration=null;}
  function openCreate(team,role){registration={team,role,userId:null};const form=$('itop-team-create-form');form.reset();form.hidden=false;$('itop-team-create-submit').hidden=false;
+  sectorField.hidden=!['supervisor','convidado'].includes(role);$('itop-team-sector').value=team.setor||'comercial_vendas';$('itop-team-sector').disabled=role==='convidado'&&!!team.supervisor_id;
   $('itop-team-create-title').textContent=role==='supervisor'?'Cadastrar supervisor':role==='convidado'?'Cadastrar convidado':'Cadastrar vendedor';$('itop-team-create-destination').textContent=team.nome+' · Coordenação: '+team.coordenador_nome;
   $('itop-team-create-status').textContent='O cadastro será criado nesta equipe e aprovado com a sua permissão. O e-mail deverá ser confirmado quando solicitado.';
   if(role==='supervisor')$('itop-team-create-name').value='';$('itop-team-dialog').showModal();
@@ -63,7 +65,7 @@
     status.textContent='Criando cadastro…';
     // Cliente isolado: criar o vendedor nunca troca a sessão do gestor.
     const signup=window.supabase.createClient('https://tzvwrcxcubiacvlisvhf.supabase.co','sb_publishable_MLnii3Sz2W_lBfw-0eRKXg_slUZERBm',{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'itop-team-create-'+crypto.randomUUID()}});
-    const{data,error}=await signup.auth.signUp({email,password,options:{data:{nome:name,solicitado_papel:entry.role,equipe_id:entry.team.id,telefone:$('itop-team-create-phone').value},emailRedirectTo:location.origin+location.pathname}});
+    const{data,error}=await signup.auth.signUp({email,password,options:{data:{nome:name,solicitado_papel:entry.role,equipe_id:entry.team.id,...(['supervisor','convidado'].includes(entry.role)?{setor:$('itop-team-sector').value}:{}),...(entry.role==='convidado'?{responsavel_id:entry.team.responsavel_id}:{}),telefone:$('itop-team-create-phone').value},emailRedirectTo:location.origin+location.pathname}});
     $('itop-team-create-password').value='';await signup.auth.signOut({scope:'local'});
     if(error)throw Error(error.message);if(!data.user?.id||data.user.identities?.length===0)throw Error('Confira se este e-mail já possui cadastro.');entry.userId=data.user.id;
    }
