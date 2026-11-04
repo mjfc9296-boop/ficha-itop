@@ -1,6 +1,6 @@
 (()=>{'use strict';
  const choice=document.getElementById('clienteItop');
- let freeGuest=false;const valid=()=>freeGuest||['sim','nao'].includes(choice.value);
+ let freeGuest=false;const valid=()=>window.ITOPBudget?.active||freeGuest||['sim','nao'].includes(choice.value);
  const table=document.querySelector('#sondagem .survey-table');
  function refresh(){table.inert=!valid();table.style.opacity=valid()?'1':'.5';}
  function requireChoice(){if(valid())return true;alert('Selecione primeiro JÁ É CLIENTE ITOP ou NOVO CLIENTE.');choice.focus();return false;}
