@@ -63,7 +63,7 @@
  document.addEventListener('input',e=>{if(e.target.id==='survey-result')refresh();if(e.target.closest?.('#sondagem')&&e.target.getAttribute?.('aria-invalid')==='true'&&['clienteItop','nome','cidade','telefone','vendedor'].includes(e.target.id))surveyErrors();});document.addEventListener('change',e=>{if(e.target.id==='itop-flow-diagnosis')refresh();});
  document.addEventListener('click',e=>{if(e.target.closest('#itop-flow-new'))startNew();if(e.target.closest('#itop-flow-finish'))finish();});
  window.addEventListener('itop:logged-out',()=>{errorTarget=null;errorDialog?.close();++epoch;ready=false;required=true;record=null;stage=1;closed=false;api=null;refresh();});
- window.ITOPSalesFlow=Object.freeze({configure,restore,onSaved,allowNavigation,canClear,canLoad,startNew,canRecover(){return !busy&&ready&&(closed||(!record&&!hasData()));}});refresh();
+ window.ITOPSalesFlow=Object.freeze({configure,restore,onSaved,allowNavigation,canClear,canLoad,startNew,canSave(){return ready&&!busy;},canRecover(){return !busy&&ready&&(closed||(!record&&!hasData()));}});refresh();
 })();
 
 
