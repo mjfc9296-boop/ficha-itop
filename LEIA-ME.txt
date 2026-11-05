@@ -1,1 +1,1 @@
-Substitua apenas index.html na raiz do repositorio. As capas dos Links Uteis ja estao incorporadas no HTML. Esta atualizacao altera somente layout das laterais e ordem dos links. Faça backup antes de publicar.
+Substitua somente index.html na raiz do GitHub. Preserve os outros arquivos. Teste no computador as 3 rolagens e os botoes Meu Celular, Retornos e Buscar. Faça backup do index.html atual antes de publicar.
