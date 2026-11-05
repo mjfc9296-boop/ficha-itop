@@ -1,1 +1,1 @@
-Substitua somente index.html na raiz do GitHub. Preserve os outros arquivos. Teste no computador as 3 rolagens e os botoes Meu Celular, Retornos e Buscar. Faça backup do index.html atual antes de publicar.
+Substituir somente index.html no GitHub. Mantem rolagens independentes; adiciona banner UVI no topo e expande laterais. Faça backup do index.html atual.
