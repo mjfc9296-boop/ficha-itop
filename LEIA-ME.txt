@@ -1,1 +1,1 @@
-Substituir somente index.html no GitHub. Mantem rolagens independentes; adiciona banner UVI no topo e expande laterais. Faça backup do index.html atual.
+Atualizacao do topo UVI sem distorcao, botoes da proposta e laterais ampliadas. Substituir apenas index.html; manter demais arquivos. Testar antes de usar em producao.
