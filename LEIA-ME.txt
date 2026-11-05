@@ -1,1 +1,1 @@
-Atualizacao do topo UVI sem distorcao, botoes da proposta e laterais ampliadas. Substituir apenas index.html; manter demais arquivos. Testar antes de usar em producao.
+Substitua index.html e adicione banner-universidade-vendas-itop.png na raiz do GitHub. Preserve os demais arquivos.
