@@ -1,1 +1,1 @@
-Substitua index.html e adicione banner-universidade-vendas-itop.png na raiz do GitHub. Preserve os demais arquivos.
+Envie index.html e banner-uvi-chumbo.png para a raiz do GitHub. Backup antes. Esta versao preserva a regra de indicacao inteligente existente; nao altera o Supabase. Validar botoes e fluxo de cliente ITOP em ambiente de teste.
