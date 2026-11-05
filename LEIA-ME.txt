@@ -1,1 +1,1 @@
-Somente cor do botão Esqueci a senha. Substituir index.html na raiz. Base: V7. Se o site tiver atualizações posteriores, não substitua o HTML sem antes conferir a versão.
+Substitua apenas index.html na raiz do repositorio. As capas dos Links Uteis ja estao incorporadas no HTML. Esta atualizacao altera somente layout das laterais e ordem dos links. Faça backup antes de publicar.

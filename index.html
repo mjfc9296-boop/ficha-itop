@@ -1453,7 +1453,51 @@ html body .itop-desktop-side.right>*{direction:ltr!important}
 }
 html body .itop-useful-links .itop-shortcut{display:block!important;width:100%!important;max-width:none!important;margin:0 0 7px!important;padding:0!important;border:0!important;box-sizing:border-box!important;background:transparent!important}
 html body .itop-useful-links .itop-shortcut img{width:100%!important;height:auto!important;max-width:none!important;display:block!important;border-radius:12px!important;object-fit:contain!important}
-</style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">Celular com DDD ou e-mail</label><input autocomplete="username" id="itop-email" placeholder="Celular com DDD ou e-mail" required="" type="text"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button><button type="button" data-register-role="convidado">Criar conta de convidado</button></div>
+</style>
+<style id="itop-rails-largura-rolagem-20261105">
+@media screen and (min-width:901px){
+ html body main{
+   width:100%!important;max-width:none!important;
+   margin:6px auto!important;padding:0 2px!important;
+   display:grid!important;
+   grid-template-columns:clamp(225px,16vw,320px) minmax(0,1fr) clamp(225px,16vw,320px)!important;
+   gap:8px!important;align-items:start!important;
+ }
+ html body main>.itop-work-rail{
+   position:sticky!important;top:5px!important;
+   height:calc(100dvh - 12px)!important;max-height:calc(100dvh - 12px)!important;
+   min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;
+   overscroll-behavior-y:contain!important;
+   scrollbar-width:thin!important;scrollbar-color:#d27a2f #111!important;
+   padding:1px!important;margin:0!important;box-sizing:border-box!important;
+ }
+ html body main>.itop-work-rail:not(.itop-links-rail){grid-column:1!important;grid-row:1!important}
+ html body main>.itop-work-content{grid-column:2!important;grid-row:1!important;min-width:0!important;width:100%!important}
+ html body main>.itop-work-rail.itop-links-rail{grid-column:3!important;grid-row:1!important;direction:rtl!important}
+ html body main>.itop-work-rail.itop-links-rail>details{direction:ltr!important}
+ html body main>.itop-work-rail details{margin:0 0 5px!important;border-radius:11px!important}
+ html body main>.itop-work-rail nav.nav-tabs{padding:2px!important;gap:4px!important}
+ html body main>.itop-work-rail .nav-tab{width:100%!important;max-width:none!important;margin:0!important;padding:1px!important;min-height:0!important}
+ html body main>.itop-work-rail .itop-tab-art{
+   width:100%!important;max-width:none!important;height:auto!important;
+   aspect-ratio:auto!important;object-fit:contain!important;
+   display:block!important;border-radius:12px!important
+ }
+ html body main>.itop-work-rail .itop-useful-links{
+   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+   width:100%!important;max-width:none!important;padding:2px!important;gap:5px!important;
+ }
+ html body main>.itop-work-rail .itop-shortcut{
+   width:100%!important;max-width:none!important;margin:0!important;
+   padding:0!important;border-radius:12px!important;overflow:hidden!important;
+ }
+ html body main>.itop-work-rail .itop-shortcut img{
+   display:block!important;width:100%!important;max-width:none!important;
+   height:auto!important;object-fit:contain!important;border-radius:12px!important
+ }
+}
+</style>
+</head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">Celular com DDD ou e-mail</label><input autocomplete="username" id="itop-email" placeholder="Celular com DDD ou e-mail" required="" type="text"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button type="button" data-register-role="vendedor">Criar conta de vendedor</button><button type="button" data-register-role="supervisor">Criar conta de supervisor</button><button type="button" data-register-role="convidado">Criar conta de convidado</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
 <form id="itop-register-form"><label for="itop-reg-profile">Perfil de acesso</label><select id="itop-reg-profile"><option value="vendedor">Vendedor</option><option value="supervisor">Supervisor</option><option value="convidado">Convidado · acesso por setor</option></select><p id="itop-guest-registration-info" hidden>Escolha o setor e o supervisor ou ADM responsável. As propostas ficam fora dos indicadores comerciais.</p>
