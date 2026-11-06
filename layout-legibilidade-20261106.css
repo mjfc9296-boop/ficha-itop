@@ -1,0 +1,62 @@
+/* Mais espaço para as laterais e tipografia legível no conteúdo central. */
+@media screen and (min-width: 901px) {
+  html body > main:has(> .itop-work-rail) {
+    --itop-side-before: clamp(145px, 15vw, 248px);
+    --itop-side-after: calc(var(--itop-side-before) * 1.15);
+    --itop-center-after: calc((100% - 16px - var(--itop-side-before) * 2) * .88);
+    grid-template-columns: minmax(0, var(--itop-side-after)) minmax(0, var(--itop-center-after)) minmax(0, var(--itop-side-after)) !important;
+    column-gap: 4px !important;
+    justify-content: space-between !important;
+    padding-top: 4px !important;
+    box-sizing: border-box !important;
+  }
+  html body > main > .itop-work-rail {
+    padding: 4px !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+  }
+  html body > main > .itop-work-rail nav.nav-tabs button.nav-tab[data-module],
+  html body > main > .itop-work-rail.itop-links-rail .itop-shortcut {
+    /* O recuo da lateral preserva uma pequena borda do fundo ao redor das imagens. */
+    width: 100% !important;
+    margin-inline: auto !important;
+  }
+  html body > main > .itop-work-rail :is(.itop-tab-art, .itop-shortcut img) {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+}
+html body main > .itop-work-content { font-size: 15px; line-height: 1.55; }
+html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) :is(p, li, label, input:not([type=checkbox]):not([type=radio]), select, textarea) { font-size: 15px !important; line-height: 1.5 !important; }
+html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) :is(td, th, button, .hint, .training-description, .useful-link-copy span, .useful-link-copy strong) { font-size: 14px !important; line-height: 1.45 !important; }
+html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) :is(small, .eyebrow, .section-tag) { font-size: 12px !important; line-height: 1.5 !important; }
+html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) h2 { font-size: 24px !important; line-height: 1.3 !important; }
+html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) h3 { font-size: 19px !important; line-height: 1.35 !important; }
+html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) h4 { font-size: 17px !important; line-height: 1.4 !important; }
+html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) :is(section, fieldset, .field) { min-width: 0; }
+html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) :is(p, li, label, td, th, h2, h3, h4) { overflow-wrap: anywhere; }
+html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) :is(button, select, input, textarea) { max-width: 100%; box-sizing: border-box; }
+@media screen and (max-width: 999px) {
+  html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) h2 { font-size: 22px !important; }
+  html body main > .itop-work-content :is(#sondagem, #pacote, #energia, #fechamento, #movel, #procedimentos, #uvi, #itop-movel, #comercial, .module) h3 { font-size: 18px !important; }
+}
+/* Os cartões do módulo Móvel acompanham a largura disponível no centro. */
+html body #itop-movel :is(.itop-movel-grid, .itop-manual-tip) { container-type: inline-size; }
+@container (max-width: 700px) {
+  html body #itop-movel :is(.itop-movel-grid, .itop-manual-tip) > article.training-card:not([hidden]) {
+    grid-template-columns: minmax(0, 140px) minmax(0, 1fr) !important;
+  }
+  html body #itop-movel :is(.itop-movel-grid, .itop-manual-tip) > article.training-card > .training-cover {
+    width: 140px !important; min-width: 0 !important; max-width: 100% !important; height: 79px !important;
+  }
+  html body #itop-movel :is(.itop-movel-grid, .itop-manual-tip) > article.training-card > .training-actions {
+    grid-column: 1 / -1 !important; grid-row: 5 !important;
+    flex-direction: row !important; flex-wrap: wrap !important;
+    width: 100% !important; max-width: 100% !important;
+  }
+  html body #itop-movel :is(.itop-movel-grid, .itop-manual-tip) > article.training-card > .training-actions > :is(a, button) {
+    flex: 1 1 110px !important; width: auto !important; max-width: 100% !important; min-width: 0 !important;
+    white-space: normal !important;
+  }
+}

@@ -1,0 +1,12 @@
+/* Exceções ao layout legado, restritas ao modo orçamento. */
+body.itop-budget-mode #pacote > #uvi-budget-actions:not([hidden]) { display: block !important; }
+body.itop-budget-mode #pacote > .customer-panel { display: none !important; }
+#uvi-budget-form fieldset { border: 1px solid #dce3ee; border-radius: 10px; padding: 18px; margin: 18px 0; min-width: 0; }
+#uvi-budget-form legend { color: #0e397e; font-weight: 700; padding: 0 7px; }
+#uvi-budget-form .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+#uvi-budget-form textarea { width: 100%; box-sizing: border-box; resize: vertical; }
+#uvi-budget-actions > p { color: #53647b; line-height: 1.5; }
+#uvi-budget-actions #itop-budget-pdf { background: #0e397e; color: white; border-color: #0e397e; }
+#uvi-budget-energy { margin: 18px 0; padding: 14px; border: 1px solid #dce3ee; border-radius: 10px; }
+#uvi-budget-energy summary { cursor: pointer; color: #0e397e; font-weight: 700; }
+@media (max-width: 650px) { #uvi-budget-form .grid { grid-template-columns: 1fr; } }
