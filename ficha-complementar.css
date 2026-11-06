@@ -68,3 +68,58 @@ html body #procedimentos .training-grid.training-all > article.training-card > .
 html body #procedimentos .training-grid.training-all > article.training-card > h3 {order:0;}
 html body #procedimentos .training-grid.training-all > article.training-card > :is(.training-card-top,p,.training-meta,.training-actions) {order:1;}
 html body #movel .support-sidebar > label {color:#fff !important;}
+
+/* Maintain the approved cover art proportions as the rails grow. */
+@media (min-width: 1100px) {
+ html body>main:has(>.itop-work-rail) {
+  grid-template-columns: minmax(270px, 22%) minmax(0, 1fr) minmax(270px, 22%) !important;
+ }
+}
+html body>main>.itop-work-rail .itop-tab-art,
+html body>main>.itop-work-rail .itop-shortcut img {
+ object-fit: contain !important;
+ object-position: center !important;
+ transform: none !important;
+}
+html body #movel .support-sidebar {border: 1px solid #777 !important;}
+html body #movel #supportTopics .support-topic {
+ display: flex;
+ align-items: center;
+ min-height: 48px;
+ background: #414141 !important;
+ color: #fff !important;
+}
+html body #movel #supportTopics .support-topic:hover,
+html body #movel #supportTopics .support-topic.active {background: #303030 !important;}
+html body #movel #supportTopics .support-topic:focus-visible {outline: 2px solid #fff;}
+
+body.itop-budget-mode #pacote>section.customer-panel {display: none !important;}
+body.itop-budget-mode #pacote>section:is(#uvi-budget-actions,#uvi-budget-catalog):not([hidden]) {display: block !important;}
+#uvi-budget-form fieldset {
+ min-inline-size: 0;
+ margin: 16px 0;
+ padding: 12px;
+ border: 1px solid #ccc;
+ border-radius: 8px;
+}
+#uvi-budget-form legend {font-weight: 700; padding: 0 5px;}
+#uvi-budget-form .grid {grid-template-columns: repeat(2, minmax(0, 1fr));}
+#uvi-budget-form :is(input, select, textarea) {min-width: 0; max-width: 100%; width: 100%;}
+#uvi-budget-form textarea {resize: vertical;}
+#uvi-budget-unit-info {margin: 10px 0 0; overflow-wrap: anywhere;}
+#uvi-budget-energy {
+ margin: 12px 0;
+ padding: 12px;
+ border: 1px solid #ccc;
+ border-radius: 8px;
+ background: #fff;
+ color: #222;
+}
+#uvi-budget-energy>summary {cursor: pointer; font-weight: 700;}
+#uvi-budget-energy .energy-entry {min-width: 0; margin-top: 10px;}
+#uvi-budget-actions .field {max-width: 320px;}
+#itop-budget-status {min-height: 1.5em;}
+@media (max-width: 650px) {
+ #uvi-budget-form .grid,
+ #uvi-budget-energy .grid {grid-template-columns: minmax(0, 1fr);}
+}
