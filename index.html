@@ -1513,7 +1513,7 @@ html.itop-authorized main #itop-search-input{flex:1;width:auto;min-width:0;max-w
  #itop-search-results{top:calc(12vh + 52px)}
 }
 @media print{#itop-proposal-controlbar{display:none!important}}
-</style></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">Celular com DDD ou e-mail</label><input autocomplete="username" id="itop-email" placeholder="Celular com DDD ou e-mail" required="" type="text"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><div class="itop-auth-links"><button data-register-role="vendedor" type="button">Criar conta de vendedor</button><button data-register-role="supervisor" type="button">Criar conta de supervisor</button><button data-register-role="convidado" type="button">Criar conta de convidado</button></div>
+</style><link rel="stylesheet" href="ficha-complementar.css?v=1"></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">Celular com DDD ou e-mail</label><input autocomplete="username" id="itop-email" placeholder="Celular com DDD ou e-mail" required="" type="text"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><button id="itop-resend-email" type="button" hidden>Reenviar confirmação por e-mail</button><div class="itop-auth-links"><button data-register-role="vendedor" type="button">Criar conta de vendedor</button><button data-register-role="supervisor" type="button">Criar conta de supervisor</button><button data-register-role="convidado" type="button">Criar conta de convidado</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
 <form id="itop-register-form"><label for="itop-reg-profile">Perfil de acesso</label><select id="itop-reg-profile"><option value="vendedor">Vendedor</option><option value="supervisor">Supervisor</option><option value="convidado">Convidado · acesso por setor</option></select><p hidden="" id="itop-guest-registration-info">Escolha o setor e o supervisor ou ADM responsável. As propostas ficam fora dos indicadores comerciais.</p>
@@ -1949,6 +1949,7 @@ $('webPDF').addEventListener('click',()=>{if(/iPhone|iPad|iPod|Android/i.test(na
   grid.hidden=showingLinks;grid.style.display=showingLinks?'none':'';
   document.getElementById('usefulLinksPanel').hidden=!showingLinks;
   grid.classList.toggle('training-list',globalSearch||category==='all');
+  grid.classList.toggle('training-all',category==='all'&&!globalSearch);
   document.getElementById('trainingCount').textContent=showingLinks?'Acessos da equipe':count+(count===1?' material':' materiais');
   document.getElementById('trainingEmpty').hidden=showingLinks||count>0;
   document.getElementById('trainingEmpty').textContent=globalSearch?'Nenhum treinamento encontrado. Tente buscar outro nome.':'Nenhum material encontrado nesta categoria.';
@@ -1958,13 +1959,30 @@ $('webPDF').addEventListener('click',()=>{if(/iPhone|iPad|iPod|Android/i.test(na
  search.addEventListener('input',filter);search.addEventListener('search',filter);
  document.querySelector('.training-filters').addEventListener('click',event=>{const button=event.target.closest('[data-filter]');if(!button)return;category=button.dataset.filter;document.querySelectorAll('[data-filter]').forEach(el=>{const active=el===button;el.classList.toggle('active',active);el.setAttribute('aria-pressed',String(active));});filter();});
  search.placeholder='BUSCAR EM TODOS OS TREINAMENTOS';
+ filter();
 })();
 </script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script>
 (function(){
  const URL='https://tzvwrcxcubiacvlisvhf.supabase.co', KEY='sb_publishable_MLnii3Sz2W_lBfw-0eRKXg_slUZERBm';
  const msg=document.getElementById('itop-message'), btn=document.getElementById('itop-login-button');
  let client=null;
+ const resend=document.getElementById('itop-resend-email');
+ let nextResend=0;
  function notice(t){msg.textContent=t;}
+ document.getElementById('itop-email').addEventListener('input',event=>{resend.hidden=!event.target.value.trim().includes('@');});
+ resend.onclick=async()=>{
+  const email=document.getElementById('itop-email').value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){notice('Informe o e-mail usado no cadastro.');return;}
+  if(Date.now()<nextResend){notice('Aguarde um minuto entre tentativas.');return;}
+  resend.disabled=true;nextResend=Date.now()+60000;
+  try{
+   const {error}=await client.auth.resend({type:'signup',email,options:{emailRedirectTo:location.origin+location.pathname}});
+   if(error)throw error;
+   notice('Solicitação processada. Se houver uma confirmação pendente, confira a caixa de entrada e o spam.');
+  }catch(error){notice('Falha ao solicitar confirmação. '+error.message);}
+  finally{resend.disabled=false;}
+ };
+
  function lock(){document.documentElement.classList.remove('itop-authorized');window.dispatchEvent(new Event('itop:logged-out'));}
  function unlock(){document.documentElement.classList.add('itop-authorized');}
  try{if(!window.supabase)throw Error('Biblioteca de autenticação indisponível. Verifique sua conexão.');client=window.supabase.createClient(URL,KEY);window.itopAuthClient=client;}catch(e){notice(e.message);return;}
@@ -1973,13 +1991,13 @@ $('webPDF').addEventListener('click',()=>{if(/iPhone|iPad|iPod|Android/i.test(na
    try{
      const {data:{user},error}=await client.auth.getUser();if(error||!user){lock();return;}
      const {data:profile,error:pe}=await client.from('perfis').select('papel,ativo,nome,status_aprovacao').eq('id',user.id).single();
-     if(pe||!profile||!profile.ativo||profile.status_aprovacao!=='aprovado'||!['administrador','coordenador','supervisor','vendedor','convidado'].includes(profile.papel)){lock();notice('Acesso não autorizado ou aguardando aprovação.');return;}
+     if(pe||!profile||!profile.ativo||profile.status_aprovacao!=='aprovado'||!['administrador','coordenador','supervisor','vendedor','convidado'].includes(profile.papel)){lock();notice(profile?.status_aprovacao==='pendente'?'Pendente de aprovação administrativa.':'Acesso indisponível para este cadastro.');return;}
      unlock();notice('');window.dispatchEvent(new CustomEvent('itop:authorized',{detail:{papel:profile.papel,nome:profile.nome}}));
    }catch(e){lock();notice('Não foi possível verificar sua autorização.');}
  }
  document.getElementById('itop-login-form').addEventListener('submit',async function(e){
    e.preventDefault();btn.disabled=true;notice('Verificando acesso...');
-   try{const identity=document.getElementById('itop-email').value.trim(),password=document.getElementById('itop-password').value;const {error}=await (identity.includes('@')?client.auth.signInWithPassword({email:identity,password}):window.ITOPPhoneAuth.signIn(identity,password));if(error){notice(error.message||'Celular, e-mail ou senha inválidos.');lock();}else{await validate();}}
+   try{const identity=document.getElementById('itop-email').value.trim(),password=document.getElementById('itop-password').value;const {error}=await (identity.includes('@')?client.auth.signInWithPassword({email:identity,password}):window.ITOPPhoneAuth.signIn(identity,password));if(error){notice(error.code==='email_not_confirmed'?'Pendente de confirmação. Use Reenviar confirmação por e-mail.':error.message||'Celular, e-mail ou senha inválidos.');lock();}else{await validate();}}
    catch(e){notice('Erro de conexão. Tente novamente.');}finally{btn.disabled=false;}
  });
  document.getElementById('itop-logout').addEventListener('click',async()=>{lock();await client.auth.signOut();document.getElementById('itop-password').value='';notice('Você saiu do sistema.');});
@@ -2517,6 +2535,10 @@ function update(){
  const root=document.getElementById('procedimentos');if(!root)return;
  root.querySelectorAll('a[href]').forEach(a=>{
   const hay=((a.textContent||'')+' '+(a.getAttribute('title')||'')+' '+(a.getAttribute('aria-label')||'')+' '+(a.getAttribute('href')||'')).toLowerCase();
+  const image=a.closest('.useful-link-item')?.querySelector('.itop-useful-cover');
+  const shortcut=[...document.querySelectorAll('.itop-links-rail .itop-shortcut')].find(link=>link.href===a.href);
+  const shortcutImage=shortcut?.querySelector('img');
+  if(image&&shortcutImage){image.src=shortcutImage.currentSrc||shortcutImage.src;return;}
   for(const [file,words] of Object.entries(terms)){
    if(words.some(w=>hay.includes(w))){const im=a.querySelector('img');if(im){im.src=covers[file];im.style.objectFit='contain';im.style.borderRadius='12px';}break;}
   }

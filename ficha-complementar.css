@@ -1,0 +1,70 @@
+html.itop-authorized body,
+html body>main,
+html body>main>.itop-work-rail details,
+html body #movel,
+html body #movel .support-sidebar {
+ background: #525252 !important;
+}
+
+html body #movel #supportTopics {
+ display: grid;
+ grid-template-columns: minmax(0, 1fr);
+ grid-auto-rows: 1fr;
+ gap: 8px;
+}
+
+html body #movel #supportTopics .support-topic {
+ width: 100%;
+ min-height: 44px;
+ padding: 8px 10px;
+ border: 1px solid #777 !important;
+ border-radius: 8px;
+ box-shadow: none !important;
+ white-space: normal;
+ text-align: left;
+}
+
+html body #movel #supportTopics .support-topic.active {
+ outline: 2px solid #fff;
+ outline-offset: -3px;
+}
+
+@media (min-width: 1100px) {
+ html body>main:has(>.itop-work-rail) {
+  grid-template-columns: minmax(260px, 20%) minmax(0, 1fr) minmax(260px, 20%) !important;
+ }
+}
+
+html body>main>.itop-work-rail :is(.nav-tab,.itop-shortcut) {
+ border: 1px solid #777 !important;
+ border-radius: 11px;
+ text-align: center;
+}
+html body>main>.itop-work-rail .nav-tab.active {border: 3px solid #00134c !important;}
+
+html body #procedimentos .training-grid.training-all > article.training-card {
+ grid-template-columns: minmax(0, 1fr) !important;
+ grid-template-rows: auto !important;
+ justify-items: center;
+ text-align: center;
+}
+html body #procedimentos .training-grid.training-all > article.training-card > :is(.training-cover,h3,p,.training-card-top,.training-meta,.training-actions) {
+ grid-column: 1 !important;
+ grid-row: auto !important;
+ width: auto !important;
+ max-width: 100% !important;
+ text-align: center !important;
+ justify-content: center !important;
+}
+html body #procedimentos .training-grid.training-all > article.training-card > .training-cover {
+ order: -1;
+ width: min(100%, 220px) !important;
+ height: auto !important;
+}
+html body #procedimentos .training-grid.training-all > article.training-card > .training-cover img {
+ height: auto !important;
+ object-fit: contain !important;
+}
+html body #procedimentos .training-grid.training-all > article.training-card > h3 {order:0;}
+html body #procedimentos .training-grid.training-all > article.training-card > :is(.training-card-top,p,.training-meta,.training-actions) {order:1;}
+html body #movel .support-sidebar > label {color:#fff !important;}
