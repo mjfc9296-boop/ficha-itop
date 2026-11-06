@@ -11,3 +11,8 @@
   };actions.append(button,status);
  }
 })();
+
+// Keep the module separate from the useful-link controls on this entry point.
+import('./comercial/orcamento-uvi.js?v=20261106').catch(error => {
+ console.error('Falha ao carregar o Orçamento Comercial da U.V.I.', error);
+});
