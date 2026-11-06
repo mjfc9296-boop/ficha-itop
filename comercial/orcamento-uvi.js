@@ -37,6 +37,7 @@
   };
 
   function init() {
+    if ($('uvi-budget-form')) return;
     const legacy = $('itop-budget-panel');
     const entry = $('itop-budget-open');
     if (!legacy || !entry) return;
@@ -76,11 +77,11 @@
     footer.id = 'uvi-budget-actions';
     footer.hidden = true;
     footer.innerHTML = `
-      <h3>Retorno e emissão</h3>
+      <h3>Emitir orçamento</h3><p>Baixe o PDF diretamente no computador. Salvar no sistema é opcional e permite recuperar o orçamento ou agendar um retorno.</p>
       ${field(['retorno_em', 'Data e horário do retorno', 'datetime-local'])}
       <div class="actions">
-        <button id="itop-budget-save" type="button">Salvar orçamento</button>
-        <button id="itop-budget-pdf" class="secondary" type="button">Baixar PDF</button>
+        <button id="itop-budget-pdf" type="button">Baixar PDF</button>
+        <button id="itop-budget-save" class="secondary" type="button">Salvar no sistema (opcional)</button>
         <button id="itop-budget-schedule" type="button">Agendar retorno</button>
         <button id="itop-budget-exit" class="secondary" type="button">Voltar à U.V.I.</button>
       </div>
@@ -368,47 +369,18 @@
       }
     }
 
-    function pdf() {
+    async function pdf() {
+      const button = $('itop-budget-pdf');
       try {
         if (!operator) throw Error('Aguarde a validação do seu acesso.');
         const draft = readDraft();
-        const unit = units[draft.unidade];
-        const safe = value => escapeHTML(String(value ?? ''));
-        const date = value => value.split('-').reverse().join('/');
-        const lines = draft.produtos.map(item => `<tr><td>${safe(item.name)}</td><td>${safe(item.category)}</td>
-          <td>${item.q}</td><td>${money(item.price)}</td><td>${money(item.price * item.q)}</td></tr>`).join('');
-        const customer = customerFields.filter(([key]) => draft[key]).map(([key, label]) =>
-          `<div><b>${label}</b> ${safe(draft[key])}</div>`).join('');
-        const energyReport = energy.valid ? `<h2>Simulação de energia</h2><p>Conta Cemig atual: ${money(energy.bill)}<br>
-          Saldo Cemig: ${money(energy.residual)} · ITOP NETZ: ${money(energy.newval)}<br>
-          Total estimado das duas contas: ${money(energy.combined)}<br>
-          Economia mensal estimada: ${money(energy.saving)}</p>
-          ${draft.produtos.length ? itopPackageImpact(draft.valor_mensal, energy.saving, energy.valid, true) : ''}` : '';
-        const popup = window.open('', '_blank');
-        if (!popup) throw Error('Libere pop-ups para imprimir ou salvar em PDF.');
-        popup.opener = null;
-        popup.document.open();
-        popup.document.write(`<!doctype html><html lang="pt-BR"><meta charset="utf-8">
-          <title>Orçamento Comercial ITOP</title><style>
-          @page{size:A4;margin:15mm}body{font:13px Arial;color:#222;margin:0}header{border-bottom:3px solid #d27a2f;padding-bottom:14px}
-          img{max-width:155px;max-height:68px}h1{font-size:23px}h2{font-size:16px}p{line-height:1.5}
-          table{border-collapse:collapse;width:100%}thead{display:table-header-group}td,th{padding:8px;border-bottom:1px solid #ddd;text-align:left}
-          tr{break-inside:avoid}th{background:#eee}footer{border-top:1px solid #ddd;margin-top:20px;padding-top:10px}
-          </style><header><img src="${safe(PDF_LOGO)}" alt="Logo oficial ITOP"><h1>Orçamento Comercial</h1>
-          <div><b>${safe(unit[1])}</b></div><div>CNPJ ${safe(unit[2])}</div><div>${safe(unit[3])} · ${safe(unit[0])}</div></header>
-          <p><b>Número</b> ${safe(draft.id)}<br><b>Emissão</b> ${date(draft.emissao_data)} às ${safe(draft.emissao_hora)}<br>
-          <b>Válido até</b> ${date(draft.validade)}<br><b>Consultor</b> ${safe(draft.consultor_nome)}</p>
-          <h2>Dados do cliente</h2>${customer}
-          ${lines ? '<h2>Serviços</h2><table><thead><tr><th>Produto</th><th>Categoria</th><th>Qtd.</th><th>Unitário</th><th>Mensal</th></tr></thead><tbody>' + lines + '</tbody></table><p><b>Total mensal regular: ' + money(draft.valor_mensal) + '</b></p>' : ''}
-          ${promotionHTML(draft.produtos)}${energyReport}
-          ${draft.retorno_em ? '<p><b>Retorno previsto</b> ' + new Date(draft.retorno_em).toLocaleString('pt-BR') + '</p>' : ''}
-          <footer>Orçamento sujeito à disponibilidade, cobertura, condições comerciais e confirmação de valores.</footer></html>`);
-        popup.document.close();
-        const print = () => { popup.focus(); popup.print(); };
-        if (popup.document.readyState === 'complete') print();
-        else popup.addEventListener('load', print, {once: true});
-        status('Na janela aberta, escolha “Salvar como PDF”.');
-      } catch (error) { status(error.message); }
+        if (!window.ITOPBudgetPDF) throw Error('Gerador de PDF indisponível. Recarregue a página.');
+        button.disabled = true;
+        const result = window.ITOPBudgetPDF.create(draft, units[draft.unidade], {...energy});
+        await result.doc.save(result.name, {returnPromise: true});
+        status('PDF gerado para download no computador. Não é necessário salvar o orçamento no sistema.');
+      } catch (error) { status('Não foi possível gerar o PDF. ' + error.message); }
+      finally { button.disabled = false; }
     }
 
     form.addEventListener('submit', event => event.preventDefault());
@@ -437,3 +409,4 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once: true});
   else init();
 })();
+
