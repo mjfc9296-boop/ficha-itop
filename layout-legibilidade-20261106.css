@@ -3,15 +3,15 @@
   html body > main:has(> .itop-work-rail) {
     --itop-side-before: clamp(145px, 15vw, 248px);
     --itop-side-after: calc(var(--itop-side-before) * 1.15);
-    --itop-center-after: calc((100% - 16px - var(--itop-side-before) * 2) * .88);
-    grid-template-columns: minmax(0, var(--itop-side-after)) minmax(0, var(--itop-center-after)) minmax(0, var(--itop-side-after)) !important;
-    column-gap: 4px !important;
+    grid-template-columns: minmax(0, var(--itop-side-after)) minmax(0, 1fr) minmax(0, var(--itop-side-after)) !important;
+    gap: clamp(8px, 1.2vw, 24px) !important;
+    padding-inline: clamp(10px, 1.1vw, 22px) !important;
     justify-content: space-between !important;
     padding-top: 4px !important;
     box-sizing: border-box !important;
   }
   html body > main > .itop-work-rail {
-    padding: 4px !important;
+    padding: 4px clamp(7px, .7vw, 14px) !important;
     box-sizing: border-box !important;
     background: transparent !important;
   }
@@ -58,5 +58,162 @@ html body #itop-movel :is(.itop-movel-grid, .itop-manual-tip) { container-type: 
   html body #itop-movel :is(.itop-movel-grid, .itop-manual-tip) > article.training-card > .training-actions > :is(a, button) {
     flex: 1 1 110px !important; width: auto !important; max-width: 100% !important; min-width: 0 !important;
     white-space: normal !important;
+  }
+}
+
+/* A marca do cabeçalho usa a arte original, com a proporção preservada. */
+@media screen and (min-width: 901px) {
+  html body > header {
+    background: linear-gradient(#000, #000) left / 20.7% 100% no-repeat,
+      #0a0a0a url("banner-uvi-chumbo.png") center / 100% auto no-repeat !important;
+  }
+  html body > header .head {
+    display: flex !important;
+    visibility: visible !important;
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 20.7%;
+    justify-content: center;
+    align-items: center;
+  }
+  html body > header .head > div { display: none !important; }
+  html body > main > .itop-work-rail details {
+    max-width: 100% !important;
+    margin-inline: auto !important;
+  }
+}
+@media screen {
+  html body > header .head > img.logo-screen {
+    width: min(88%, 370px) !important;
+    height: auto !important;
+    max-height: 88% !important;
+    object-fit: contain !important;
+  }
+}
+@media screen and (max-width: 900px) {
+  html body > header .head > img.logo-screen { width: clamp(72px, 24vw, 150px) !important; }
+}
+
+/* Controles da proposta, com quebra de linha conforme o espaço do formulário. */
+#sondagem .itop-survey-proposal-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  margin-block: 12px 16px;
+  border: 1px solid #d27a2f;
+  border-radius: 14px;
+  background: #fff9f3;
+}
+html body #sondagem .itop-survey-proposal-row > #itop-survey-toolbar {
+  flex: 1 1 245px;
+  min-width: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+#sondagem .itop-survey-proposal-row > #itop-proposal-controlbar {
+  flex: 1 1 330px;
+  min-width: 0;
+  margin: 0 0 0 auto;
+}
+#sondagem .itop-survey-proposal-row #itop-test-control { width: 100%; }
+#sondagem .itop-survey-proposal-row #survey-test-hint { margin: 5px 0 0; }
+#sondagem .itop-survey-proposal-row #itop-proposal-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 100px), 1fr));
+  align-items: stretch;
+}
+#sondagem #itop-global-search { display: flex; }
+html.itop-authorized body #sondagem #itop-proposal-buttons > button,
+html.itop-authorized body #sondagem #itop-proposal-buttons #itop-search-toggle {
+  min-height: 48px;
+  width: 100%;
+  margin: 0;
+  white-space: normal;
+}
+
+#sondagem .itop-manual-services > :is(h2, #recommend, .summary-saving, p.hint),
+#sondagem .itop-manual-services .itop-one-line-actions > button:first-child {
+  display: none !important;
+}
+
+/* As categorias de materiais seguem os cartões horizontais de Links Úteis. */
+html body #procedimentos { container-type: inline-size; }
+html body #procedimentos .training-grid.training-list > article.training-card:not([hidden]) {
+  display: grid !important;
+  grid-template-columns: minmax(100px, 160px) minmax(0, 1fr) minmax(120px, 150px) !important;
+  grid-template-rows: auto !important;
+  gap: 8px 18px !important;
+  padding: 16px !important;
+  border: 1px solid #dedfe3 !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+}
+html body #procedimentos .training-grid.training-list > article.training-card > .training-cover {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 106px !important;
+  min-height: 0 !important;
+  grid-row: 1 / span 4 !important;
+}
+html body #procedimentos .training-grid.training-list > article.training-card > .training-card-top { grid-row: 2 !important; }
+html body #procedimentos .training-grid.training-list > article.training-card > h3 {
+  grid-row: 1 !important;
+  font-size: 21px !important;
+  color: #111 !important;
+  text-align: left !important;
+}
+html body #procedimentos .training-grid.training-list > article.training-card > .training-description {
+  grid-row: 3 !important;
+  font-size: 21px !important;
+  color: #626976 !important;
+}
+html body #procedimentos .training-grid.training-list > article.training-card > .training-meta { grid-row: 4 !important; }
+html body #procedimentos .training-grid.training-list .training-format { font-size: 15px !important; }
+html body #procedimentos .training-grid.training-list > article.training-card > .training-actions {
+  grid-column: 3 !important;
+  grid-row: 1 / span 4 !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  gap: 8px !important;
+}
+html body #procedimentos .training-grid.training-list > article.training-card > .training-actions > :is(a, button) {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 42px !important;
+  height: auto !important;
+  font-size: 16.5px !important;
+  white-space: normal !important;
+  text-align: center !important;
+}
+html body #procedimentos #usefulLinksPanel .useful-link-copy strong { font-size: 21px !important; }
+html body #procedimentos #usefulLinksPanel .useful-link-copy span { font-size: 21px !important; }
+html body #procedimentos #usefulLinksPanel .useful-link-actions > :is(a, button) { font-size: 16.5px !important; }
+@container (max-width: 610px) {
+  html body #procedimentos .training-grid.training-list > article.training-card:not([hidden]),
+  html body #procedimentos #usefulLinksPanel .useful-link-item {
+    grid-template-columns: minmax(80px, 110px) minmax(0, 1fr) !important;
+    gap: 8px 12px !important;
+    padding: 12px !important;
+  }
+  html body #procedimentos #usefulLinksPanel .itop-useful-cover { width: 100% !important; }
+  html body #procedimentos .training-grid.training-list > article.training-card > .training-actions,
+  html body #procedimentos #usefulLinksPanel .useful-link-actions {
+    grid-column: 1 / -1 !important;
+    grid-row: 5 !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+  }
+  html body #procedimentos .training-grid.training-list > article.training-card > .training-actions > :is(a, button),
+  html body #procedimentos #usefulLinksPanel .useful-link-actions > :is(a, button) {
+    flex: 1 1 105px !important;
+    width: auto !important;
   }
 }

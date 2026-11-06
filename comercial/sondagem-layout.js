@@ -2,6 +2,13 @@
  const $=id=>document.getElementById(id),top=document.querySelector('#sondagem > .itop-sales-flow'),toolbar=top?.querySelector('.actions');
  if(top&&toolbar){
   top.id='itop-survey-toolbar';toolbar.classList.add('itop-survey-toolbar-actions');if($('itop-flow-new'))$('itop-flow-new').textContent='NOVA PROPOSTA';
+  const controls = $('itop-proposal-controlbar');
+  if (controls) {
+   const row = document.createElement('div');
+   row.className = 'itop-survey-proposal-row';
+   top.before(row);
+   row.append(top, controls);
+  }
   const number=$('survey-proposal-id');if(number){const line=document.createElement('div');line.id='itop-proposal-number';line.append(document.createTextNode('PROPOSTA: '),number);top.prepend(line);}
  }
  const old=$('itop-survey-record');if(old){old.hidden=true;old.setAttribute('aria-hidden','true');old.inert=true;}
