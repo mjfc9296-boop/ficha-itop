@@ -19,7 +19,12 @@
    }
   }catch(e){if(token===queryEpoch)$('recover-status').textContent=e.message;}
  }
- $('recover-proposal').onclick=()=>{recover.showModal();search();};$('recover-search').onsubmit=e=>{e.preventDefault();search();};$('recover-close').onclick=()=>recover.close();$('recover-filter').onchange=search;recover.addEventListener('close',()=>{++queryEpoch;});
+ window.ITOPOpenProposalRecovery=({term='',status=''}={})=>{
+  $('recover-term').value=term;$('recover-filter').value=status;
+  if(!recover.open)recover.showModal();
+  search();
+ };
+ $('recover-proposal').onclick=()=>window.ITOPOpenProposalRecovery({term:$('recover-term').value,status:$('recover-filter').value});$('recover-search').onsubmit=e=>{e.preventDefault();search();};$('recover-close').onclick=()=>recover.close();$('recover-filter').onchange=search;recover.addEventListener('close',()=>{++queryEpoch;});
  const review=document.createElement('dialog');review.id='pdf-review-dialog';review.setAttribute('aria-labelledby','pdf-review-title');review.innerHTML='<h2 id="pdf-review-title">Revisar proposta</h2><p id="pdf-review-note"></p><iframe id="pdf-review-frame" title="Pré-visualização da proposta PDF"></iframe><div class="actions"><button id="pdf-review-download" type="button">Baixar PDF</button><button id="pdf-review-share" type="button">Compartilhar / WhatsApp</button><button id="pdf-review-close" type="button">Fechar</button></div>';document.body.append(review);
  let url=null,prepared=null;
  function showPDF(include){try{$('includeEnergy').checked=include;prepared=buildClosingPDF();if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(prepared.doc.output('blob'));$('pdf-review-frame').src=url;$('pdf-review-title').textContent=include?'PDF COM ENERGIA':'PDF SEM ENERGIA';$('pdf-review-note').textContent=include?'A mensalidade ITOP é integral. A economia NETZ ocorre separadamente na energia.':'Produtos e serviços escolhidos, sem compensação de energia.';review.showModal();}catch(e){$('pdfStatus').textContent=e.message;}}
