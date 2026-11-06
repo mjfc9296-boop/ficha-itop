@@ -1704,7 +1704,7 @@ function updateProposalOnly(){
    if(need && gb<need)alerts.push(`${p.category}: plano escolhido com ${gb} GB, abaixo dos ${need} GB informados. Confirme com o cliente.`);
   }
  });
- $('recommend').innerHTML=`<div class="proposal-clean-header"><div><h3>Monte a melhor proposta</h3><p>Altere os planos abaixo. Os valores são atualizados automaticamente.</p></div><div class="proposal-clean-total"><span>Pacote sugerido</span><strong>${money(estimated)}<small>/mês</small></strong></div></div>
+ $('recommend').innerHTML=`<div class="proposal-clean-header"><div><h3>Monte a melhor proposta</h3><p>Altere os planos abaixo. Os valores são atualizados automaticamente.</p></div><div class="proposal-clean-total"><span>Como ficará</span><strong>${money(estimated)}<small>/mês</small></strong></div></div>
 
  ${choices.map((p,i)=>({p,i})).sort((a,b)=>{const rank=p=>/fibra|combo/i.test(p.category)?0:/fixo/i.test(p.category)?1:2;return rank(a.p)-rank(b.p)||a.i-b.i}).map(({p,i})=>`<div class="proposal-row"><label for="proposalChoice${i}">${escapeHTML(p.category)}${p.sourceIndex!==undefined?`<br><span class="mapped-phone">${escapeHTML($('mnumero'+p.sourceIndex).value||'NÚMERO NÃO INFORMADO')}</span>`:''}</label><select class="proposal-choice" id="proposalChoice${i}" data-index="${i}"><option value="__skip__" ${p.omitted?'selected':''}>Não levar para a etapa 2</option>${p.options.map(o=>`<option value="${escapeHTML(o.name)}" ${!p.omitted&&o.name===p.name?'selected':''}>${escapeHTML(o.name)} — ${money(o.price)}${planPromotion(o.name)?' · '+planPromotion(o.name).label:''}</option>`).join('')}</select><output>${p.omitted?'—':money(p.price)}</output></div>`).join('')}
  ${promotionHTML(proposal)}
@@ -1762,7 +1762,7 @@ function computeProposal(){
   });
  }
  if(hasFixed&&!best.hasFixed)warnings.push('Telefone fixo sem espaço no orçamento da indicação. Revise o gasto ou selecione o plano na etapa 2.');
- else if(hasFixed)warnings.push('Confirme a portabilidade e a titularidade do telefone fixo '+$('fixoNumero').value+'.');
+ else if(hasFixed)warnings.push('PRIORIDADE: portabilidade do telefone fixo '+$('fixoNumero').value+'. Confirme a titularidade.');
  if(best.covered<Number(hasFiber)+Number(hasFixed)+mobiles.length)
   warnings.push('A indicação é parcial porque o catálogo ou o orçamento não comporta todos os serviços informados.');
  if(mobiles.some(m=>!m.gb))warnings.push('Informe os GB das linhas móveis para validar a compatibilidade.');
@@ -2588,5 +2588,5 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();</script>
 <link href="comercial/orcamento-uvi.css?v=20261106-profissional" rel="stylesheet"/>
 <script src="comercial/orcamento-pdf.js?v=20261106-profissional"></script>
-<link href="layout-legibilidade-20261106.css?v=3" rel="stylesheet"/>
+<link href="layout-legibilidade-20261106.css?v=4" rel="stylesheet"/>
 </body></html>
