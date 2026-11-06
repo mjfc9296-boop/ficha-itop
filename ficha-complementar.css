@@ -3,7 +3,7 @@ html body>main,
 html body>main>.itop-work-rail details,
 html body #movel,
 html body #movel .support-sidebar {
- background: #525252 !important;
+ background: #525252 url("data:image/webp;base64,UklGRhoEAABXRUJQVlA4IA4EAADQGgCdASroAx0APpFInUwlpCYlINVZwMASCWlqn848j8TknWf4eJcV+MwNcFs3ZHOhY4M9k3l38fqE+Ztj/1ppCwFDDwNJMeeUJpj+m6UMGgujTff+yeRdm9G4dvibSj09oeW9a1vB9UM2F8luibL3cL8dbzt70FJ4nZmNrzi9+R0zdDt8iceBULKUEPTL6M+HVMD0Gvb5RLB3fbibzDNZBDyI7KnwvXCtRDXr0OCB4JlQM/S12MBgNCFPVPYfjMAMseYY6yqc+bCgLcHTLV96rQEKcFDWEDd0RIowFC3gAP7veRLBuYr40Ofz2LFopKXvp6kq0ehBqdtWEJjD7zIp7eIYITXS8jlahelCsLDlPC+0bYU4OfSfygALwQouJ+3ritt0YV9FsCCcRdN9v4U4NwC5qo3vDLVrUO2QemV/AjCF0t5LJRtF9d0Sntu4eMDYimdCDnrvx/YAy26VqvLYbULeS6/3Asw27oYj5DKcKPnb1vZFhm3UkRi1ALGjlqI7FxsWi9Jlilzn8cho3Zzu/PMtV3wrMy3yRsl84mPclGF3jPYGIS0gJfJNiikmK1hSB/UgXjPKpnbewB0Nq5FVfnwMlK89toX6BrY0RzvtJZ8rqeL6eXRWCTehQGGK7E4EgVcZMFHU6hXWoYTcOJGSb0Qm0iI/WlZj/AQnlXpBbByhA11nl5nOYQwzXbDrK+eE2Mk3N2RecPkcnye9XTUW0FRkR4yHsE3NvyfehGLiGdW07H1BWGKhP6kFPFv3Flvptk8VSAICoLsdD402/PdbgMQH6Nn2imQrQ2e5r2CPPw68dBaYPXMZ7cOdFcj36z75cH6y5ztLXR5um/KxdxlnX1s0MZLv0zkMUtpqDPBhaf7hOYo8TQRX5/9VNBo3i0soUqyiYlNMjmGUCzKcJH1i+BJLgkFiGKCRZG64dnijV1sMB8WyY9uB1R+YAR/hZfHBkHOrqYg07op7RTwyBS9rWXH1dBqQB3Uz5YlYAEG4/wRFbbQRdsEl20r3CBiBwbgZLC8tzf3Xw5XikuPyLNa9xe69GCEZFfIzaD+JZcjlpqWxAbCMyT63+YNLMnUnBr5bbhtNTp31l4eF0M2ZzSCL8fTHxS49iHoRuXcKJvduJkqD5w5VMRSgpN4/id3DW3ptNG374TjDph/B+z5x3NRXsrdYgd67/DvSQYUPrg/Ni33hyC+2VDMLxYBMs1Qx4VnAhtcw0k+JZOUuiONce5LETiV/MCCdCIBoIis4w/2qxMcZ7seBcVUygen1ZNlHNFKWg+Z4cJ2CYEYAk2iqlu/3ohREnPWtWotbcqRJR2JgTrwpvlpBexNhf9SxnJDX4UW/+4nqiK52iaxIAv+fDQH4jMbhBORgK9d5wbLegAA=") repeat !important;
 }
 
 html body #movel #supportTopics {
@@ -29,11 +29,6 @@ html body #movel #supportTopics .support-topic.active {
  outline-offset: -3px;
 }
 
-@media (min-width: 1100px) {
- html body>main:has(>.itop-work-rail) {
-  grid-template-columns: minmax(260px, 20%) minmax(0, 1fr) minmax(260px, 20%) !important;
- }
-}
 
 html body>main>.itop-work-rail :is(.nav-tab,.itop-shortcut) {
  border: 1px solid #777 !important;
@@ -42,39 +37,9 @@ html body>main>.itop-work-rail :is(.nav-tab,.itop-shortcut) {
 }
 html body>main>.itop-work-rail .nav-tab.active {border: 3px solid #00134c !important;}
 
-html body #procedimentos .training-grid.training-all > article.training-card {
- grid-template-columns: minmax(0, 1fr) !important;
- grid-template-rows: auto !important;
- justify-items: center;
- text-align: center;
-}
-html body #procedimentos .training-grid.training-all > article.training-card > :is(.training-cover,h3,p,.training-card-top,.training-meta,.training-actions) {
- grid-column: 1 !important;
- grid-row: auto !important;
- width: auto !important;
- max-width: 100% !important;
- text-align: center !important;
- justify-content: center !important;
-}
-html body #procedimentos .training-grid.training-all > article.training-card > .training-cover {
- order: -1;
- width: min(100%, 220px) !important;
- height: auto !important;
-}
-html body #procedimentos .training-grid.training-all > article.training-card > .training-cover img {
- height: auto !important;
- object-fit: contain !important;
-}
-html body #procedimentos .training-grid.training-all > article.training-card > h3 {order:0;}
-html body #procedimentos .training-grid.training-all > article.training-card > :is(.training-card-top,p,.training-meta,.training-actions) {order:1;}
 html body #movel .support-sidebar > label {color:#fff !important;}
 
 /* Maintain the approved cover art proportions as the rails grow. */
-@media (min-width: 1100px) {
- html body>main:has(>.itop-work-rail) {
-  grid-template-columns: minmax(270px, 22%) minmax(0, 1fr) minmax(270px, 22%) !important;
- }
-}
 html body>main>.itop-work-rail .itop-tab-art,
 html body>main>.itop-work-rail .itop-shortcut img {
  object-fit: contain !important;
@@ -122,4 +87,101 @@ body.itop-budget-mode #pacote>section:is(#uvi-budget-actions,#uvi-budget-catalog
 @media (max-width: 650px) {
  #uvi-budget-form .grid,
  #uvi-budget-energy .grid {grid-template-columns: minmax(0, 1fr);}
+}
+
+/* Desktop rails reach the viewport edges and leave the remaining width to the form. */
+@media screen and (min-width: 901px) {
+ html body>main:has(>.itop-work-rail) {
+  grid-template-columns: clamp(145px, 15vw, 248px) minmax(0, 1fr) clamp(145px, 15vw, 248px) !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+ }
+ html body>main>.itop-work-rail,
+ html body>main>.itop-work-rail details,
+ html body>main>.itop-work-rail :is(nav.nav-tabs,.itop-useful-links) {
+  margin: 0 !important;
+  padding-inline: 0 !important;
+  max-width: none !important;
+ }
+ html body>main>.itop-work-rail details {border-inline: 0;}
+}
+
+/* Match the single-row, cover-and-actions layout of U.V.I. Useful Links. */
+html body #procedimentos .training-grid {
+ grid-template-columns: minmax(0, 1fr) !important;
+ container-type: inline-size;
+}
+html body #procedimentos .training-grid > article.training-card:not([hidden]) {
+ display: grid !important;
+ grid-template-columns: clamp(105px, 24%, 160px) minmax(0, 1fr) minmax(120px, 150px) !important;
+ grid-template-rows: repeat(4, auto) !important;
+ gap: 5px 16px !important;
+ align-items: center !important;
+ text-align: left !important;
+ min-width: 0 !important;
+ padding: 14px !important;
+}
+html body #procedimentos .training-grid > article.training-card[hidden] {display: none !important;}
+html body #procedimentos .training-grid > article.training-card > .training-cover {
+ grid-column: 1 !important;
+ grid-row: 1 / 5 !important;
+ width: 100% !important;
+ height: auto !important;
+ aspect-ratio: 5 / 3;
+ margin: 0 !important;
+}
+html body #procedimentos .training-grid > article.training-card > .training-cover > img {
+ width: 100% !important;
+ height: 100% !important;
+ object-fit: contain !important;
+}
+html body #procedimentos .training-grid > article.training-card > :is(.training-card-top,h3,p,.training-meta) {
+ grid-column: 2 !important;
+ min-width: 0;
+ margin: 0 !important;
+ text-align: left !important;
+ justify-content: flex-start !important;
+}
+html body #procedimentos .training-grid > article.training-card > .training-card-top {grid-row: 1 !important;}
+html body #procedimentos .training-grid > article.training-card > h3 {grid-row: 2 !important;}
+html body #procedimentos .training-grid > article.training-card > p {grid-row: 3 !important;}
+html body #procedimentos .training-grid > article.training-card > .training-meta {grid-row: 4 !important;}
+html body #procedimentos .training-grid > article.training-card > .training-actions {
+ grid-column: 3 !important;
+ grid-row: 1 / 5 !important;
+ display: flex !important;
+ flex-direction: column !important;
+ align-items: stretch !important;
+ justify-content: center !important;
+ flex-wrap: wrap !important;
+ width: 100% !important;
+ min-width: 0;
+ margin: 0 !important;
+}
+html body #procedimentos .training-grid > article.training-card > .training-actions > :is(a,button) {
+ box-sizing: border-box !important;
+ min-width: 0 !important;
+ max-width: 100% !important;
+ width: 100% !important;
+ margin: 0 !important;
+ white-space: normal !important;
+}
+@container (max-width: 500px) {
+ html body #procedimentos .training-grid > article.training-card:not([hidden]) {
+  grid-template-columns: clamp(75px, 30%, 110px) minmax(0, 1fr) !important;
+  grid-template-rows: repeat(5, auto) !important;
+  gap: 5px 12px !important;
+ }
+ html body #procedimentos .training-grid > article.training-card > .training-actions {
+  grid-column: 1 / -1 !important;
+  grid-row: 5 !important;
+  flex-direction: row !important;
+ }
+ html body #procedimentos .training-grid > article.training-card > .training-actions > :is(a,button) {
+  width: auto !important;
+  flex: 1 1 95px !important;
+ }
 }
