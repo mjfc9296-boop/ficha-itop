@@ -133,7 +133,17 @@
       energySlot.after(energySection);
       promotionSlot.after(promotions);
       energyBox.remove();
-      compactRows.forEach(row => setRow(row, sales.rows.get(row)));
+      for (let index = compactRows.length - 1; index >= 0; index--) {
+        const row = compactRows[index];
+        const snapshot = sales.rows.get(row);
+        if (snapshot) setRow(row, snapshot);
+        else {
+          row.sel.closest('.compact-row').remove();
+          compactRows.splice(index, 1);
+        }
+      }
+      mobileLineCount = sales.mobileCount;
+      fixedLineCount = sales.fixedCount;
       energyIds.forEach((id, index) => { $(id).value = sales.energy[index]; });
       sales = null;
       syncPackage = syncSalesPackage;
@@ -166,6 +176,8 @@
           name: row.sel.value, q: row.quantity.value, savedPlan: row.savedPlan,
           savedPrice: row.savedPrice, sourceIndex: row.sourceIndex
         }])),
+        mobileCount: mobileLineCount,
+        fixedCount: fixedLineCount,
         energy: energyIds.map(id => $(id).value)
       };
       // This mode uses the same calculator without applying a sondagem recommendation.
