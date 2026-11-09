@@ -34,7 +34,6 @@
    row('VALOR MENSAL REGULAR DO PACOTE',money(total));
    if(number(record.desconto)>0){row('DESCONTO COMERCIAL REGISTRADO',money(number(record.desconto)));row('TOTAL COM DESCONTO',money(Math.max(0,total-number(record.desconto))));}
    if(current>total)text('Economia mensal regular nos serviços: '+money(current-total),{bold:true});
-   if(record.resultado){title('OBSERVAÇÃO COMERCIAL');text(record.resultado);}
   }else total=products.reduce((s,p)=>s+number(p.q)*number(p.price),0);
   if(includeEnergy||energyOnly){
    if(!energyOnly){doc.addPage();y=18;}title('SIMULAÇÃO DE ENERGIA - CEMIG E NETZ');
@@ -52,5 +51,5 @@
   return {doc,name:'ITOP-'+(energyOnly?'ENERGIA':includeEnergy?'COM-ENERGIA':'SEM-ENERGIA')+'-'+name.replace(/[^A-Z0-9]/gi,'-').slice(0,50)+'.pdf'};
  }
  window.ITOPProposalPDF=Object.freeze({create});
- window.buildClosingPDF=function(){if(!window.ITOPApprovedOperator.valid())throw Error('Informe o nome do operador conforme o cadastro aprovado.');const snapshot=window.ITOPCommercialBridge.snapshot();return create({...snapshot,resultado:document.getElementById('survey-result').value,desconto:document.getElementById('survey-discount').value},{includeEnergy:document.getElementById('includeEnergy').checked});};
+ window.buildClosingPDF=function(){if(!window.ITOPApprovedOperator.valid())throw Error('Informe o nome do operador conforme o cadastro aprovado.');const snapshot=window.ITOPCommercialBridge.snapshot();return create({...snapshot,desconto:document.getElementById('survey-discount').value},{includeEnergy:document.getElementById('includeEnergy').checked});};
 })();
