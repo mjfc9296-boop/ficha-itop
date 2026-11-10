@@ -232,14 +232,19 @@ html body #procedimentos .training-grid.training-list > article.training-card > 
   gap: 8px !important;
 }
 html body #procedimentos .training-grid.training-list > article.training-card > .training-actions > :is(a, button) {
+  background: #00134c !important;
+  color: #fff !important;
+  border: 1px solid #00134c !important;
+  padding: 4px 10px !important;
+  line-height: 1.25 !important;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
   width: 100% !important;
   min-width: 0 !important;
-  min-height: 42px !important;
+  min-height: 32px !important;
   height: auto !important;
-  font-size: 16.5px !important;
+  font-size: 14px !important;
   white-space: normal !important;
   text-align: center !important;
 }
