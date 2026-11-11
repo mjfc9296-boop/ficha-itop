@@ -272,3 +272,25 @@ html body #procedimentos #usefulLinksPanel .useful-link-actions > :is(a, button)
     width: auto !important;
   }
 }
+
+/* A janela de envio fica fora dos módulos e usa as mesmas dimensões. */
+html body dialog :is(#webPDF, #appPDF, #openWebChat) {
+  box-sizing: border-box;
+  width: 150px !important;
+  max-width: 100%;
+  height: auto !important;
+  min-height: 31px !important;
+  padding: 5px 12px !important;
+  border: 1px solid #525252 !important;
+  border-radius: 8px !important;
+  background: #525252 !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  text-align: center;
+}
+html body dialog :is(#webPDF, #appPDF) :is(strong, span) {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
