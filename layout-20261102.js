@@ -213,6 +213,8 @@
   }
   document.addEventListener('DOMContentLoaded', prepareCards);
 
+  let whatsappTab;
+
   // Preserve the destination of each card, including cards cloned at startup.
   document.addEventListener('click', event => {
     const button = event.target.closest('.training-wa,.useful-link-wa');
@@ -241,11 +243,13 @@
     }
 
     const url = 'https://web.whatsapp.com/send?' + (number ? 'phone=55' + number + '&' : '') + 'text=' + text;
-    const tab = window.open('', 'ITOP_WHATSAPP_WEB');
-    if (tab) {
-      tab.opener = null;
-      tab.location = url;
-      tab.focus();
+    if (!whatsappTab || whatsappTab.closed) {
+      whatsappTab = window.open('', 'ITOP_WHATSAPP_WEB');
+      if (whatsappTab) whatsappTab.opener = null;
+    }
+    if (whatsappTab) {
+      whatsappTab.location = url;
+      whatsappTab.focus();
     } else if (hint) {
       hint.textContent = 'Permita que a Ficha ITOP abra o WhatsApp Web neste navegador.';
     }
