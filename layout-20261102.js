@@ -135,3 +135,106 @@
     coverLink.append(image);
   }
 })();
+
+/* Cartões de materiais e atalhos com ações compactas sob o título. */
+(() => {
+  const style = document.createElement('style');
+  style.textContent = `
+    html body main .module[id] .itop-compact-card.itop-compact-card {
+      display: grid !important;
+      grid-template: "cover title" auto "cover details" auto "cover actions" auto / clamp(82px, 13vw, 140px) minmax(0, 1fr) !important;
+      gap: 5px 16px !important;
+      align-items: center !important;
+      padding: 12px 14px !important;
+    }
+    html body main .module[id] .itop-compact-card > :is(.training-cover,.itop-useful-cover,.itop-compact-cover) {
+      grid-area: cover !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      height: auto !important;
+      align-self: center !important;
+    }
+    html body main .module[id] .itop-compact-card > :is(h3,.useful-link-copy) { grid-area: title !important; margin: 0 !important; }
+    html body main .module[id] .itop-compact-card > :is(p,.training-meta) { display: none !important; }
+    html body main .module[id] .itop-compact-card > .training-card-top {
+      display: block !important;
+      grid-area: details !important;
+      margin: 0 !important;
+    }
+    html body main .module[id] .itop-compact-card .training-monogram { display: none !important; }
+    html body main .module[id] .itop-compact-card > :is(.training-actions,.useful-link-actions) {
+      grid-area: actions !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      flex-wrap: wrap !important;
+      gap: 8px !important;
+      margin: 0 !important;
+    }
+    html body main .module[id] .itop-compact-card.itop-compact-card :is(.training-open,.training-download,.useful-link,.useful-link-copy-btn) {
+      box-sizing: border-box !important;
+      display: inline-flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      width: min(134px, 100%) !important;
+      min-width: 0 !important;
+      height: 30px !important;
+      min-height: 30px !important;
+      padding: 0 8px !important;
+      margin: 0 !important;
+      background: #00134c !important;
+      color: #fff !important;
+      border: 0 !important;
+      border-radius: 7px !important;
+      box-shadow: none !important;
+      font-size: 11px !important;
+      line-height: 1.15 !important;
+    }
+    html body main .module[id] .itop-compact-card :is(.training-wa,.useful-link-wa) {
+      margin: 0 0 0 8px !important;
+      box-shadow: none !important;
+      text-indent: 0 !important;
+    }
+    html body main .module[id] .itop-compact-card :is(.training-wa,.useful-link-wa)::after { content: none !important; }
+  `;
+  document.head.append(style);
+
+  function prepareCards() {
+    for (const card of document.querySelectorAll('.training-card,.useful-link-item')) {
+      if (!card.querySelector('.training-actions,.useful-link-actions')) continue;
+      card.classList.add('itop-compact-card');
+      card.querySelector('.itop-useful-cover')?.closest('a')?.classList.add('itop-compact-cover');
+      const button = card.querySelector('.training-wa,.useful-link-wa');
+      if (!button) continue;
+      button.replaceChildren();
+      button.setAttribute('aria-label', 'Compartilhar pelo WhatsApp');
+      button.title = 'Compartilhar pelo WhatsApp';
+    }
+  }
+  document.addEventListener('DOMContentLoaded', prepareCards);
+
+  // Preserve the destination of each card, including cards cloned at startup.
+  document.addEventListener('click', event => {
+    const button = event.target.closest('.training-wa,.useful-link-wa');
+    const card = button?.closest('.training-card,.useful-link-item');
+    const link = card?.querySelector('.training-open,.useful-link');
+    if (!link || button.disabled) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const field = document.getElementById('trainingWhatsAppNumber');
+    const hint = document.getElementById('trainingWhatsappHint');
+    let number = field?.value.replace(/\D/g, '') || '';
+    if (number.length === 13 && number.startsWith('55')) number = number.slice(2);
+    if (number && !/^\d{2}9\d{8}$/.test(number)) {
+      field.setAttribute('aria-invalid', 'true');
+      field.focus();
+      if (hint) hint.textContent = 'Informe um celular válido com DDD ou deixe em branco para escolher o destinatário no WhatsApp.';
+      return;
+    }
+    field?.removeAttribute('aria-invalid');
+    const title = card.querySelector('h3,.useful-link-copy strong')?.textContent.trim() || 'Material ITOP';
+    const text = encodeURIComponent('ITOP · ' + title + '\n' + link.href);
+    window.open('https://wa.me/' + (number ? '55' + number : '') + '?text=' + text, '_blank', 'noopener,noreferrer');
+  }, true);
+})();
