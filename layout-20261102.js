@@ -235,7 +235,20 @@
     field?.removeAttribute('aria-invalid');
     const title = card.querySelector('h3,.useful-link-copy strong')?.textContent.trim() || 'Material ITOP';
     const text = encodeURIComponent('ITOP · ' + title + '\n' + link.href);
-    window.open('https://wa.me/' + (number ? '55' + number : '') + '?text=' + text, '_blank', 'noopener,noreferrer');
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      window.open('https://wa.me/' + (number ? '55' + number : '') + '?text=' + text, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    const url = 'https://web.whatsapp.com/send?' + (number ? 'phone=55' + number + '&' : '') + 'text=' + text;
+    const tab = window.open('', 'ITOP_WHATSAPP_WEB');
+    if (tab) {
+      tab.opener = null;
+      tab.location = url;
+      tab.focus();
+    } else if (hint) {
+      hint.textContent = 'Permita que a Ficha ITOP abra o WhatsApp Web neste navegador.';
+    }
   }, true);
 })();
 
