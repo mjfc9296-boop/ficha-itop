@@ -1,9 +1,11 @@
 (()=>{
  const menu=document.querySelector('.itop-module-menu'), links=document.querySelector('.itop-link-menu');
  const main=document.querySelector('main'), moduleRail=menu.closest('.itop-work-rail');
- menu.style.setProperty('border', '1px solid #fff', 'important');
- menu.style.setProperty('border-radius', '14px', 'important');
- menu.style.setProperty('box-shadow', 'inset 0 1px 2px rgba(255,255,255,.35), 0 2px 4px rgba(0,0,0,.42)', 'important');
+ for (const panel of [menu, links]) {
+  panel.style.setProperty('border', '1px solid #fff', 'important');
+  panel.style.setProperty('border-radius', '14px', 'important');
+  panel.style.setProperty('box-shadow', 'inset 0 1px 2px rgba(255,255,255,.35), 0 2px 4px rgba(0,0,0,.42)', 'important');
+ }
  const linkRail=document.createElement('aside');
  linkRail.className='itop-work-rail itop-links-rail';
  linkRail.setAttribute('aria-label','Links úteis');
