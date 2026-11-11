@@ -322,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = row.closest('.itop-compact-card');
     if (card) {
       apply(card, {
+        'border-color': '#8b94a5',
         display: 'grid',
         'grid-template': '"cover title" auto "cover details" auto "cover actions" auto / clamp(82px, 16vw, 196px) minmax(0, 1fr)',
         'column-gap': 'clamp(16px, calc(22vw - 150px), 192px)'
