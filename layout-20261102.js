@@ -263,3 +263,51 @@
   `;
   document.head.append(style);
 })();
+
+/* Os módulos antigos têm regras próprias de coluna e largura. */
+document.addEventListener('DOMContentLoaded', () => {
+  const apply = (element, declarations) => {
+    if (!element) return;
+    for (const [property, value] of Object.entries(declarations)) {
+      element.style.setProperty(property, value, 'important');
+    }
+  };
+  for (const row of document.querySelectorAll('main .module :is(.training-actions,.useful-link-actions,.commission-doc-actions)')) {
+    const card = row.closest('.itop-compact-card');
+    if (card) {
+      apply(card, {
+        display: 'grid',
+        'grid-template': '"cover title" auto "cover details" auto "cover actions" auto / clamp(76px, 13vw, 140px) minmax(0, 1fr)'
+      });
+      apply(card.querySelector(':scope > :is(h3,.useful-link-copy)'), {'grid-area': 'title'});
+      apply(card.querySelector(':scope > .training-card-top'), {'grid-area': 'details', 'justify-self': 'start'});
+      apply(row, {'grid-area': 'actions'});
+    }
+    apply(row, {
+      display: 'flex', 'flex-direction': 'row', 'flex-wrap': 'nowrap',
+      'justify-content': 'flex-start', 'align-items': 'center',
+      'justify-self': 'stretch', width: '100%', 'max-width': 'none',
+      'min-width': '0', gap: '8px', overflow: 'auto', 'padding-block': '3px'
+    });
+    for (const button of row.querySelectorAll(':scope > :is(a,button)')) {
+      const isWhatsApp = button.matches('.training-wa,.useful-link-wa');
+      if (isWhatsApp) {
+        apply(button, {
+          flex: '0 0 44px', width: '44px', 'min-width': '44px', height: '44px',
+          'min-height': '44px', margin: '0', padding: '0', border: '0',
+          background: 'transparent', 'box-shadow': 'none', 'font-size': '0'
+        });
+        continue;
+      }
+      apply(button, {
+        display: 'inline-flex', flex: '0 0 134px', width: '134px',
+        'min-width': '134px', 'max-width': '134px', height: '30px',
+        'min-height': '30px', padding: '0 8px', margin: '0',
+        'box-sizing': 'border-box', 'align-items': 'center', 'justify-content': 'center',
+        'white-space': 'nowrap', 'font-size': '11px', 'line-height': '1.15',
+        background: '#00134c', color: '#fff', border: '0',
+        'border-radius': '7px', 'box-shadow': 'none'
+      });
+    }
+  }
+});
