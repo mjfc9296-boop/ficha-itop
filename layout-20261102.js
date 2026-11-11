@@ -246,6 +246,14 @@
 
   const style = document.createElement('style');
   style.textContent = `
+    html body main #itop-return-bell {
+      box-sizing: border-box;
+      height: 34px !important;
+      min-height: 34px !important;
+      padding: 0 4px !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
     html body main .support-context { align-items: end; }
     html body main .support-context > .field > :is(input,select) {
       box-sizing: border-box;
