@@ -277,8 +277,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (card) {
       apply(card, {
         display: 'grid',
-        'grid-template': '"cover title" auto "cover details" auto "cover actions" auto / clamp(76px, 13vw, 140px) minmax(0, 1fr)'
+        'grid-template': '"cover title" auto "cover details" auto "cover actions" auto / clamp(82px, 16vw, 196px) minmax(0, 1fr)',
+        'column-gap': 'clamp(16px, calc(22vw - 150px), 192px)'
       });
+      const cover = card.querySelector(':scope > :is(.training-cover,.itop-useful-cover,.itop-compact-cover)');
+      apply(cover, {'grid-area': 'cover', width: '100%', 'min-width': '0', 'max-width': '100%', height: 'auto', 'align-self': 'center'});
+      apply(cover?.querySelector('img'), {width: '100%', 'max-width': '100%', height: 'auto', 'object-fit': 'contain'});
       apply(card.querySelector(':scope > :is(h3,.useful-link-copy)'), {'grid-area': 'title'});
       apply(card.querySelector(':scope > .training-card-top'), {'grid-area': 'details', 'justify-self': 'start'});
       apply(row, {'grid-area': 'actions'});
