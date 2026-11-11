@@ -213,8 +213,6 @@
   }
   document.addEventListener('DOMContentLoaded', prepareCards);
 
-  let whatsappTab;
-
   // Preserve the destination of each card, including cards cloned at startup.
   document.addEventListener('click', event => {
     const button = event.target.closest('.training-wa,.useful-link-wa');
@@ -242,17 +240,48 @@
       return;
     }
 
-    const url = 'https://web.whatsapp.com/send?' + (number ? 'phone=55' + number + '&' : '') + 'text=' + text;
-    if (!whatsappTab || whatsappTab.closed) {
-      whatsappTab = window.open('', 'ITOP_WHATSAPP_WEB');
-      if (whatsappTab) whatsappTab.opener = null;
-    }
-    if (whatsappTab) {
-      whatsappTab.location = url;
-      whatsappTab.focus();
-    } else if (hint) {
-      hint.textContent = 'Permita que a Ficha ITOP abra o WhatsApp Web neste navegador.';
-    }
+    const dialog = document.createElement('dialog');
+    const titleLabel = document.createElement('h2');
+    titleLabel.textContent = 'Compartilhar pelo WhatsApp';
+    const instructions = document.createElement('p');
+    instructions.textContent = 'Copie a mensagem e cole na conversa que já está aberta no WhatsApp.';
+    const message = document.createElement('textarea');
+    message.value = decodeURIComponent(text);
+    message.readOnly = true;
+    message.rows = 4;
+    message.setAttribute('aria-label', 'Mensagem para compartilhar');
+    const actions = document.createElement('div');
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.textContent = 'Copiar mensagem';
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(message.value);
+        copy.textContent = 'Mensagem copiada';
+      } catch {
+        message.focus();
+        message.select();
+        instructions.textContent = 'Pressione Ctrl+C e cole na conversa aberta.';
+      }
+    });
+    const open = document.createElement('a');
+    open.href = 'https://wa.me/' + (number ? '55' + number : '') + '?text=' + text;
+    open.target = '_blank';
+    open.rel = 'noopener noreferrer';
+    open.textContent = 'Abrir WhatsApp';
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.textContent = 'Fechar';
+    close.onclick = () => dialog.close();
+    actions.style.cssText = 'display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px';
+    message.style.cssText = 'width:100%;box-sizing:border-box';
+    dialog.style.cssText = 'width:min(460px,90vw);padding:20px;border:1px solid #ddd;border-radius:12px';
+    dialog.setAttribute('aria-label', titleLabel.textContent);
+    actions.append(copy, open, close);
+    dialog.append(titleLabel, instructions, message, actions);
+    dialog.addEventListener('close', () => dialog.remove(), {once: true});
+    document.body.append(dialog);
+    dialog.showModal();
   }, true);
 })();
 
