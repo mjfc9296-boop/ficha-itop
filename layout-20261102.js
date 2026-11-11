@@ -238,3 +238,20 @@
     window.open('https://wa.me/' + (number ? '55' + number : '') + '?text=' + text, '_blank', 'noopener,noreferrer');
   }, true);
 })();
+
+(() => {
+  const label = document.querySelector('.support-context label[for="supportNumber"]');
+  if (!label) return;
+  label.textContent = 'WhatsApp cliente';
+
+  const style = document.createElement('style');
+  style.textContent = `
+    html body main .support-context { align-items: end; }
+    html body main .support-context > .field > :is(input,select) {
+      box-sizing: border-box;
+      height: 40px !important;
+      min-height: 40px !important;
+    }
+  `;
+  document.head.append(style);
+})();
