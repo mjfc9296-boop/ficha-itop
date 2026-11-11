@@ -1514,7 +1514,20 @@ html.itop-authorized main #itop-search-input{flex:1;width:auto;min-width:0;max-w
  #itop-search-results{top:calc(12vh + 52px)}
 }
 @media print{#itop-proposal-controlbar{display:none!important}}
-</style><link rel="stylesheet" href="ficha-complementar.css?v=1"></head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">Celular com DDD ou e-mail</label><input autocomplete="username" id="itop-email" placeholder="Celular com DDD ou e-mail" required="" type="text"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><button id="itop-resend-email" type="button" hidden>Reenviar confirmação por e-mail</button><div class="itop-auth-links"><button data-register-role="vendedor" type="button">Criar conta de vendedor</button><button data-register-role="supervisor" type="button">Criar conta de supervisor</button><button data-register-role="convidado" type="button">Criar conta de convidado</button></div>
+</style><link rel="stylesheet" href="ficha-complementar.css?v=1"><style id="itop-compact-survey-buttons">
+html body #sondagem .itop-one-line-actions > button:not([hidden]),
+html body #sondagem .itop-one-line-actions > button#itop-add-servicos-destaque,
+html body #sondagem #itop-proposal-buttons button:not([hidden]),
+html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
+ height:auto!important;
+ min-height:31px!important;
+ padding:5px 12px!important;
+ font-size:12px!important;
+ line-height:1.25!important;
+ border-radius:8px!important;
+}
+</style>
+</head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">Celular com DDD ou e-mail</label><input autocomplete="username" id="itop-email" placeholder="Celular com DDD ou e-mail" required="" type="text"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><button id="itop-resend-email" type="button" hidden>Reenviar confirmação por e-mail</button><div class="itop-auth-links"><button data-register-role="vendedor" type="button">Criar conta de vendedor</button><button data-register-role="supervisor" type="button">Criar conta de supervisor</button><button data-register-role="convidado" type="button">Criar conta de convidado</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
 <form id="itop-register-form"><label for="itop-reg-profile">Perfil de acesso</label><select id="itop-reg-profile"><option value="vendedor">Vendedor</option><option value="supervisor">Supervisor</option><option value="convidado">Convidado · acesso por setor</option></select><p hidden="" id="itop-guest-registration-info">Escolha o setor e o supervisor ou ADM responsável. As propostas ficam fora dos indicadores comerciais.</p>
@@ -1662,23 +1675,22 @@ window.addEventListener('itop:commercial-profile',event=>{window.ITOPApprovedOpe
 window.addEventListener('itop:logged-out',()=>{window.ITOPApprovedOperator.name='';});
 function proposalState(){
  const base=computeProposal();
- if(!window.ITOPApprovedOperator.valid())return {...base,proposal:[],warnings:[]};
- let proposal=base.proposal.map((p,i)=>{
-  const requiredGb=p.sourceIndex===undefined?0:num('mgb'+p.sourceIndex);
-  const options=proposalOptions(p).filter(o=>/combo/i.test(o.name)===/combo/i.test(p.name)
-   && Number((o.name.match(/(\d+)\s*GB/i)||[])[1]||0)>=requiredGb);
-  const override=proposalEdits[i];
-  const chosen=options.find(o=>o.name===override)||options.find(o=>o.name===p.name);
-  return {...p,name:chosen?.name||p.name,price:chosen?.price??p.price,options,changed:!!override&&override!==p.name,omitted:override==='__skip__'};
+ if($('clienteItop').value==='sim'||!window.ITOPApprovedOperator.valid())return {...base,proposal:[],warnings:[]};
+ const slots=surveyPlanSlots();
+ const mobileSlots=slots.filter(p=>p.sourceIndex!==undefined);
+ const choices=slots.map(slot=>{
+  const suggested=base.proposal.find(p=>p.category===slot.category);
+  const options=proposalOptions(slot).filter(o=>mobileSlots.length||!o.key.startsWith('Combos '));
+  const override=proposalEdits[slot.category];
+  const chosen=options.find(o=>o.name===override)||suggested;
+  const combo=/^Combos /.test(chosen?.key||'')||/combo/i.test(chosen?.name||'');
+  const sourceIndex=combo?(suggested?.sourceIndex??mobileSlots[0]?.sourceIndex):slot.sourceIndex;
+  return {...slot,...chosen,options,sourceIndex,q:1,combo,
+   changed:!!override&&override!==suggested?.name,omitted:override==='__skip__'||!chosen};
  });
- const limit=proposalCents(base.actual)-1;
- const activeCost=items=>proposalCost(items.filter(item=>!item.omitted));
- if(proposal.length&&activeCost(proposal)>limit){
-  proposal=proposal.map((p,i)=>({...p,name:base.proposal[i].name,price:base.proposal[i].price,changed:false}));
- }
- const cost=activeCost(proposal);
- const choices=proposal.map(p=>({...p,options:p.options.filter(o=>cost-(p.omitted?0:proposalCents(p.price))+proposalCents(o.price)<=limit)}));
- return {...base,choices,proposal:choices.filter(p=>!p.omitted)};
+ const bundled=choices.find(p=>p.combo&&!p.omitted);
+ const visible=choices.filter(p=>!(bundled&&p.category.startsWith('ITOP móvel ')&&p.sourceIndex===bundled.sourceIndex));
+ return {...base,choices:visible,proposal:visible.filter(p=>!p.omitted)};
 }
 function updateProposalOnly(){
  const {actual,proposal,warnings,choices=[]}=proposalState();proposed=proposal;
@@ -1691,23 +1703,17 @@ function updateProposalOnly(){
  $('economiaMensalSug').textContent=proposal.length?(actual>estimated?money(actual-estimated):'MAIS BENEFÍCIOS'):'—';
  $('economiaAnualSug').textContent=proposal.length?(actual>estimated?money(actual*12-firstYearCost(proposal)):'PACOTE PERSONALIZADO'):'—';
  if(!choices.length){$('recommend').textContent=window.ITOPApprovedOperator.valid()?(warnings.join(' ')||'Preencha os valores da fibra, fixo ou linhas móveis para obter uma indicação.'):'Informe o primeiro nome do operador conforme seu cadastro aprovado para iniciar uma proposta.';return;}
- let alerts=[...warnings];
- proposal.forEach((p,i)=>{
-  if(!p.changed)return;
+ const alerts=[...warnings];
+ if(estimated>actual)alerts.push('A proposta editada ficou acima do gasto atual do cliente.');
+ for(const p of proposal){
+  if(!p.changed||p.sourceIndex===undefined)continue;
   const gb=Number((p.name.match(/(\d+)\s*GB/i)||[])[1]||0);
-  if(p.category==='Fibra / combos' && /combo/i.test(p.name)){
-   const fiber=num('internetValor');if(!fiber)alerts.push('Combo escolhido sem gasto de fibra informado.');
-  }
-  if(gb){
-   const mobileBudgets=Array.from({length:5},(_,j)=>({gb:num('mgb'+j),value:num('mvalor'+j)})).filter(m=>m.gb||m.value);
-   const mobileIndex=proposal.slice(0,i+1).filter(x=>/móvel/i.test(x.category)||(/combo/i.test(x.name))).length-1;
-   const need=mobileBudgets[mobileIndex]?.gb;
-   if(need && gb<need)alerts.push(`${p.category}: plano escolhido com ${gb} GB, abaixo dos ${need} GB informados. Confirme com o cliente.`);
-  }
- });
+  const need=num('mgb'+p.sourceIndex);
+  if(need&&gb<need)alerts.push(`${p.category}: plano escolhido com ${gb} GB, abaixo dos ${need} GB informados. Confirme com o cliente.`);
+ }
  $('recommend').innerHTML=`<div class="proposal-clean-header"><div><h3>Monte a melhor proposta</h3><p>Altere os planos abaixo. Os valores são atualizados automaticamente.</p></div><div class="proposal-clean-total"><span>Como ficará</span><strong>${money(estimated)}<small>/mês</small></strong></div></div>
 
- ${choices.map((p,i)=>({p,i})).sort((a,b)=>{const rank=p=>/fibra|combo/i.test(p.category)?0:/fixo/i.test(p.category)?1:2;return rank(a.p)-rank(b.p)||a.i-b.i}).map(({p,i})=>`<div class="proposal-row"><label for="proposalChoice${i}">${escapeHTML(p.category)}${p.sourceIndex!==undefined?`<br><span class="mapped-phone">${escapeHTML($('mnumero'+p.sourceIndex).value||'NÚMERO NÃO INFORMADO')}</span>`:''}</label><select class="proposal-choice" id="proposalChoice${i}" data-index="${i}"><option value="__skip__" ${p.omitted?'selected':''}>Não levar para a etapa 2</option>${p.options.map(o=>`<option value="${escapeHTML(o.name)}" ${!p.omitted&&o.name===p.name?'selected':''}>${escapeHTML(o.name)} — ${money(o.price)}${planPromotion(o.name)?' · '+planPromotion(o.name).label:''}</option>`).join('')}</select><output>${p.omitted?'—':money(p.price)}</output></div>`).join('')}
+ ${choices.map((p,i)=>({p,i})).sort((a,b)=>{const rank=p=>/fibra|combo/i.test(p.category)?0:/fixo/i.test(p.category)?1:2;return rank(a.p)-rank(b.p)||a.i-b.i}).map(({p,i})=>`<div class="proposal-row"><label for="proposalChoice${i}">${escapeHTML(p.category)}${p.sourceIndex!==undefined?`<br><span class="mapped-phone">${escapeHTML($('mnumero'+p.sourceIndex).value||'NÚMERO NÃO INFORMADO')}</span>`:''}</label><select class="proposal-choice" id="proposalChoice${i}" data-category="${escapeHTML(p.category)}"><option value="__skip__" ${p.omitted?'selected':''}>Não levar para a etapa 2</option>${p.options.map(o=>`<option value="${escapeHTML(o.name)}" ${!p.omitted&&o.name===p.name?'selected':''}>${escapeHTML(o.name)} — ${money(o.price)}${planPromotion(o.name)?' · '+planPromotion(o.name).label:''}</option>`).join('')}</select><output>${p.omitted?'—':money(p.price)}</output></div>`).join('')}
  ${promotionHTML(proposal)}
  ${alerts.length?`<details class="proposal-clean-notes"><summary>Conferir antes de oferecer <span>${alerts.length}</span></summary><ul>${alerts.map(a=>`<li>${escapeHTML(a)}</li>`).join('')}</ul></details>`:''}
  <div class="proposal-toolbar" hidden style="display:none!important"><button type="button" class="secondary" id="continuePackage">Adicionar serviços</button><button type="button" id="restoreProposal">Refazer indicação inteligente</button><button type="button" id="clearAll">Limpar tudo</button></div><p class="hint">Valores sujeitos à validação comercial.</p>`;
@@ -1717,9 +1723,11 @@ const proposalCents=value=>Math.round(value*100);
 function proposalCost(items){
  return items.reduce((sum,item)=>sum+proposalCents(item.price)*item.q,0);
 }
+const preferredFiber=/^ESSENCIAL (SMART|PLUS|EXCLUSIVE) /;
+const rankSurveyPackage=(a,b)=>a.covered-b.covered||Number(a.hasFixed)-Number(b.hasFixed)
+ ||Number(a.hasPreferredFiber)-Number(b.hasPreferredFiber)||a.cost-b.cost;
 function bestSurveyPackage(groups,limit){
- let states=new Map([[0,{items:[],covered:0,hasFixed:false,cost:0}]]);
- const rank=(a,b)=>a.covered-b.covered||Number(a.hasFixed)-Number(b.hasFixed)||a.cost-b.cost;
+ let states=new Map([[0,{items:[],covered:0,hasFixed:false,hasPreferredFiber:false,cost:0}]]);
  for(const group of groups){
   const next=new Map(states);
   for(const state of states.values()){
@@ -1727,22 +1735,33 @@ function bestSurveyPackage(groups,limit){
     const cost=state.cost+proposalCents(item.price);
     if(cost>limit)continue;
     const candidate={items:[...state.items,item],covered:state.covered+item.covers,
-     hasFixed:state.hasFixed||item.category==='Telefone fixo',cost};
+     hasFixed:state.hasFixed||item.category==='Telefone fixo',
+     hasPreferredFiber:state.hasPreferredFiber||preferredFiber.test(item.name),cost};
     const previous=next.get(cost);
-    if(!previous||rank(candidate,previous)>0)next.set(cost,candidate);
+    if(!previous||rankSurveyPackage(candidate,previous)>0)next.set(cost,candidate);
    }
   }
   states=next;
  }
- return Array.from(states.values()).reduce((best,state)=>rank(state,best)>0?state:best);
+ return Array.from(states.values()).reduce((best,state)=>rankSurveyPackage(state,best)>0?state:best);
+}
+function surveyPlanSlots(){
+ const slots=[];
+ if(num('internetValor')||num('fibraMega')||$('operadora').value.trim())slots.push({category:'Fibra / combos'});
+ if(num('fixoValor')||$('fixoNumero').value.trim()||$('fixoOperadora').value.trim())slots.push({category:'Telefone fixo'});
+ for(let i=0;i<5;i++){
+  const budget=num('mvalor'+i),gb=num('mgb'+i);
+  if(budget||gb||$('mnumero'+i).value.trim()||$('mop'+i).value)
+   slots.push({category:'ITOP móvel '+(i+1),sourceIndex:i,budget,gb});
+ }
+ return slots;
 }
 function computeProposal(){
- const fiber=num('internetValor'),fixed=num('fixoValor');
- const mobiles=Array.from({length:5},(_,i)=>({sourceIndex:i,budget:num('mvalor'+i),gb:num('mgb'+i)}))
-  .filter(m=>m.budget>0||m.gb>0||$('mnumero'+m.sourceIndex).value.trim()||$('mop'+m.sourceIndex).value);
- const actual=(proposalCents(fiber)+proposalCents(fixed)+mobiles.reduce((sum,m)=>sum+proposalCents(m.budget),0))/100;
- const hasFiber=!!(fiber||num('fibraMega')||$('operadora').value.trim());
- const hasFixed=!!(fixed||$('fixoNumero').value.trim()||$('fixoOperadora').value.trim());
+ const slots=surveyPlanSlots();
+ const mobiles=slots.filter(p=>p.sourceIndex!==undefined);
+ const actual=(proposalCents(num('internetValor'))+proposalCents(num('fixoValor'))+mobiles.reduce((sum,m)=>sum+proposalCents(m.budget),0))/100;
+ const hasFiber=slots.some(p=>p.category==='Fibra / combos');
+ const hasFixed=slots.some(p=>p.category==='Telefone fixo');
  const warnings=[];
  if($('clienteItop').value==='sim')return {actual,proposal:[],warnings};
  const limit=proposalCents(actual)-1;
@@ -1757,9 +1776,7 @@ function computeProposal(){
   mobiles.forEach((m,i)=>{
    const combos=plans(['Combos ITOPV','Combos ITOPT'],'Fibra / combos',m,2);
    const candidate=bestSurveyPackage([fixedPlans,combos,...mobilePlans.filter((_,j)=>j!==i)],limit);
-   if(candidate.covered>best.covered||
-      (candidate.covered===best.covered&&(Number(candidate.hasFixed)>Number(best.hasFixed)||
-       (candidate.hasFixed===best.hasFixed&&candidate.cost>best.cost))))best=candidate;
+   if(rankSurveyPackage(candidate,best)>0)best=candidate;
   });
  }
  if(hasFixed&&!best.hasFixed)warnings.push('Telefone fixo sem espaço no orçamento da indicação. Revise o gasto ou selecione o plano na etapa 2.');
@@ -1848,7 +1865,7 @@ function syncPackage(){
   transferredSignature=signature;
  }
 }
-$('recommend').addEventListener('change',event=>{if(!event.target.matches('.proposal-choice'))return;proposalEdits[Number(event.target.dataset.index)]=event.target.value;recalc()});
+$('recommend').addEventListener('change',event=>{if(!event.target.matches('.proposal-choice'))return;proposalEdits[event.target.dataset.category]=event.target.value;recalc()});
 $('recommend').addEventListener('click',event=>{if(event.target.id==='clearAll'){clearEverything();return;}if(event.target.id==='continuePackage'){advanceSurvey();return;}if(event.target.id!=='restoreProposal')return;proposalEdits={};transferredSignature=null;recalc()});
 function clearEverything(){if(window.ITOPSalesFlow&&!window.ITOPSalesFlow.canClear())return;
  if(!confirm('Limpar todos os dados, gastos e produtos das três etapas?'))return;
