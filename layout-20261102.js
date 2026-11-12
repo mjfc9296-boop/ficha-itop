@@ -425,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 /* Capas da navegação lateral, associadas aos módulos pelo identificador. */
-for (const moduleId of ['sondagem', 'pacote', 'fechamento', 'energia']) {
+for (const moduleId of ["sondagem","pacote","fechamento","energia","itop-movel","movel","itop-comunica","procedimentos","svas-area","comissionamento-area","portaria-seguranca","gestao-usuarios","comercial"]) {
   const cover = document.querySelector('.itop-module-menu .nav-tab[data-module="' + moduleId + '"] .itop-tab-art');
   if (cover) cover.src = 'capas/menu-bronze-' + moduleId + '.webp';
 }
