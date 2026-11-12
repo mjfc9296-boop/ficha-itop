@@ -461,3 +461,62 @@ for (const moduleId of ["sondagem","pacote","fechamento","energia","itop-movel",
   const cover = document.querySelector('.itop-module-menu .nav-tab[data-module="' + moduleId + '"] .itop-tab-art');
   if (cover) cover.src = 'capas/menu-bronze-' + moduleId + '.webp';
 }
+
+/* Barra de ações e campos de identificação da sondagem. */
+(() => {
+  const fields = {
+    nome: 'Cliente',
+    telefone: 'WhatsApp',
+    cidade: 'Cidade',
+    vendedor: 'Consultor'
+  };
+  for (const [id, title] of Object.entries(fields)) {
+    const input = document.getElementById(id);
+    const label = input?.closest('.field')?.querySelector('label');
+    if (label) {
+      label.htmlFor = id;
+      label.textContent = title;
+      label.closest('.grid')?.classList.add('itop-survey-customer-fields');
+    }
+  }
+
+  const style = document.createElement('style');
+  style.textContent = `
+    html body #sondagem #itop-proposal-controlbar :is(
+      label.commercial-test-toggle, #itop-phone-action, #itop-return-bell, #itop-search-toggle
+    ) {
+      box-sizing: border-box !important;
+      height: 31px !important;
+      min-height: 31px !important;
+      max-height: 31px !important;
+      padding: 0 4px !important;
+      font-size: 12px !important;
+      line-height: 1.2 !important;
+      white-space: nowrap !important;
+      text-align: center !important;
+    }
+    html body #sondagem #itop-proposal-controlbar label.commercial-test-toggle {
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    html body #sondagem #itop-proposal-controlbar #itop-proposal-buttons {
+      flex-wrap: wrap !important;
+    }
+    html body #sondagem #itop-proposal-controlbar :is(#itop-test-control, #itop-phone-action, #itop-return-bell, #itop-global-search) {
+      min-width: 105px !important;
+    }
+    html body #sondagem .itop-survey-customer-fields {
+      align-items: start !important;
+    }
+    html body #sondagem .itop-survey-customer-fields > .field {
+      display: grid;
+      grid-template-rows: auto auto;
+      align-content: start;
+    }
+    html body #sondagem .itop-survey-customer-fields > .field > label {
+      line-height: 1.25;
+      min-height: 1.25em;
+    }
+  `;
+  document.head.append(style);
+})();
