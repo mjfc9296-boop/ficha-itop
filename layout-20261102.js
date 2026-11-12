@@ -328,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (card) {
       apply(card, {
         'border-color': '#8b94a5',
-        display: 'grid',
         'grid-template': '"cover title" auto "cover details" auto "cover actions" auto / clamp(82px, 16vw, 196px) minmax(0, 1fr)',
         'column-gap': 'clamp(16px, calc(22vw - 150px), 192px)'
       });
@@ -367,3 +366,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
+
+/* Materiais comerciais e capa do treinamento de Portaria e Segurança. */
+(() => {
+  const plans = document.querySelector('#procedimentos [data-category="planos-combos"][data-training]');
+  if (plans) {
+    function setMaterial(card, {title, cover, pdf, pages, description}) {
+      const image = card.querySelector('.training-cover img');
+      image.src = cover;
+      image.alt = 'Capa: ' + title;
+      card.dataset.training = title;
+      card.querySelector('h3').textContent = title;
+      card.querySelector('p').textContent = description;
+      card.querySelector('.training-format').textContent = 'PDF · ' + pages + ' PÁGINAS';
+      card.querySelector('.training-meta span:last-child')?.remove();
+      for (const link of card.querySelectorAll('.training-cover,.training-open,.training-download')) {
+        link.href = pdf;
+        if (link.hasAttribute('download')) link.download = pdf;
+      }
+      card.querySelector('.training-cover').setAttribute('aria-label', 'Visualizar PDF: ' + title);
+    }
+
+    const blackFriday = plans.cloneNode(true);
+    setMaterial(plans, {
+      title: 'Novos planos e combos',
+      cover: 'capa-uvi-novos-planos-2026.webp',
+      pdf: 'Itop-Apresentacao-Comercial-11-11-2026-v2-versao-clara.pdf',
+      pages: 10,
+      description: 'Tabela comercial atualizada em 11/11/2026.'
+    });
+    setMaterial(blackFriday, {
+      title: 'Black Friday 2026',
+      cover: 'capa-uvi-black-friday.webp',
+      pdf: 'Itop-Black-Friday-2026-v2.pdf',
+      pages: 4,
+      description: 'Material da campanha Black Friday 2026.'
+    });
+    plans.after(blackFriday);
+    const count = document.querySelector('[data-filter="planos-combos"] b');
+    if (count) count.textContent = '2';
+    const allCount = document.querySelector('[data-filter="all"] b');
+    if (allCount && /^\d+$/.test(allCount.textContent.trim())) allCount.textContent = Number(allCount.textContent) + 1;
+    document.querySelector('#trainingSearch')?.dispatchEvent(new Event('input'));
+  }
+
+  const talos = document.querySelector('#procedimentos [data-training^="TALOS"]');
+  const moduleHeading = document.querySelector('#portaria-seguranca section > h3');
+  const moduleActions = moduleHeading?.nextElementSibling;
+  if (talos && moduleActions?.matches('.training-actions')) {
+    const card = talos.cloneNode(true);
+    card.removeAttribute('data-training');
+    const image = card.querySelector('.training-cover img');
+    image.src = 'capa-talos-modulo-11.webp';
+    card.querySelector('h3').textContent = 'TALOS · Portaria e Segurança';
+    moduleHeading.replaceWith(card);
+    moduleActions.remove();
+  }
+})();
