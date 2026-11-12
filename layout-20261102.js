@@ -6,6 +6,11 @@
   panel.style.setProperty('border-radius', '14px', 'important');
   panel.style.setProperty('box-shadow', 'inset 0 1px 2px rgba(255,255,255,.35), 0 2px 4px rgba(0,0,0,.42)', 'important');
  }
+ // Reserve a faixa entre as capas e a moldura dos dois menus.
+ for (const list of [menu.querySelector('.nav-tabs'), links.querySelector('.itop-useful-links')]) {
+  list.style.setProperty('box-sizing', 'border-box', 'important');
+  list.style.setProperty('padding-inline', '10px', 'important');
+ }
  const linkRail=document.createElement('aside');
  linkRail.className='itop-work-rail itop-links-rail';
  linkRail.setAttribute('aria-label','Links úteis');
