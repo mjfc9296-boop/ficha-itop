@@ -423,3 +423,9 @@ document.addEventListener('DOMContentLoaded', () => {
     moduleActions.remove();
   }
 })();
+
+/* Capas da navegação lateral, associadas aos módulos pelo identificador. */
+for (const moduleId of ['sondagem', 'pacote', 'fechamento', 'energia']) {
+  const cover = document.querySelector('.itop-module-menu .nav-tab[data-module="' + moduleId + '"] .itop-tab-art');
+  if (cover) cover.src = 'capas/menu-bronze-' + moduleId + '.webp';
+}
