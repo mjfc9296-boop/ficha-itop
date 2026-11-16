@@ -45,6 +45,7 @@
  const inovaTab = document.createElement('button');
  inovaTab.type = 'button';
  inovaTab.className = 'nav-tab';
+ inovaTab.hidden = true;
  inovaTab.dataset.module = 'inova-blocos';
  inovaTab.setAttribute('aria-label', '14 Inova Blocos');
  inovaTab.setAttribute('aria-controls', 'inova-blocos');
@@ -54,9 +55,74 @@
  const inovaPanel = document.createElement('section');
  inovaPanel.className = 'module';
  inovaPanel.id = 'inova-blocos';
- inovaPanel.innerHTML = '<h2>Inova Blocos</h2><p>Nenhum material disponível.</p>';
+ inovaPanel.hidden = true;
+ inovaPanel.innerHTML = `
+  <h2>Inova Blocos</h2>
+  <button type="button" aria-expanded="false" aria-controls="inova-arquivos">Arquivos</button>
+  <ul id="inova-arquivos" hidden>
+   <li><button type="button" data-arquivo="manual-assistente-expedicao">Manual do Assistente de Expedição (PDF)</button></li>
+   <li><button type="button" data-arquivo="procedimento-expedicao">Procedimento de Expedição, Carga e Descarga (PDF)</button></li>
+  </ul>
+  <p role="status"></p>
+ `;
  document.getElementById('comercial').after(inovaPanel);
- inovaTab.addEventListener('click', () => switchModule(inovaPanel.id));
+
+ const archiveToggle = inovaPanel.querySelector('[aria-controls="inova-arquivos"]');
+ const archives = inovaPanel.querySelector('#inova-arquivos');
+ const archiveStatus = inovaPanel.querySelector('[role="status"]');
+ let archiveSession = 0;
+
+ function setInovaAccess(allowed) {
+  archiveSession += 1;
+  inovaTab.hidden = inovaPanel.hidden = !allowed;
+  if (allowed) return;
+  if (inovaPanel.classList.contains('active')) switchModule('sondagem');
+  inovaPanel.classList.remove('active');
+  inovaTab.classList.remove('active');
+  archives.hidden = true;
+  archiveToggle.setAttribute('aria-expanded', 'false');
+  archiveStatus.textContent = '';
+ }
+
+ window.addEventListener('itop:authorized', event => setInovaAccess(event.detail?.papel === 'administrador'));
+ window.addEventListener('itop:logged-out', () => setInovaAccess(false));
+ inovaTab.addEventListener('click', () => {
+  if (!inovaTab.hidden) switchModule(inovaPanel.id);
+ });
+ archiveToggle.addEventListener('click', () => {
+  archives.hidden = !archives.hidden;
+  archiveToggle.setAttribute('aria-expanded', String(!archives.hidden));
+ });
+
+ for (const button of archives.querySelectorAll('button[data-arquivo]')) {
+  button.addEventListener('click', async () => {
+   const client = window.itopAuthClient;
+   if (!client || inovaTab.hidden) return;
+   const session = archiveSession;
+   button.disabled = true;
+   archiveStatus.textContent = 'Carregando PDF…';
+   try {
+    const { data, error } = await client.from('inova_blocos_arquivos')
+     .select('titulo,pdf').eq('id', button.dataset.arquivo).single();
+    if (session !== archiveSession) return;
+    if (error || !data?.pdf?.startsWith(String.fromCharCode(92) + 'x')) throw new Error('PDF indisponível');
+    const hex = data.pdf.slice(2);
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+    const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+    const download = document.createElement('a');
+    download.href = url;
+    download.download = data.titulo + ' - Inova Blocos.pdf';
+    download.click();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    archiveStatus.textContent = '';
+   } catch {
+    if (session === archiveSession) archiveStatus.textContent = 'Não foi possível baixar o PDF. Tente novamente.';
+   } finally {
+    button.disabled = false;
+   }
+  });
+ }
 
  const tabs=[...document.querySelectorAll('.nav-tab[data-module]')];
  function sync(){tabs.forEach(tab=>tab.setAttribute('aria-current',tab.classList.contains('active')?'page':'false'));}
