@@ -9,16 +9,24 @@
  // Reserve a faixa entre as capas e a moldura dos dois menus.
  for (const list of [menu.querySelector('.nav-tabs'), links.querySelector('.itop-useful-links')]) {
   list.style.setProperty('box-sizing', 'border-box', 'important');
-  list.style.setProperty('padding-inline', '10px', 'important');
+  list.style.setProperty('padding-inline', '6px', 'important');
  }
  const railLayout = document.createElement('style');
  railLayout.textContent = `
-  @media screen and (min-width: 1000px) {
-   body > main {
-    --itop-rail-width: max(272px, 21%);
+  @media screen and (min-width: 901px) {
+   html body > main:has(> .itop-work-rail) {
+    --itop-rail-width: max(248px, 21%);
     grid-template-columns: var(--itop-rail-width) minmax(0, 1fr) var(--itop-rail-width) !important;
     padding-inline: 8px !important;
     column-gap: 6px !important;
+   }
+   html body > main > .itop-work-rail {
+    padding-inline: 3px !important;
+   }
+   html body > main > .itop-work-rail :is(.itop-module-menu, .itop-link-menu) {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
    }
   }
  `;
