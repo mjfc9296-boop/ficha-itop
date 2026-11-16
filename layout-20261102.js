@@ -62,6 +62,7 @@
   <ul id="inova-arquivos" hidden>
    <li><button type="button" data-arquivo="manual-assistente-expedicao">Manual do Assistente de Expedição (PDF)</button></li>
    <li><button type="button" data-arquivo="procedimento-expedicao">Procedimento de Expedição, Carga e Descarga (PDF)</button></li>
+   <li><button type="button" data-arquivo="cartaz-procedimentos-expedicao" data-imagem>Cartaz de Procedimentos de Expedição (JPEG)</button></li>
   </ul>
   <p role="status"></p>
  `;
@@ -115,24 +116,25 @@
    if (!client || inovaTab.hidden) return;
    const session = archiveSession;
    button.disabled = true;
-   archiveStatus.textContent = 'Carregando PDF…';
+   archiveStatus.textContent = 'Carregando arquivo…';
    try {
     const { data, error } = await client.from('inova_blocos_arquivos')
      .select('titulo,pdf').eq('id', button.dataset.arquivo).single();
     if (session !== archiveSession) return;
-    if (error || !data?.pdf?.startsWith(String.fromCharCode(92) + 'x')) throw new Error('PDF indisponível');
+    if (error || !data?.pdf?.startsWith(String.fromCharCode(92) + 'x')) throw new Error('Arquivo indisponível');
     const hex = data.pdf.slice(2);
     const bytes = new Uint8Array(hex.length / 2);
     for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-    const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+    const isImage = button.hasAttribute('data-imagem');
+    const url = URL.createObjectURL(new Blob([bytes], { type: isImage ? 'image/jpeg' : 'application/pdf' }));
     const download = document.createElement('a');
     download.href = url;
-    download.download = data.titulo + ' - Inova Blocos.pdf';
+    download.download = data.titulo + ' - Inova Blocos' + (isImage ? '.jpg' : '.pdf');
     download.click();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
     archiveStatus.textContent = '';
    } catch {
-    if (session === archiveSession) archiveStatus.textContent = 'Não foi possível baixar o PDF. Tente novamente.';
+    if (session === archiveSession) archiveStatus.textContent = 'Não foi possível baixar o arquivo. Tente novamente.';
    } finally {
     button.disabled = false;
    }
