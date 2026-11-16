@@ -22,6 +22,22 @@
   menu.open=!mq.matches;links.open=!mq.matches;
  }
  resize();mq.addEventListener('change',resize);
+ const inovaTab = document.createElement('button');
+ inovaTab.type = 'button';
+ inovaTab.className = 'nav-tab';
+ inovaTab.dataset.module = 'inova-blocos';
+ inovaTab.setAttribute('aria-label', '14 Inova Blocos');
+ inovaTab.setAttribute('aria-controls', 'inova-blocos');
+ inovaTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/menu-bronze-inova-blocos.webp"><span class="step-ball" aria-hidden="true">14</span><span class="itop-nav-label">Inova Blocos</span>';
+ menu.querySelector('.nav-tabs').append(inovaTab);
+
+ const inovaPanel = document.createElement('section');
+ inovaPanel.className = 'module';
+ inovaPanel.id = 'inova-blocos';
+ inovaPanel.innerHTML = '<h2>Inova Blocos</h2><p>Nenhum material disponível.</p>';
+ document.getElementById('comercial').after(inovaPanel);
+ inovaTab.addEventListener('click', () => switchModule(inovaPanel.id));
+
  const tabs=[...document.querySelectorAll('.nav-tab[data-module]')];
  function sync(){tabs.forEach(tab=>tab.setAttribute('aria-current',tab.classList.contains('active')?'page':'false'));}
  tabs.forEach(tab=>{tab.addEventListener('click',()=>{sync();if(mq.matches){menu.open=false;document.querySelector('.module.active')?.scrollIntoView({behavior:'smooth',block:'start'});}});});
