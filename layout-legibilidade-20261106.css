@@ -1,17 +1,16 @@
 /* Mais espaço para as laterais e tipografia legível no conteúdo central. */
 @media screen and (min-width: 901px) {
   html body > main:has(> .itop-work-rail) {
-    --itop-side-before: clamp(145px, 15vw, 248px);
-    --itop-side-after: calc(var(--itop-side-before) * 1.15);
-    grid-template-columns: minmax(0, var(--itop-side-after)) minmax(0, 1fr) minmax(0, var(--itop-side-after)) !important;
-    gap: clamp(8px, 1.2vw, 24px) !important;
-    padding-inline: clamp(10px, 1.1vw, 22px) !important;
+    --itop-side-width: max(248px, 21%);
+    grid-template-columns: minmax(0, var(--itop-side-width)) minmax(0, 1fr) minmax(0, var(--itop-side-width)) !important;
+    gap: 6px !important;
+    padding-inline: 8px !important;
     justify-content: space-between !important;
     padding-top: 4px !important;
     box-sizing: border-box !important;
   }
   html body > main > .itop-work-rail {
-    padding: 4px clamp(7px, .7vw, 14px) !important;
+    padding: 4px 3px !important;
     box-sizing: border-box !important;
     background: transparent !important;
   }
