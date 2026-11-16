@@ -112,6 +112,14 @@
   const grid = document.querySelector('#usefulLinksPanel .useful-links-grid');
   if (!sidebar.length || !grid) return;
 
+  const netz = sidebar.find(link => link.href === 'https://www.netzenergia.com.br/');
+  const mkMovidesk = sidebar.find(link => link.hostname === 'mksolutions.movidesk.com');
+  if (netz && mkMovidesk) {
+    mkMovidesk.after(netz);
+    sidebar.splice(sidebar.indexOf(netz), 1);
+    sidebar.splice(sidebar.indexOf(mkMovidesk) + 1, 0, netz);
+  }
+
   const links = [...grid.querySelectorAll('.useful-link-item')];
   const sidebarOrder = new Map(sidebar.map((link, position) => [link.href, position]));
   const primaryLink = item => item.querySelector('a.useful-link');
@@ -129,6 +137,7 @@
     ['tip.movidesk.com/kb/pt-br/article/526696/portabilidade-via-easy-servicos', 'capas/link-tip-manual.webp'],
     ['administrator.tipbrasil.com.br/zeus_admin/cp_zeus/login', 'capas/link-tip-zeus.webp'],
     ['site.dryconecta.com.br/ativar-chip/informacoes-basicas', 'capas/link-dry-ativar.webp'],
+    ['www.tim.com.br/para-voce/cobertura-e-roaming/mapa-de-cobertura', 'capas/link-dry-cobertura.webp'],
     ['itop.drytelecom.tech/index.php', 'capas/link-dry-recargas.webp'],
     ['vivo.com.br/para-voce/por-que-vivo/qualidade/cobertura', 'capas/link-braz-cobertura.webp'],
     ['parceiro.brazmovel.com.br/', 'capas/link-braz-recargas.webp'],
