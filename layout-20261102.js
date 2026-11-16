@@ -11,6 +11,18 @@
   list.style.setProperty('box-sizing', 'border-box', 'important');
   list.style.setProperty('padding-inline', '10px', 'important');
  }
+ const railLayout = document.createElement('style');
+ railLayout.textContent = `
+  @media screen and (min-width: 1000px) {
+   body > main {
+    --itop-rail-width: max(272px, 21%);
+    grid-template-columns: var(--itop-rail-width) minmax(0, 1fr) var(--itop-rail-width) !important;
+    padding-inline: 8px !important;
+    column-gap: 6px !important;
+   }
+  }
+ `;
+ document.head.append(railLayout);
  const linkRail=document.createElement('aside');
  linkRail.className='itop-work-rail itop-links-rail';
  linkRail.setAttribute('aria-label','Links úteis');
