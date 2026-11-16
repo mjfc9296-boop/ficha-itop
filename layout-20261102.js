@@ -86,6 +86,21 @@
 
  window.addEventListener('itop:authorized', event => setInovaAccess(event.detail?.papel === 'administrador'));
  window.addEventListener('itop:logged-out', () => setInovaAccess(false));
+ // A sessão restaurada pode ter sido validada antes do carregamento deste script.
+ if (document.documentElement.classList.contains('itop-authorized') && window.itopAuthClient) {
+  const client = window.itopAuthClient;
+  const session = archiveSession;
+  void (async () => {
+   const { data } = await client.auth.getUser();
+   if (!data?.user) return;
+   const { data: profile } = await client.from('perfis').select('papel,ativo,status_aprovacao')
+    .eq('id', data.user.id).single();
+   if (session === archiveSession && document.documentElement.classList.contains('itop-authorized')) {
+    setInovaAccess(profile?.papel === 'administrador' && profile.ativo && profile.status_aprovacao === 'aprovado');
+   }
+  })().catch(() => {});
+ }
+
  inovaTab.addEventListener('click', () => {
   if (!inovaTab.hidden) switchModule(inovaPanel.id);
  });
