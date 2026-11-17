@@ -2055,7 +2055,7 @@ function handleField(event){if(event.target.closest('#movel, #procedimentos, #it
 }
 document.addEventListener('input',handleField);document.addEventListener('change',handleField);
 $('webPDF').addEventListener('click',()=>{if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent))return shareWithApp();return downloadForWhatsAppWeb();});$('appPDF').addEventListener('click',shareWithApp);$('openWebChat').addEventListener('click',()=>{if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)){ $('shareStatus').textContent='No celular, use APLICATIVO · COMPARTILHAR para enviar o PDF como documento, sem abrir um link.';return;}openWhatsAppWeb();});$('closeShare').addEventListener('click',closeShareDialog);$('simulateEnergy').addEventListener('click',goToEnergy);$('backToPackage').addEventListener('click',()=>switchModule('pacote'));$('shareClosing').addEventListener('click',shareClosingPDF);$('sondagemWhatsapp').addEventListener('click',shareClosingPDF);$('pacoteWhatsapp').addEventListener('click',shareClosingPDF);/* Ação de energia independente configurada em itop-v26.38 */$('limparSondagem').addEventListener('click',resetSurvey);$('limparPacote').addEventListener('click',resetPackage);recalc();
-</script><script src="movel-suporte.js?v=20261109-cobertura"></script><script>
+</script><script src="movel-suporte.js?v=20261117-tarja"></script><script>
 (function(){
  const search=document.getElementById('trainingSearch'),grid=document.querySelector('.training-grid');let category='all';
  const norm=v=>v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
