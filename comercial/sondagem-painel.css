@@ -1,0 +1,52 @@
+#sondagem .itop-sondagem-panel {
+  padding: 0;
+  border: 2px solid #e66a0a;
+  border-radius: 16px;
+  background: #fff;
+}
+#sondagem .itop-sondagem-banner {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 13px 13px 0 0;
+}
+#sondagem .itop-sondagem-panel > .itop-survey-proposal-row {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fff6ed;
+}
+#sondagem .itop-sondagem-panel > .itop-sondagem-customer {
+  margin: 0;
+  border: 0;
+  border-radius: 0 0 14px 14px;
+  background: #fff;
+}
+#sondagem .itop-sondagem-customer .survey-customer-heading {
+  display: flex;
+  justify-content: flex-start;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+#sondagem .itop-sondagem-customer .survey-customer-heading h2 {
+  width: fit-content;
+  padding: 6px 14px;
+  border-radius: 9px;
+  background: #000;
+  color: #fff !important;
+}
+#sondagem .itop-sondagem-customer input {
+  border: 1px solid #d96b17;
+}
+html.itop-authorized body main #sondagem .itop-sondagem-panel
+:is(#itop-flow-new, #recover-proposal, #itop-phone-action, #itop-search-toggle, #itop-return-bell):not([hidden]) {
+  background: #000 !important;
+  border-color: #000 !important;
+  color: #fff !important;
+  min-height: 38px !important;
+}
+#sondagem .itop-sondagem-panel :is(button, input):focus-visible {
+  outline: 2px solid #bd5200;
+  outline-offset: 2px;
+}

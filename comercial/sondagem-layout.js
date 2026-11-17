@@ -8,8 +8,38 @@
    row.className = 'itop-survey-proposal-row';
    top.before(row);
    row.append(top, controls);
+   const customer = document.querySelector('#sondagem .survey-customer-heading')?.parentElement;
+   if (customer) {
+    const stylesheet = document.createElement('link');
+    stylesheet.rel = 'stylesheet';
+    stylesheet.href = 'comercial/sondagem-painel.css?v=20261117';
+    document.head.append(stylesheet);
+    const panel = document.createElement('section');
+    panel.className = 'itop-sondagem-panel';
+    const banner = document.createElement('img');
+    banner.className = 'itop-sondagem-banner';
+    banner.src = 'comercial/sondagem-cabecalho-20261117.jpg';
+    banner.alt = 'Sondagem';
+    row.before(panel);
+    panel.append(banner, row);
+    customer.classList.add('itop-sondagem-customer');
+    panel.append(customer);
+    for (const [id, caption] of Object.entries({
+     nome: 'Cliente', telefone: 'WhatsApp com DDD', cidade: 'Cidade', vendedor: 'Consultor'
+    })) {
+     const label = $(id)?.previousElementSibling;
+     if (label?.tagName === 'LABEL') {
+      label.htmlFor = id;
+      label.textContent = caption;
+     }
+    }
+    $('itop-search-toggle').textContent = 'BUSCA TOTAL DO SITE';
+    const test = $('survey-is-test');
+    test.setAttribute('aria-describedby', 'survey-test-hint');
+    test.parentElement.lastChild.textContent = 'TESTE';
+   }
   }
-  const number=$('survey-proposal-id');if(number){const line=document.createElement('div');line.id='itop-proposal-number';line.append(document.createTextNode('PROPOSTA: '),number);top.prepend(line);}
+  const number=$('survey-proposal-id');if(number){const line=document.createElement('div');line.id='itop-proposal-number';line.append(document.createTextNode('PROPOSTA Nº: '),number);top.prepend(line);}
  }
  const old=$('itop-survey-record');if(old){old.hidden=true;old.setAttribute('aria-hidden','true');old.inert=true;}
  // Campos internos são conservados para o histórico e os scripts já existentes.
