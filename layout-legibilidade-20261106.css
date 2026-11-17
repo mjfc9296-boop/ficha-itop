@@ -118,62 +118,70 @@ html body #sondagem .itop-survey-proposal-row > #itop-survey-toolbar {
 }
 #sondagem #itop-proposal-number { overflow-wrap: anywhere; }
 #sondagem .itop-survey-proposal-row > #itop-proposal-controlbar {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 88px), 1fr));
+  grid-template-columns: minmax(0, 1fr);
   justify-items: stretch;
-  align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
   margin: 0;
 }
-#sondagem #itop-proposal-buttons { display: contents; }
-#sondagem #itop-global-search { display: flex; }
-
-html.itop-authorized body #sondagem #itop-proposal-controlbar :where(.commercial-test-toggle, #itop-proposal-buttons > button, #itop-search-toggle) {
-  display: grid;
-  place-items: center;
+html body #sondagem #itop-proposal-controlbar #itop-test-control {
   width: 100%;
+  max-width: none;
+}
+#sondagem #itop-proposal-buttons {
+  display: flex;
+  flex-wrap: wrap;
+}
+#sondagem #itop-proposal-buttons > button,
+#sondagem #itop-proposal-buttons > #itop-global-search {
+  flex: 1 1 105px;
   min-width: 0;
-  min-height: 28px;
-  height: auto;
-  margin: 0;
-  padding: 2px 5px;
-  border: 1px solid #00134c !important;
-  border-radius: 7px;
-  background: #00134c !important;
-  color: white !important;
+}
+#sondagem #itop-global-search { display: flex; }
+#sondagem #itop-survey-toolbar .itop-survey-toolbar-actions { flex-wrap: wrap !important; }
+#sondagem #itop-survey-toolbar .itop-survey-toolbar-actions > button {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+}
+
+html.itop-authorized body main #sondagem #itop-proposal-controlbar
+:is(.commercial-test-toggle, #itop-proposal-buttons > button, #itop-search-toggle) {
+  box-sizing: border-box;
+  min-height: 35px !important;
+  max-height: none !important;
+  height: auto !important;
+  padding: 6px 8px !important;
+  border: 1px solid #000000 !important;
+  border-radius: 8px;
+  background: #000000 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: currentColor !important;
   box-shadow: none !important;
   font-size: 12px !important;
   font-weight: 700;
-  line-height: 1.15 !important;
+  line-height: 1.25 !important;
   text-align: center;
-  white-space: normal;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
 }
-html.itop-authorized body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
-  position: relative;
-  display: flex;
+html.itop-authorized body main #sondagem #itop-proposal-controlbar .commercial-test-toggle {
   justify-content: center;
   cursor: pointer;
-  font-size: 0 !important;
-  gap: 0;
 }
-#sondagem #itop-proposal-controlbar .commercial-test-toggle::after {
-  content: "TESTE";
-  font-size: 12px;
-  line-height: 1.15;
-}
-html.itop-authorized body #sondagem #itop-proposal-controlbar .commercial-test-toggle:has(> #survey-is-test:checked) {
+html.itop-authorized body main #sondagem #itop-proposal-controlbar .commercial-test-toggle:has(> #survey-is-test:checked) {
   border-color: #d27a2f !important;
   background: #d27a2f !important;
   color: #171717 !important;
 }
 #sondagem #itop-proposal-controlbar .commercial-test-toggle:has(:focus-visible) {
-  outline: 2px solid #00134c;
+  outline: 2px solid #000000;
   outline-offset: 2px;
 }
-#sondagem #itop-proposal-controlbar :is(#survey-is-test, #survey-test-hint) {
+html body #sondagem #itop-proposal-controlbar :is(#survey-is-test, #survey-test-hint) {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  width: 1px !important;
+  height: 1px !important;
   padding: 0;
   margin: 0;
   clip-path: inset(50%);
@@ -231,9 +239,9 @@ html body #procedimentos .training-grid.training-list > article.training-card > 
   gap: 8px !important;
 }
 html body #procedimentos .training-grid.training-list > article.training-card > .training-actions > :is(a, button) {
-  background: #00134c !important;
+  background: #000000 !important;
   color: #fff !important;
-  border: 1px solid #00134c !important;
+  border: 1px solid #000000 !important;
   padding: 4px 10px !important;
   line-height: 1.25 !important;
   display: flex !important;
@@ -292,4 +300,15 @@ html body dialog :is(#webPDF, #appPDF) :is(strong, span) {
   color: inherit;
   font-size: inherit;
   line-height: inherit;
+}
+
+/* Ações que usavam o azul institucional. */
+html body #itop-refresh-users,
+html body #uvi-budget-actions #itop-budget-pdf,
+html body #fechamento #itop-closing-actions :is(#pdf-with-energy, #pdf-without-energy, #itop-closing-adjust),
+html body #energia .energy-final .actions button:not(#energy-create-pdf) {
+  background: #000000 !important;
+  border-color: #000000 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
