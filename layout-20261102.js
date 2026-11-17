@@ -352,7 +352,7 @@
       min-height: 30px !important;
       padding: 0 8px !important;
       margin: 0 !important;
-      background: #00134c !important;
+      background: #000000 !important;
       color: #fff !important;
       border: 0 !important;
       border-radius: 7px !important;
@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'min-height': '30px', padding: '0 8px', margin: '0',
         'box-sizing': 'border-box', 'align-items': 'center', 'justify-content': 'center',
         'white-space': 'nowrap', 'font-size': '11px', 'line-height': '1.15',
-        background: '#00134c', color: '#fff', border: '0',
+        background: '#000000', color: '#fff', border: '0',
         'border-radius': '7px', 'box-shadow': 'none'
       });
     }
@@ -615,29 +615,6 @@ for (const moduleId of ["sondagem","pacote","fechamento","energia","itop-movel",
 
   const style = document.createElement('style');
   style.textContent = `
-    html body #sondagem #itop-proposal-controlbar :is(
-      label.commercial-test-toggle, #itop-phone-action, #itop-return-bell, #itop-search-toggle
-    ) {
-      box-sizing: border-box !important;
-      height: 31px !important;
-      min-height: 31px !important;
-      max-height: 31px !important;
-      padding: 0 4px !important;
-      font-size: 12px !important;
-      line-height: 1.2 !important;
-      white-space: nowrap !important;
-      text-align: center !important;
-    }
-    html body #sondagem #itop-proposal-controlbar label.commercial-test-toggle {
-      align-items: center !important;
-      justify-content: center !important;
-    }
-    html body #sondagem #itop-proposal-controlbar #itop-proposal-buttons {
-      flex-wrap: wrap !important;
-    }
-    html body #sondagem #itop-proposal-controlbar :is(#itop-test-control, #itop-phone-action, #itop-return-bell, #itop-global-search) {
-      min-width: 105px !important;
-    }
     html body #sondagem .itop-survey-customer-fields {
       align-items: start !important;
     }
