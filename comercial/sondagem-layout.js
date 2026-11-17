@@ -12,7 +12,7 @@
    if (customer) {
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
-    stylesheet.href = 'comercial/sondagem-painel.css?v=20261117';
+    stylesheet.href = 'comercial/sondagem-painel.css?v=20261117-alinhado';
     document.head.append(stylesheet);
     const panel = document.createElement('section');
     panel.className = 'itop-sondagem-panel';
@@ -24,8 +24,12 @@
     panel.append(banner, row);
     customer.classList.add('itop-sondagem-customer');
     panel.append(customer);
+    const status = document.createElement('div');
+    status.className = 'itop-sondagem-status';
+    status.append(...top.querySelectorAll('.itop-flow-progress, .itop-flow-message'));
+    panel.after(status);
     for (const [id, caption] of Object.entries({
-     nome: 'Cliente', telefone: 'WhatsApp com DDD', cidade: 'Cidade', vendedor: 'Consultor'
+     nome: 'Cliente', telefone: 'WhatsApp', cidade: 'Cidade', vendedor: 'Consultor'
     })) {
      const label = $(id)?.previousElementSibling;
      if (label?.tagName === 'LABEL') {
@@ -37,6 +41,7 @@
     const test = $('survey-is-test');
     test.setAttribute('aria-describedby', 'survey-test-hint');
     test.parentElement.lastChild.textContent = 'TESTE';
+    customer.querySelector('h2').textContent = 'Dados do Cliente';
    }
   }
   const number=$('survey-proposal-id');if(number){const line=document.createElement('div');line.id='itop-proposal-number';line.append(document.createTextNode('PROPOSTA Nº: '),number);top.prepend(line);}

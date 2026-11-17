@@ -50,3 +50,85 @@ html.itop-authorized body main #sondagem .itop-sondagem-panel
   outline: 2px solid #bd5200;
   outline-offset: 2px;
 }
+
+html body #sondagem .itop-sondagem-panel > .itop-survey-proposal-row {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px 12px 4px;
+  background: linear-gradient(#fff7ef, #fff);
+}
+html body #sondagem .itop-sondagem-panel .itop-survey-proposal-row
+:is(#itop-survey-toolbar, #itop-proposal-controlbar, #itop-proposal-buttons, .itop-survey-toolbar-actions):not([hidden]) {
+  display: contents !important;
+}
+#sondagem .itop-sondagem-panel #itop-flow-new { grid-column: 1 / 4; grid-row: 1; }
+#sondagem .itop-sondagem-panel #recover-proposal { grid-column: 4 / 7; grid-row: 1; }
+#sondagem .itop-sondagem-panel #itop-phone-action { grid-column: 7 / 10; grid-row: 1; }
+#sondagem .itop-sondagem-panel #itop-global-search { grid-column: 10 / 13; grid-row: 1; }
+#sondagem .itop-sondagem-panel #itop-proposal-number { grid-column: 1 / 7; grid-row: 2; }
+#sondagem .itop-sondagem-panel #itop-test-control { grid-column: 7 / 10; grid-row: 2; }
+#sondagem .itop-sondagem-panel #itop-return-bell { grid-column: 10 / 13; grid-row: 2; }
+html.itop-authorized body main #sondagem .itop-sondagem-panel
+:is(#itop-flow-new, #recover-proposal, #itop-phone-action, #itop-search-toggle, #itop-return-bell, .commercial-test-toggle):not([hidden]) {
+  width: 100% !important;
+  min-height: 42px !important;
+  background: linear-gradient(#252525, #000 75%) !important;
+  border: 2px solid #fff !important;
+  border-radius: 12px !important;
+  color: #fff !important;
+  -webkit-text-fill-color: currentColor !important;
+  box-shadow: 0 2px 5px #0005 !important;
+  text-decoration: none !important;
+}
+html.itop-authorized body main #sondagem .itop-sondagem-panel .commercial-test-toggle:has(input:checked) {
+  background: #9a4500 !important;
+}
+#sondagem .itop-sondagem-panel #itop-test-control:not([hidden]) {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+#sondagem .itop-sondagem-panel #itop-proposal-number {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 2px solid #e66a0a;
+  border-radius: 12px;
+  font-size: clamp(11px, 1.3cqw, 15px);
+}
+#sondagem .itop-sondagem-panel #survey-proposal-id { overflow-wrap: anywhere; }
+#sondagem .itop-sondagem-panel #itop-global-search { align-self: stretch; }
+#sondagem .itop-sondagem-panel #itop-global-search.is-open { z-index: 1001; }
+#sondagem .itop-sondagem-customer .survey-customer-heading { align-items: center; gap: 8px; }
+#sondagem .itop-sondagem-customer .survey-customer-heading::after {
+  content: '';
+  flex: 1;
+  border-top: 2px solid #e66a0a;
+}
+#sondagem .itop-sondagem-status > p { margin: 4px 0; }
+#sondagem .itop-sondagem-panel:has(#itop-survey-toolbar[hidden]) + .itop-sondagem-status,
+#sondagem .itop-sondagem-status > p:empty { display: none; }
+
+@container (max-width: 560px) {
+  html body #sondagem .itop-sondagem-panel > .itop-survey-proposal-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #sondagem .itop-sondagem-panel :is(#itop-flow-new, #recover-proposal, #itop-phone-action, #itop-global-search, #itop-test-control, #itop-return-bell) {
+    grid-area: auto;
+  }
+  #sondagem .itop-sondagem-panel #itop-proposal-number { grid-area: auto / 1 / auto / -1; }
+}
+
+#sondagem .itop-sondagem-panel :is(#itop-flow-new, #recover-proposal, #itop-phone-action, #itop-search-toggle, .commercial-test-toggle)::before {
+  margin-inline-end: 6px;
+  color: #ff8c19;
+}
+#sondagem .itop-sondagem-panel #itop-flow-new::before { content: '✚' / ''; }
+#sondagem .itop-sondagem-panel #recover-proposal::before { content: '↶' / ''; }
+#sondagem .itop-sondagem-panel #itop-phone-action::before { content: '▯' / ''; }
+#sondagem .itop-sondagem-panel #itop-search-toggle::before { content: '⌕' / ''; }
+#sondagem .itop-sondagem-panel .commercial-test-toggle::before { content: '⚗' / ''; }
+#sondagem .itop-sondagem-panel :is(#recover-proposal, #itop-flow-new):disabled { opacity: .65; }
