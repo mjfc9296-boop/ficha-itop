@@ -186,3 +186,58 @@ html body #pacote .itop-package-customer .field > input {
   color: #fff;
 }
 body.itop-budget-mode #pacote .itop-package-banner { display: none; }
+
+html body #fechamento > .itop-closing-banner {
+  padding: 0 0 14px !important;
+  border: 2px solid #e66a0a !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+}
+#fechamento .itop-closing-banner > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 13px 13px 0 0;
+}
+html body main #fechamento .itop-closing-banner > button:not([hidden]) {
+  display: block;
+  width: fit-content;
+  max-width: calc(100% - 24px);
+  margin: 8px auto;
+  padding: 8px 12px !important;
+  background: linear-gradient(#7474d9, #343480) !important;
+  border: 2px solid #fff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 5px #0006;
+  color: #fff !important;
+  font-size: clamp(10px, 2.3vw, 18px) !important;
+  white-space: nowrap;
+}
+#fechamento .itop-closing-banner > h2 {
+  width: fit-content;
+  margin: 8px 14px;
+  padding: 6px 12px;
+  border-radius: 9px;
+  background: #000;
+  color: #fff;
+}
+#fechamento .itop-closing-banner > dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(145px, 100%), 1fr));
+  gap: 8px;
+  margin: 0 14px;
+  text-align: center;
+}
+#fechamento .itop-closing-banner dt { font-weight: 700; }
+#fechamento .itop-closing-banner dd {
+  margin: 4px 0 0;
+  padding: 6px;
+  border: 2px solid #e66a0a;
+  border-radius: 9px;
+  overflow-wrap: anywhere;
+}
+#fechamento .itop-closing-custom-summary .closing-report > :is(.actions, .report-meta) { display: none; }
+@media print {
+  #fechamento > .itop-closing-banner { display: none !important; }
+  #fechamento .itop-closing-custom-summary .closing-report > .report-meta { display: grid; }
+}

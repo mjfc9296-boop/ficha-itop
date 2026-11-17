@@ -12,7 +12,7 @@
    if (customer) {
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
-    stylesheet.href = 'comercial/sondagem-painel.css?v=20261117-servicos';
+    stylesheet.href = 'comercial/sondagem-painel.css?v=20261117-fechamento';
     document.head.append(stylesheet);
     const panel = document.createElement('section');
     panel.className = 'itop-sondagem-panel';
@@ -63,6 +63,43 @@
    const label = input?.previousElementSibling;
    if (label?.tagName === 'LABEL') label.htmlFor = id;
   }
+ }
+ const closingPreview = $('closingPreview');
+ if (closingPreview) {
+  const panel = document.createElement('section');
+  panel.className = 'itop-closing-banner';
+  const banner = document.createElement('img');
+  banner.src = 'comercial/fechamento-venda-20261117.jpg';
+  banner.alt = 'Fechamento de Venda';
+  const simulate = document.createElement('button');
+  simulate.type = 'button';
+  simulate.textContent = 'Simular Energia e Confrontar nesta Simulação';
+  simulate.addEventListener('click', () => goToEnergy());
+  const heading = document.createElement('h2');
+  heading.textContent = 'Dados do Cliente';
+  const fields = document.createElement('dl');
+  const customer = [
+   ['Cliente', 'client'], ['WhatsApp com DDD', 'phone'],
+   ['Cidade', 'city'], ['Consultor', 'seller']
+  ];
+  const values = customer.map(([label, key]) => {
+   const field = document.createElement('div');
+   const title = document.createElement('dt');
+   title.textContent = label;
+   const value = document.createElement('dd');
+   field.append(title, value);
+   fields.append(field);
+   return [key, value];
+  });
+  const update = () => {
+   const data = reportData();
+   for (const [key, value] of values) value.textContent = data[key] || '—';
+  };
+  panel.append(banner, simulate, heading, fields);
+  closingPreview.parentElement.before(panel);
+  closingPreview.classList.add('itop-closing-custom-summary');
+  new MutationObserver(update).observe(closingPreview, {childList: true});
+  update();
  }
  const old=$('itop-survey-record');if(old){old.hidden=true;old.setAttribute('aria-hidden','true');old.inert=true;}
  // Campos internos são conservados para o histórico e os scripts já existentes.
