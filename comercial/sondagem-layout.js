@@ -12,7 +12,7 @@
    if (customer) {
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
-    stylesheet.href = 'comercial/sondagem-painel.css?v=20261117-alinhado';
+    stylesheet.href = 'comercial/sondagem-painel.css?v=20261117-servicos';
     document.head.append(stylesheet);
     const panel = document.createElement('section');
     panel.className = 'itop-sondagem-panel';
@@ -45,6 +45,24 @@
    }
   }
   const number=$('survey-proposal-id');if(number){const line=document.createElement('div');line.id='itop-proposal-number';line.append(document.createTextNode('PROPOSTA Nº: '),number);top.prepend(line);}
+ }
+ const packageCustomer = $('pacoteNome')?.closest('.customer-panel');
+ if (packageCustomer) {
+  packageCustomer.classList.add('itop-package-customer');
+  const banner = document.createElement('img');
+  banner.className = 'itop-package-banner';
+  banner.src = 'comercial/adicionar-servicos-20261117.jpg';
+  banner.alt = 'Adicionar Serviços';
+  packageCustomer.prepend(banner);
+  const heading = packageCustomer.querySelector('h2');
+  const title = document.createElement('span');
+  title.textContent = 'Dados do Cliente';
+  heading.replaceChildren(title);
+  for (const id of ['pacoteNome', 'pacoteTelefone', 'pacoteCidade', 'pacoteVendedor']) {
+   const input = $(id);
+   const label = input?.previousElementSibling;
+   if (label?.tagName === 'LABEL') label.htmlFor = id;
+  }
  }
  const old=$('itop-survey-record');if(old){old.hidden=true;old.setAttribute('aria-hidden','true');old.inert=true;}
  // Campos internos são conservados para o histórico e os scripts já existentes.
