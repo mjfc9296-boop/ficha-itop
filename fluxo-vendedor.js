@@ -21,7 +21,8 @@
   try{const ctx=await api.rpc('itop_fluxo_contexto');if(version!==epoch)return;if(ctx.proposta)await api.load(ctx.proposta.id);else api.reset?.();ready=true;refresh();say(ctx.proposta?'Proposta aberta recuperada. Continue a partir da etapa registrada.':'Comece pelos dados do cliente na etapa 1.');}
   catch(e){say('Não foi possível conferir a proposta aberta. O avanço permanece bloqueado: '+e.message);}
  }
- async function run(fn){if(busy)return;busy=true;refresh();try{await fn();}catch(e){say(e.message);showErrors(e);}finally{busy=false;refresh();}}
+ const isTimeout=error=>/\b(?:timeout|timed out)\b|statement timeout/i.test(error.message);
+ async function run(fn){if(busy)return;busy=true;refresh();try{await fn();}catch(e){say(isTimeout(e)?'O servidor demorou a responder. Mantenha esta aba aberta e tente novamente.':e.message);showErrors(e);}finally{busy=false;refresh();}}
  function move(id){bypass=true;try{window.switchModule(id);}finally{bypass=false;}}
  function surveyErrors(){return [
   ['clienteItop',['sim','nao'].includes($('clienteItop').value),'Favor selecionar JÁ É CLIENTE ITOP ou NOVO CLIENTE.'],
@@ -33,7 +34,7 @@
  function validSurvey(){const fields=surveyErrors();if(fields.length){const error=Error(fields.map(f=>f.message).join('\n'));error.fields=fields;throw error;}}
  let errorDialog=null,errorTarget=null;
  function focusError(){const el=errorTarget&&$(errorTarget);el?.focus?.();el?.scrollIntoView?.({behavior:'smooth',block:'center'});}
- function showErrors(error){const fields=error.fields||[{message:error.message}];errorTarget=fields.find(f=>f.id)?.id||null;
+ function showErrors(error){const timeout=isTimeout(error);const fields=error.fields||[{message:timeout?'O servidor demorou a responder. Mantenha esta aba aberta e tente novamente.':error.message}];errorTarget=fields.find(f=>f.id)?.id||null;
   if(!document.createElement){window.alert?.(fields.map(f=>f.message).join('\n'));focusError();return;}
   if(!errorDialog){
    errorDialog=document.createElement('dialog');errorDialog.id='itop-flow-error-dialog';errorDialog.setAttribute('aria-labelledby','itop-flow-error-title');errorDialog.setAttribute('aria-describedby','itop-flow-error-description');errorDialog.style.cssText='width:min(520px,92vw);max-height:85vh;overflow:auto;padding:24px;border:2px solid #D27A2F;border-radius:16px;background:#fff;color:#00134C;box-shadow:0 20px 80px #0006';
@@ -41,6 +42,8 @@
    errorDialog.querySelector('button').addEventListener('click',()=>errorDialog.close());errorDialog.addEventListener('close',focusError);document.body.append(errorDialog);
    const style=document.createElement('style');style.textContent='#itop-flow-error-dialog::backdrop{background:#0009}#sondagem [aria-invalid="true"]{outline:2px solid #b42318;outline-offset:2px}';document.head.append(style);
   }
+  errorDialog.querySelector('p').textContent=error.fields?'Confira os campos abaixo para continuar.':'Confira a mensagem abaixo.';
+  errorDialog.querySelector('button').textContent=errorTarget?'CORRIGIR CAMPOS':'VOLTAR À PROPOSTA';
   const list=errorDialog.querySelector('ul');list.replaceChildren();for(const field of fields){const li=document.createElement('li');li.textContent=field.message;list.append(li);}
   if(!errorDialog.open)errorDialog.showModal();
  }
@@ -48,7 +51,18 @@
   if(closed){say('Esta proposta já foi concluída. Use Nova proposta na etapa 1.');return false;}
   if(target!==stage+1){say('Siga a sequência: primeiro a Sondagem, depois Adicionar produtos e por último o Fechamento.');move(stage===1?'sondagem':'pacote');return false;}
   run(async()=>{if(target===2)validSurvey();
-   await api.save();const s=api.sync();const result=await api.rpc('itop_avancar_etapa',{p_id:s.id,p_versao:s.version,p_etapa:target});await api.load(result.id);restore(result);move(id);say('Etapa '+target+' liberada.');});return false;
+   await api.save();const s=api.sync();
+   let result;
+   try{
+    result=await api.rpc('itop_avancar_etapa',{p_id:s.id,p_versao:s.version,p_etapa:target});
+   }catch(error){
+    if(!isTimeout(error))throw error;
+    // A gravação pode ter terminado depois de a conexão expirar.
+    const {proposta}=await api.rpc('itop_fluxo_contexto');
+    if(proposta?.id!==s.id||Number(proposta.fluxo_etapa)!==target)throw error;
+    result=proposta;
+   }
+   await api.load(result.id);restore(result);move(id);say('Etapa '+target+' liberada.');});return false;
  }
  function canClear(){if(!required)return true;if(!ready){say('Aguarde a conferência da proposta aberta.');return false;}if(closed){say('Use Nova proposta na etapa 1 para começar outro atendimento.');return false;}if(record||hasData()){say('Finalize esta proposta na etapa 3, escolhendo o status e preenchendo as observações, antes de iniciar outra.');move(stage===3?'fechamento':stage===2?'pacote':'sondagem');return false;}return true;}
  async function startNew(){if(!required)return api.reset();await run(async()=>{if(!closed&&!canClear())return;const context=await api.rpc('itop_fluxo_contexto');if(context.proposta){await api.load(context.proposta.id);throw Error('Há uma proposta aberta. Finalize a sondagem final antes de iniciar outra.');}
