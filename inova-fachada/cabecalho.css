@@ -603,3 +603,19 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
 }
 
 #inova-solicitacoes [data-status]:not(:empty) { margin-top: 12px; }
+
+.itop-inova-slot > .itop-inova-materials-button {
+ display: grid;
+ align-content: center;
+ gap: 2px;
+ background: linear-gradient(145deg, #303333, #141616) !important;
+ color: #fff !important;
+ font-size: clamp(10px, 1.1vw, 16px);
+ font-weight: 800;
+ line-height: 1.15;
+ text-transform: uppercase;
+ text-align: center;
+}
+
+.itop-inova-materials-button > span:last-child { color: var(--inova-green); }
+#inova-arquivos-titulo { margin-top: 20px; }
