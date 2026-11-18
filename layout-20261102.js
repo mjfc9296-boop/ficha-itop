@@ -79,7 +79,7 @@
     ${galleryMaterials.map(({ id, title, image }) => `
      <li>
       ${image
-       ? `<button type="button" data-arquivo="${id}" data-visualizar>${title}</button>`
+       ? `<button type="button" data-arquivo="${id}" data-visualizar><img alt=""><span>${title}</span></button>`
        : `<span>${title} (PDF)</span>`}
       <button type="button" data-arquivo="${id}" ${image ? 'data-imagem' : ''} aria-label="Baixar ${title}">Baixar</button>
      </li>
@@ -97,7 +97,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=4';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=5';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -148,7 +148,10 @@
   if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
   gallery.hidden = !gallery.hidden;
   galleryButton.setAttribute('aria-expanded', String(!gallery.hidden));
-  if (!gallery.hidden) gallery.scrollIntoView({ block: 'nearest' });
+  if (!gallery.hidden) {
+   gallery.scrollIntoView({ block: 'nearest' });
+   void loadGalleryCovers();
+  }
  });
  let previewUrl;
  imageDialog.addEventListener('close', () => {
@@ -186,6 +189,38 @@
  const archiveStatus = inovaPanel.querySelector('[role="status"]');
  let archiveSession = 0;
 
+ const galleryCovers = [...gallery.querySelectorAll('[data-visualizar]')];
+ let coversLoading = false;
+
+ function inovaFileBlob(hexData, type) {
+  if (!hexData?.startsWith(String.fromCharCode(92) + 'x')) throw new Error('Arquivo indisponível');
+  const hex = hexData.slice(2);
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  return new Blob([bytes], { type });
+ }
+
+ async function loadGalleryCovers() {
+  const client = window.itopAuthClient;
+  const missing = galleryCovers.filter(button => !button.querySelector('img').hasAttribute('src'));
+  if (!client || inovaTab.hidden || coversLoading || !missing.length) return;
+  const session = archiveSession;
+  coversLoading = true;
+  try {
+   const { data, error } = await client.from('inova_blocos_arquivos')
+    .select('id,pdf').in('id', missing.map(button => button.dataset.arquivo));
+   if (error || session !== archiveSession || inovaTab.hidden) return;
+   for (const row of data) {
+    const cover = missing.find(button => button.dataset.arquivo === row.id)?.querySelector('img');
+    if (cover) cover.src = URL.createObjectURL(inovaFileBlob(row.pdf, 'image/jpeg'));
+   }
+  } catch {
+   // A visualização e o download continuam disponíveis mesmo sem miniaturas.
+  } finally {
+   coversLoading = false;
+  }
+ }
+
  function setInovaAccess(allowed) {
   archiveSession += 1;
   inovaTab.hidden = inovaPanel.hidden = !allowed;
@@ -195,6 +230,11 @@
   inovaTab.classList.remove('active');
   archives.hidden = true;
   gallery.hidden = true;
+  for (const button of galleryCovers) {
+   const cover = button.querySelector('img');
+   if (cover.hasAttribute('src')) URL.revokeObjectURL(cover.src);
+   cover.removeAttribute('src');
+  }
   galleryButton.setAttribute('aria-expanded', 'false');
   if (imageDialog.open) imageDialog.close();
   archiveToggle.setAttribute('aria-expanded', 'false');
@@ -240,17 +280,14 @@
     const { data, error } = await client.from('inova_blocos_arquivos')
      .select('titulo,pdf').eq('id', button.dataset.arquivo).single();
     if (session !== archiveSession) return;
-    if (error || !data?.pdf?.startsWith(String.fromCharCode(92) + 'x')) throw new Error('Arquivo indisponível');
-    const hex = data.pdf.slice(2);
-    const bytes = new Uint8Array(hex.length / 2);
-    for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+    if (error || !data) throw new Error('Arquivo indisponível');
     const showImage = button.hasAttribute('data-visualizar');
     if (showImage && (!inovaPanel.classList.contains('active') || gallery.hidden || imageDialog.open)) {
      archiveStatus.textContent = '';
      return;
     }
     const isImage = showImage || button.hasAttribute('data-imagem');
-    const url = URL.createObjectURL(new Blob([bytes], { type: isImage ? 'image/jpeg' : 'application/pdf' }));
+    const url = URL.createObjectURL(inovaFileBlob(data.pdf, isImage ? 'image/jpeg' : 'application/pdf'));
     if (showImage) {
      if (previewUrl) URL.revokeObjectURL(previewUrl);
      previewUrl = url;
