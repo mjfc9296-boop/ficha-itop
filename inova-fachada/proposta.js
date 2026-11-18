@@ -145,13 +145,13 @@
   row.className = 'inova-proposta-item';
   row.innerHTML = `<legend></legend><div class="inova-proposta-grid">
     <label>Bloco<select data-field="size" required><option value="">Selecione</option>${sizes}</select></label>
-    <label>Quantidade de blocos<input data-field="quantity" type="number" min="1" max="999999" step="1" value="1" required></label>
-    <label>Tamanho do espaçador<select data-field="spacerSize"><option value="">Sem espaçadores</option>${sizes}</select></label>
-    <label>Quantidade de espaçadores<input data-field="spacers" type="number" min="0" max="999999" step="1" value="0" required></label>
-    <label>Preço unitário<output data-output="price"></output></label>
-    <label>Desconto por unidade (R$)<input data-field="discount" inputmode="decimal" maxlength="8" value="0,00"></label>
-    <label>Líquido unitário<output data-output="net"></output></label>
-    <label>Total do item<output data-output="total"></output></label>
+    <label>Quant. blocos<input data-field="quantity" type="number" min="1" max="999999" step="1" value="1" required></label>
+    <label>Tam. espaç.<select data-field="spacerSize"><option value="">Sem espaçadores</option>${sizes}</select></label>
+    <label>Quant. espaç.<input data-field="spacers" type="number" min="0" max="999999" step="1" value="0" required></label>
+    <label>Preço<output data-output="price"></output></label>
+    <label>Desconto<input data-field="discount" inputmode="decimal" maxlength="8" value="0,00"></label>
+    <label>Unitário<output data-output="net"></output></label>
+    <label>Total<output data-output="total"></output></label>
    </div><button type="button" data-remove>Remover linha</button>`;
   items.append(row);
   refreshItems();
