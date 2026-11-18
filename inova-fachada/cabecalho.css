@@ -136,7 +136,8 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
 
 @media (min-width: 901px) {
  html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main {
-  --itop-rail-width: var(--inova-rail-width);
+  --inova-menu-width: clamp(158.72px, 13.44%, 239.77px);
+  grid-template-columns: minmax(0, var(--inova-menu-width)) minmax(0, 1fr) minmax(0, var(--inova-menu-width)) !important;
   height: calc(100dvh - var(--inova-height)) !important;
   max-height: calc(100dvh - var(--inova-height)) !important;
  }
@@ -145,7 +146,7 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
 @media (max-width: 900px) {
  html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr) !important;
+  grid-template-columns: minmax(0, 16%) minmax(0, 1fr) minmax(0, 16%) !important;
   gap: 4px !important;
  }
  html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main > .itop-links-rail {
