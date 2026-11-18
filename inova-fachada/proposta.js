@@ -173,7 +173,21 @@
   syncDelivery();
   form.hidden = true;
  }
- items.addEventListener('input', refreshItems);
+ const editedItemFields = new WeakSet();
+ items.addEventListener('focusin', ({target}) => {
+  if (!target.matches('input[data-field]') || editedItemFields.has(target)) return;
+  if (target.value === target.defaultValue) target.value = '';
+ });
+ items.addEventListener('focusout', ({target}) => {
+  if (!target.matches('input[data-field]') || target.value !== '') return;
+  target.value = target.defaultValue;
+  editedItemFields.delete(target);
+  refreshItems();
+ });
+ items.addEventListener('input', ({target}) => {
+  if (target.matches('input[data-field]')) editedItemFields.add(target);
+  refreshItems();
+ });
  items.addEventListener('change', refreshItems);
  items.addEventListener('click', event => {
   const button = event.target.closest('[data-remove]');
