@@ -103,7 +103,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=10';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=11';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');

@@ -4,8 +4,14 @@
 }
 
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) {
+ --inova-green: #74dd23;
  --inova-height: clamp(156px, 11.2vw, 228px);
  --inova-rail-width: max(248px, calc(21vw - 3.36px));
+}
+
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main > :is(.itop-work-rail, .itop-work-content),
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) {
+ scrollbar-color: var(--inova-green) #222325 !important;
 }
 
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > header {
@@ -93,7 +99,8 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header 
 
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  display: grid !important;
- grid-auto-rows: minmax(44px, 1fr);
+ grid-auto-rows: auto;
+ align-content: start;
  gap: 6px;
  padding: 4px;
  min-height: min(100%, 390px);
@@ -102,7 +109,8 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
 }
 
 .itop-inova-slot {
- border: 1px solid #505656;
+ min-height: 44px;
+ border: 1px solid var(--inova-green);
  border-radius: 10px;
  background: linear-gradient(145deg, #242829, #161819);
 }
@@ -179,7 +187,7 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
 #inova-videos-uteis button[data-video] {
  min-width: 0;
  padding: 5px;
- border: 1px solid #d27a2f;
+ border: 1px solid var(--inova-green);
  border-radius: 10px;
  background: #00134c;
  color: #fff;
@@ -225,16 +233,17 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  .itop-inova-materials { grid-template-columns: minmax(0, 1fr); }
 }
 
-.itop-inova-slot:has(> :is(.itop-inova-section-cover, .itop-inova-gallery-button, .itop-inova-return)) {
+.itop-inova-slot:not([aria-hidden]) {
  display: grid;
  align-items: center;
  min-width: 0;
- padding: 2px;
+ padding: 3px;
+ border-width: 2px;
  background: repeating-linear-gradient(112deg, #ffffff06 0 1px, #00000012 1px 3px),
   linear-gradient(145deg, #3a3b3d, #222325);
 }
 
-.itop-inova-slot > :is(.itop-inova-gallery-button, .itop-inova-return) {
+.itop-inova-slot > :is(.itop-inova-gallery-button, .itop-inova-return, .itop-inova-covered-link) {
  display: block;
  width: 100%;
  padding: 0 !important;
@@ -243,43 +252,34 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  border: 0 !important;
  box-shadow: none !important;
  border-radius: 7px;
+ overflow: hidden;
  cursor: pointer;
 }
 
-.itop-inova-slot > :is(.itop-inova-gallery-button, .itop-inova-return):focus-visible {
+.itop-inova-slot > :is(.itop-inova-gallery-button, .itop-inova-return, .itop-inova-covered-link):focus-visible {
  outline: 2px solid #fff;
  outline-offset: -3px;
 }
 
-.itop-inova-slot :is(.itop-inova-section-cover, .itop-inova-gallery-button img, .itop-inova-return img) {
+.itop-inova-slot img {
  display: block;
  width: 100%;
  height: auto;
  aspect-ratio: 580 / 194;
  max-height: none;
- object-fit: contain;
+ object-fit: fill;
  border-radius: 7px;
 }
 
-.itop-inova-covered-link {
- display: grid;
- height: 100%;
- align-items: center;
- padding: 2px;
-}
-
-.itop-inova-covered-link img {
- display: block;
- width: 100%;
- object-fit: contain;
- border-radius: 7px;
+.itop-inova-slot :is(img[src$="/videos-uteis.webp"], .itop-inova-covered-link img) {
+ transform: scale(1.025, 1.17);
 }
 
 #inova-arquivos :is(button[data-visualizar], .itop-inova-file-label) {
  min-height: 44px;
  box-sizing: border-box;
  padding: 5px 12px;
- border: 2px solid #e68926;
+ border: 2px solid var(--inova-green);
  border-radius: 10px;
  background: linear-gradient(135deg, #0b142e, #264479);
  color: #fff;
