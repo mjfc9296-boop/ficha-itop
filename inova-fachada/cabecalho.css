@@ -35,18 +35,39 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main > .itop
 
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header {
  display: grid !important;
- grid-template-columns: var(--inova-rail-width) 9px minmax(0, 1fr);
+ grid-template-columns: var(--inova-rail-width) 9px minmax(0, 1fr) 9px var(--inova-rail-width);
  align-items: center;
- gap: 4px;
+ gap: clamp(6px, 1vw, 18px);
  height: var(--inova-height);
- padding: 0 clamp(54px, 4vw, 80px) 0 8px;
+ padding: 0 8px;
  box-sizing: border-box;
  background: repeating-linear-gradient(135deg, transparent 0 3px, #ffffff06 4px 5px), linear-gradient(135deg, #222626, #101213 70%, #202424);
  color: white;
 }
 
-.itop-inova-mark {
- padding: 0 clamp(10px, 1.2vw, 25px);
+.itop-inova-mark,
+.itop-inova-contact {
+ margin-inline: clamp(8px, 1.2vw, 22px);
+ min-width: 0;
+}
+
+.itop-inova-contact {
+ display: grid;
+ align-content: center;
+ gap: 2px;
+ min-height: max(76px, calc((var(--inova-rail-width) - 44px) * 151 / 440));
+ padding: 5px;
+ border: 1px solid var(--inova-green);
+ box-sizing: border-box;
+ text-align: center;
+ font-size: clamp(11px, .82vw, 16px);
+ font-style: normal;
+ line-height: 1.18;
+}
+
+.itop-inova-contact a {
+ color: inherit;
+ overflow-wrap: anywhere;
 }
 
 .itop-inova-mark img {
@@ -59,7 +80,6 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header 
 .itop-inova-divider {
  width: 100%;
  height: 80%;
- margin-left: -8px;
  clip-path: polygon(50% 0, 100% 13%, 100% 87%, 50% 100%, 0 87%, 0 13%);
  background: linear-gradient(90deg, #106e00, #a8ff31 54%, #42ad0d);
 }
@@ -67,7 +87,9 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header 
 .itop-inova-detail {
  display: grid;
  grid-template-columns: repeat(4, minmax(0, 1fr));
- gap: clamp(6px, .9vw, 20px);
+ gap: clamp(6px, .7vw, 14px);
+ width: min(100%, calc(var(--inova-height) * 3.6));
+ justify-self: center;
  min-width: 0;
 }
 
@@ -130,13 +152,25 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
   display: block !important;
  }
  html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header {
-  grid-template-columns: 20% 5px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 5px minmax(0, 2fr) 5px minmax(0, 1fr);
   height: auto;
   padding: 30px 8px 8px;
  }
- .itop-inova-divider { margin-left: 0; }
- .itop-inova-mark { padding: 0 3px; }
+ .itop-inova-mark,
+ .itop-inova-contact { margin-inline: 0; }
  .itop-inova-detail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+ }
+ .itop-inova-mark { grid-area: 1 / 1; }
+ .itop-inova-contact { grid-area: 1 / 2; }
+ .itop-inova-divider,
+ .itop-inova-detail { grid-column: 1 / -1; }
+ .itop-inova-divider { height: 5px; }
 }
 
 .itop-inova-image-dialog {
