@@ -82,8 +82,6 @@
  }
  inovaPanel.innerHTML = `
   <h2>Inova Blocos</h2>
-  <button type="button" aria-expanded="false" aria-controls="inova-arquivos">Arquivos</button>
-  <ul id="inova-arquivos" class="itop-inova-materials" hidden>${materialCards(archiveMaterials)}</ul>
   <p role="status"></p>
   <section id="inova-videos-uteis" hidden>
    <h3>Vídeos Úteis</h3>
@@ -93,11 +91,14 @@
   <section id="inova-imagens-uteis" hidden>
    <h3>Imagens Úteis</h3>
    <ul class="itop-inova-materials">${materialCards(galleryMaterials)}</ul>
+   <h3 id="inova-arquivos-titulo">Arquivos Úteis</h3>
+   <ul id="inova-arquivos" class="itop-inova-materials" aria-labelledby="inova-arquivos-titulo">${materialCards(archiveMaterials)}</ul>
    <dialog class="itop-inova-image-dialog" aria-labelledby="inova-imagem-titulo">
     <form method="dialog"><button type="submit">Fechar</button></form>
     <h3 id="inova-imagem-titulo"></h3>
     <img alt="">
    </dialog>
+  </section>
  `;
  document.getElementById('comercial').after(inovaPanel);
  const proposalScript = document.createElement('script');
@@ -124,7 +125,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=20';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=21';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -189,10 +190,10 @@
  const previewImage = imageDialog.querySelector('img');
  const galleryButton = document.createElement('button');
  galleryButton.type = 'button';
- galleryButton.className = 'itop-inova-gallery-button';
+ galleryButton.className = 'itop-inova-gallery-button itop-inova-materials-button';
  galleryButton.setAttribute('aria-controls', gallery.id);
  galleryButton.setAttribute('aria-expanded', 'false');
- galleryButton.innerHTML = '<img src="inova-fachada/imagens-uteis.webp" alt="Imagens Úteis">';
+ galleryButton.innerHTML = '<span>Imagens Úteis</span><span>Arquivos Úteis</span>';
  galleryButton.addEventListener('click', () => {
   if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
   gallery.hidden = !gallery.hidden;
@@ -248,7 +249,7 @@
   });
   document.head.append(script);
  });
- const moduleSlots = [requestsButton, galleryButton, videosButton, returnButton];
+ const moduleSlots = [galleryButton, requestsButton, videosButton, returnButton];
  for (const rail of [moduleRail, linkRail]) {
   const slots = document.createElement('div');
   slots.className = 'itop-inova-slots';
@@ -299,8 +300,6 @@
   menu.querySelector('.nav-tab.active')?.focus({ preventScroll: true });
  });
 
- const archiveToggle = inovaPanel.querySelector('[aria-controls="inova-arquivos"]');
- const archives = inovaPanel.querySelector('#inova-arquivos');
  const archiveStatus = inovaPanel.querySelector('[role="status"]');
  let archiveSession = 0;
  let openedInovaOnSignIn = false;
@@ -352,7 +351,6 @@
   if (inovaPanel.classList.contains('active')) switchModule('sondagem');
   inovaPanel.classList.remove('active');
   inovaTab.classList.remove('active');
-  archives.hidden = true;
   gallery.hidden = true;
   for (const cover of materialCovers) {
    if (cover.hasAttribute('src')) URL.revokeObjectURL(cover.src);
@@ -367,7 +365,6 @@
   }
   galleryButton.setAttribute('aria-expanded', 'false');
   if (imageDialog.open) imageDialog.close();
-  archiveToggle.setAttribute('aria-expanded', 'false');
   archiveStatus.textContent = '';
  }
 
@@ -384,12 +381,6 @@
   if (activeModule && activeModule !== inovaPanel) previousModule = activeModule.id;
   switchModule(inovaPanel.id);
  });
- archiveToggle.addEventListener('click', () => {
-  archives.hidden = !archives.hidden;
-  archiveToggle.setAttribute('aria-expanded', String(!archives.hidden));
-  if (!archives.hidden) void loadMaterialCovers(archives);
- });
-
  for (const button of inovaPanel.querySelectorAll('button[data-arquivo]')) {
   button.addEventListener('click', async () => {
    const client = window.itopAuthClient;
