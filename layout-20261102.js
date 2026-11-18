@@ -277,13 +277,8 @@
   inovaTab.hidden = inovaPanel.hidden = !allowed;
   if (allowed) {
    if (!openedInovaOnSignIn) {
-    openedInovaOnSignIn = true;
-    const session = archiveSession;
-    const openInova = () => {
-     if (archiveSession === session && !inovaTab.hidden) switchModule(inovaPanel.id);
-    };
-    if (document.readyState === 'complete') queueMicrotask(openInova);
-    else window.addEventListener('load', openInova, { once: true });
+    switchModule(inovaPanel.id);
+    openedInovaOnSignIn = inovaPanel.classList.contains('active');
    }
    return;
   }
@@ -313,19 +308,9 @@
 
  window.addEventListener('itop:authorized', event => setInovaAccess(event.detail?.papel === 'administrador'));
  window.addEventListener('itop:logged-out', () => setInovaAccess(false));
- // A sessão restaurada pode ter sido validada antes do carregamento deste script.
- if (document.documentElement.classList.contains('itop-authorized') && window.itopAuthClient) {
-  const client = window.itopAuthClient;
-  const session = archiveSession;
-  void (async () => {
-   const { data } = await client.auth.getUser();
-   if (!data?.user) return;
-   const { data: profile } = await client.from('perfis').select('papel,ativo,status_aprovacao')
-    .eq('id', data.user.id).single();
-   if (session === archiveSession && document.documentElement.classList.contains('itop-authorized')) {
-    setInovaAccess(profile?.papel === 'administrador' && profile.ativo && profile.status_aprovacao === 'aprovado');
-   }
-  })().catch(() => {});
+ // A validação pode terminar antes de o módulo registrar o evento.
+ if (document.documentElement.classList.contains('itop-authorized')) {
+  setInovaAccess(window.itopAuthorizedProfile?.papel === 'administrador');
  }
 
  inovaTab.addEventListener('click', () => {
