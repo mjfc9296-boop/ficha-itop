@@ -99,11 +99,31 @@
    </dialog>
  `;
  document.getElementById('comercial').after(inovaPanel);
+ const proposalScript = document.createElement('script');
+ proposalScript.src = 'inova-fachada/proposta.js?v=1';
+ document.head.append(proposalScript);
+ const surveyProposalButton = document.createElement('button');
+ surveyProposalButton.type = 'button';
+ surveyProposalButton.className = 'itop-inova-survey-proposal';
+ surveyProposalButton.textContent = 'Pedido — Proposta Inova Blocos';
+ surveyProposalButton.hidden = true;
+ document.getElementById('sondagem').prepend(surveyProposalButton);
+ function openInovaProposal() {
+  if (inovaTab.hidden) return;
+  if (!inovaPanel.classList.contains('active')) {
+   previousModule = 'sondagem';
+   switchModule(inovaPanel.id);
+  }
+  const open = () => window.dispatchEvent(new Event('itop:open-inova-proposta'));
+  if (document.getElementById('inova-proposta')) open();
+  else proposalScript.addEventListener('load', open, {once: true});
+ }
+ surveyProposalButton.addEventListener('click', openInovaProposal);
 
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=12';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=13';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -206,7 +226,15 @@
     image.className = 'itop-inova-section-cover';
     image.src = 'inova-fachada/' + sectionCover.file;
     image.alt = sectionCover.title;
-    slot.append(image);
+    if (sectionCover.file === 'pedido.webp') {
+     const button = document.createElement('button');
+     button.type = 'button';
+     button.className = 'itop-inova-gallery-button';
+     button.setAttribute('aria-controls', 'inova-proposta');
+     button.addEventListener('click', openInovaProposal);
+     button.append(image);
+     slot.append(button);
+    } else slot.append(image);
    } else if (rail === moduleRail) slot.append(moduleSlots[index - sectionCovers.length]);
    else {
     const { file, title, href } = usefulLinks[index];
@@ -274,7 +302,7 @@
  }
 
  function setInovaAccess(allowed) {
-  inovaTab.hidden = inovaPanel.hidden = !allowed;
+  inovaTab.hidden = inovaPanel.hidden = surveyProposalButton.hidden = !allowed;
   if (allowed) {
    if (!openedInovaOnSignIn) {
     switchModule(inovaPanel.id);
