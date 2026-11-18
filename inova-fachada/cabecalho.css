@@ -14,6 +14,10 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) {
  scrollbar-color: var(--inova-green) #222325 !important;
 }
 
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main > .itop-work-rail {
+ scrollbar-gutter: stable;
+}
+
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > header {
  height: auto !important;
  min-height: 0 !important;
@@ -106,13 +110,6 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  min-height: min(100%, 390px);
  box-sizing: border-box;
  direction: ltr;
-}
-
-.itop-inova-slot {
- min-height: 44px;
- border: 1px solid var(--inova-green);
- border-radius: 10px;
- background: linear-gradient(145deg, #242829, #161819);
 }
 
 @media (min-width: 901px) {
@@ -233,19 +230,23 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  .itop-inova-materials { grid-template-columns: minmax(0, 1fr); }
 }
 
-.itop-inova-slot:not([aria-hidden]) {
+.itop-inova-slots > .itop-inova-slot {
  display: grid;
- align-items: center;
+ position: relative;
  min-width: 0;
- padding: 3px;
- border-width: 2px;
+ box-sizing: border-box;
+ aspect-ratio: 580 / 194;
+ border: 2px solid var(--inova-green) !important;
+ border-radius: 10px;
+ box-shadow: none !important;
  background: repeating-linear-gradient(112deg, #ffffff06 0 1px, #00000012 1px 3px),
   linear-gradient(145deg, #3a3b3d, #222325);
 }
 
 .itop-inova-slot > :is(.itop-inova-gallery-button, .itop-inova-return, .itop-inova-covered-link) {
  display: block;
- width: 100%;
+ min-width: 0 !important;
+ min-height: 0 !important;
  padding: 0 !important;
  margin: 0;
  background: transparent !important;
@@ -256,6 +257,13 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  cursor: pointer;
 }
 
+.itop-inova-slot > :is(button, a, img) {
+ position: absolute;
+ inset: 3px;
+ width: calc(100% - 6px);
+ height: calc(100% - 6px);
+}
+
 .itop-inova-slot > :is(.itop-inova-gallery-button, .itop-inova-return, .itop-inova-covered-link):focus-visible {
  outline: 2px solid #fff;
  outline-offset: -3px;
@@ -264,11 +272,15 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
 .itop-inova-slot img {
  display: block;
  width: 100%;
- height: auto;
- aspect-ratio: 580 / 194;
+ height: 100%;
  max-height: none;
  object-fit: fill;
  border-radius: 7px;
+}
+
+.itop-inova-slot > img {
+ width: calc(100% - 6px);
+ height: calc(100% - 6px);
 }
 
 .itop-inova-slot :is(img[src$="/videos-uteis.webp"], .itop-inova-covered-link img) {

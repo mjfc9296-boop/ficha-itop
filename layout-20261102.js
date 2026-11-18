@@ -103,7 +103,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=11';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=12';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -196,7 +196,7 @@
   const slots = document.createElement('div');
   slots.className = 'itop-inova-slots';
   slots.hidden = true;
-  const slotCount = rail === moduleRail ? sectionCovers.length + moduleSlots.length : 5;
+  const slotCount = rail === moduleRail ? sectionCovers.length + moduleSlots.length : usefulLinks.length;
   for (let index = 0; index < slotCount; index += 1) {
    const slot = document.createElement('div');
    slot.className = 'itop-inova-slot';
@@ -208,7 +208,7 @@
     image.alt = sectionCover.title;
     slot.append(image);
    } else if (rail === moduleRail) slot.append(moduleSlots[index - sectionCovers.length]);
-   else if (rail === linkRail && usefulLinks[index]) {
+   else {
     const { file, title, href } = usefulLinks[index];
     const link = document.createElement('a');
     link.className = 'itop-inova-covered-link';
@@ -220,7 +220,7 @@
     image.alt = title;
     link.append(image);
     slot.append(link);
-   } else slot.setAttribute('aria-hidden', 'true');
+   }
    slots.append(slot);
   }
   rail.append(slots);
