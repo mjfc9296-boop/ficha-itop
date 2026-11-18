@@ -103,7 +103,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=9';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=10';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -274,15 +274,20 @@
  }
 
  function setInovaAccess(allowed) {
-  archiveSession += 1;
   inovaTab.hidden = inovaPanel.hidden = !allowed;
   if (allowed) {
    if (!openedInovaOnSignIn) {
     openedInovaOnSignIn = true;
-    switchModule(inovaPanel.id);
+    const session = archiveSession;
+    const openInova = () => {
+     if (archiveSession === session && !inovaTab.hidden) switchModule(inovaPanel.id);
+    };
+    if (document.readyState === 'complete') queueMicrotask(openInova);
+    else window.addEventListener('load', openInova, { once: true });
    }
    return;
   }
+  archiveSession += 1;
   openedInovaOnSignIn = false;
   if (inovaPanel.classList.contains('active')) switchModule('sondagem');
   inovaPanel.classList.remove('active');

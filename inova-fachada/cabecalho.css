@@ -107,33 +107,6 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  background: linear-gradient(145deg, #242829, #161819);
 }
 
-.itop-inova-return {
- width: 100%;
- height: 100%;
- min-height: 44px;
- display: flex;
- justify-content: center;
- align-items: center;
- gap: 10px;
- padding: 5px 10px;
- margin: 0;
- border: 1px solid #74dd23;
- border-radius: 9px;
- background: #191c1c;
- color: #fff;
- font: inherit;
- font-weight: 700;
- cursor: pointer;
-}
-
-.itop-inova-return img {
- width: min(42%, 94px);
- max-height: 28px;
- object-fit: contain;
-}
-
-.itop-inova-return:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
-
 @media (min-width: 901px) {
  html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main {
   --itop-rail-width: var(--inova-rail-width);
@@ -159,31 +132,6 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  .itop-inova-divider { margin-left: 0; }
  .itop-inova-mark { padding: 0 3px; }
  .itop-inova-detail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
- .itop-inova-return { flex-direction: column; gap: 2px; padding-inline: 2px; font-size: 12px; }
-}
-
-.itop-inova-gallery-button {
- display: block;
- width: 100%;
- height: 100%;
- min-height: 44px;
- padding: 2px;
- background: #151818;
- border: 1px solid #74dd23;
- border-radius: 9px;
- cursor: pointer;
-}
-
-.itop-inova-gallery-button img {
- display: block;
- width: 100%;
- max-height: 72px;
- object-fit: contain;
-}
-
-.itop-inova-gallery-button:focus-visible {
- outline: 2px solid #fff;
- outline-offset: -4px;
 }
 
 .itop-inova-image-dialog {
@@ -277,18 +225,40 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  .itop-inova-materials { grid-template-columns: minmax(0, 1fr); }
 }
 
-.itop-inova-slot:has(> .itop-inova-section-cover) {
+.itop-inova-slot:has(> :is(.itop-inova-section-cover, .itop-inova-gallery-button, .itop-inova-return)) {
  display: grid;
  align-items: center;
  min-width: 0;
  padding: 2px;
+ background: repeating-linear-gradient(112deg, #ffffff06 0 1px, #00000012 1px 3px),
+  linear-gradient(145deg, #3a3b3d, #222325);
 }
 
-.itop-inova-section-cover {
+.itop-inova-slot > :is(.itop-inova-gallery-button, .itop-inova-return) {
  display: block;
  width: 100%;
- max-height: 72px;
+ padding: 0 !important;
+ margin: 0;
+ background: transparent !important;
+ border: 0 !important;
+ box-shadow: none !important;
+ border-radius: 7px;
+ cursor: pointer;
+}
+
+.itop-inova-slot > :is(.itop-inova-gallery-button, .itop-inova-return):focus-visible {
+ outline: 2px solid #fff;
+ outline-offset: -3px;
+}
+
+.itop-inova-slot :is(.itop-inova-section-cover, .itop-inova-gallery-button img, .itop-inova-return img) {
+ display: block;
+ width: 100%;
+ height: auto;
+ aspect-ratio: 580 / 194;
+ max-height: none;
  object-fit: contain;
+ border-radius: 7px;
 }
 
 .itop-inova-covered-link {
@@ -297,15 +267,32 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  align-items: center;
  padding: 2px;
 }
-.itop-inova-covered-link img,
-.itop-inova-return img {
+
+.itop-inova-covered-link img {
  display: block;
  width: 100%;
- max-height: none;
  object-fit: contain;
  border-radius: 7px;
 }
-.itop-inova-return { padding: 2px; }
+
+#inova-arquivos :is(button[data-visualizar], .itop-inova-file-label) {
+ min-height: 44px;
+ box-sizing: border-box;
+ padding: 5px 12px;
+ border: 2px solid #e68926;
+ border-radius: 10px;
+ background: linear-gradient(135deg, #0b142e, #264479);
+ color: #fff;
+ font-size: clamp(12px, 1vw, 15px);
+ font-weight: 700;
+ line-height: 1.35;
+}
+
+#inova-arquivos li > button:last-child {
+ padding-inline: 12px;
+ font-size: clamp(12px, 1vw, 15px);
+}
+
 #inova-videos-uteis video {
  display: block;
  width: min(100%, 720px);
