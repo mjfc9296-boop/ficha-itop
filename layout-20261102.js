@@ -68,6 +68,41 @@
  `;
  document.getElementById('comercial').after(inovaPanel);
 
+ const header = document.querySelector('body > header');
+ const inovaHeaderStyle = document.createElement('link');
+ inovaHeaderStyle.rel = 'stylesheet';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css';
+ document.head.append(inovaHeaderStyle);
+
+ const inovaHeader = document.createElement('div');
+ inovaHeader.className = 'itop-inova-header';
+ inovaHeader.hidden = true;
+ inovaHeader.innerHTML = `
+  <div class="itop-inova-mark">
+   <img src="inova-fachada/marca.webp" alt="Inova Blocos">
+  </div>
+  <div class="itop-inova-divider" aria-hidden="true"></div>
+  <div class="itop-inova-detail">
+   <div>
+    <div class="itop-inova-photos">
+     <img src="inova-fachada/palete.webp" alt="Blocos empilhados em um palete">
+     <img src="inova-fachada/fundacao.webp" alt="Assentamento dos blocos na obra">
+     <img src="inova-fachada/obra.webp" alt="Construção com blocos">
+    </div>
+    <p class="itop-inova-benefits">
+     <span>Isolamento Térmico e Acústico</span>
+     <span>Eficiência Energética</span>
+     <span>Economia</span>
+     <span>Rapidez</span>
+    </p>
+   </div>
+   <img class="itop-inova-catalog" src="inova-fachada/linha-de-blocos.png"
+    alt="Conheça nossa linha de blocos. Blocos com isopor de 10 cm, 13 cm, 20 cm e 15 cm.">
+  </div>
+ `;
+ header.prepend(inovaHeader);
+
+
  const archiveToggle = inovaPanel.querySelector('[aria-controls="inova-arquivos"]');
  const archives = inovaPanel.querySelector('#inova-arquivos');
  const archiveStatus = inovaPanel.querySelector('[role="status"]');
