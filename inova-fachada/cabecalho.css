@@ -227,16 +227,18 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  gap: 8px;
 }
 
-.itop-inova-materials li {
+.itop-inova-materials li,
+#inova-videos-uteis button[data-video] {
  min-width: 0;
  padding: 5px;
- border: 1px solid #566154;
+ border: 1px solid #d27a2f;
  border-radius: 10px;
- background: #202523;
+ background: #00134c;
  color: #fff;
 }
 
-.itop-inova-materials button[data-visualizar] {
+.itop-inova-materials button[data-visualizar],
+.itop-inova-file-label {
  display: grid;
  grid-template-columns: clamp(32px, 4.5vw, 60px) minmax(0, 1fr);
  align-items: center;
@@ -250,7 +252,8 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  line-height: 1.15;
 }
 
-.itop-inova-materials button[data-visualizar] img {
+.itop-inova-materials button[data-visualizar] img,
+.itop-inova-file-label img {
  display: block;
  width: 100%;
  height: 43px;
@@ -260,9 +263,10 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  background: #343d36;
 }
 
-.itop-inova-materials button[data-visualizar] img:not([src]) { visibility: hidden; }
+.itop-inova-materials img[data-capa]:not([src]) { visibility: hidden; }
 
-.itop-inova-materials button[data-visualizar] span { overflow-wrap: anywhere; }
+.itop-inova-materials button[data-visualizar] span,
+.itop-inova-file-label { overflow-wrap: anywhere; }
 
 .itop-inova-materials button[data-imagem] {
  padding-inline: 7px;
@@ -302,20 +306,6 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  border-radius: 7px;
 }
 .itop-inova-return { padding: 2px; }
-.itop-inova-file-label {
- display: grid;
- grid-template-columns: clamp(32px, 4.5vw, 60px) minmax(0, 1fr);
- align-items: center;
- gap: 7px;
- overflow-wrap: anywhere;
-}
-.itop-inova-file-label img {
- width: 100%;
- height: 43px;
- border-radius: 5px;
- object-fit: cover;
- object-position: top;
-}
 #inova-videos-uteis video {
  display: block;
  width: min(100%, 720px);

@@ -67,9 +67,9 @@
  const archiveMaterials = [
   { id: 'manual-assistente-expedicao', title: 'Manual do Assistente de Expedição', cover: 'capa-manual-assistente-expedicao' },
   { id: 'procedimento-expedicao', title: 'Procedimento de Expedição, Carga e Descarga', cover: 'capa-procedimento-expedicao' },
-  { id: 'cartaz-procedimentos-expedicao', title: 'Cartaz de Procedimentos de Expedição', image: true }
+  { id: 'cartaz-procedimentos-expedicao', title: 'Cartaz de Procedimentos de Expedição', image: true },
+  { id: 'locacao-munck-sao-judas-tadeu', title: 'Locação de Munck São Judas Tadeu', cover: 'capa-locacao-munck-sao-judas-tadeu' }
  ];
- galleryMaterials.push({ id: 'locacao-munck-sao-judas-tadeu', title: 'Locação de Munck São Judas Tadeu', cover: 'capa-locacao-munck-sao-judas-tadeu' });
  function materialCards(materials) {
   return materials.map(({ id, title, image, cover }) => `
    <li>
@@ -103,7 +103,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=8';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=9';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
