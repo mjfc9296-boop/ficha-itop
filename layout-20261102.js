@@ -238,6 +238,7 @@
  const archives = inovaPanel.querySelector('#inova-arquivos');
  const archiveStatus = inovaPanel.querySelector('[role="status"]');
  let archiveSession = 0;
+ let openedInovaOnSignIn = false;
 
  const materialCovers = [...inovaPanel.querySelectorAll('img[data-capa]')];
  const loadingCovers = new Set();
@@ -275,7 +276,14 @@
  function setInovaAccess(allowed) {
   archiveSession += 1;
   inovaTab.hidden = inovaPanel.hidden = !allowed;
-  if (allowed) return;
+  if (allowed) {
+   if (!openedInovaOnSignIn) {
+    openedInovaOnSignIn = true;
+    switchModule(inovaPanel.id);
+   }
+   return;
+  }
+  openedInovaOnSignIn = false;
   if (inovaPanel.classList.contains('active')) switchModule('sondagem');
   inovaPanel.classList.remove('active');
   inovaTab.classList.remove('active');
