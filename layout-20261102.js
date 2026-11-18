@@ -97,7 +97,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=5';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=6';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -161,6 +161,11 @@
   previewUrl = undefined;
  });
 
+ const sectionCovers = [
+  { file: 'pedido.webp', title: 'Pedido' },
+  { file: 'envios.webp', title: 'Envios' },
+  { file: 'feedback.webp', title: 'Feedback' }
+ ];
  for (const rail of [moduleRail, linkRail]) {
   const slots = document.createElement('div');
   slots.className = 'itop-inova-slots';
@@ -168,7 +173,14 @@
   for (let index = 0; index < 5; index += 1) {
    const slot = document.createElement('div');
    slot.className = 'itop-inova-slot';
-   if (rail === moduleRail && index === 3) slot.append(galleryButton);
+   const sectionCover = rail === moduleRail ? sectionCovers[index] : undefined;
+   if (sectionCover) {
+    const image = document.createElement('img');
+    image.className = 'itop-inova-section-cover';
+    image.src = 'inova-fachada/' + sectionCover.file;
+    image.alt = sectionCover.title;
+    slot.append(image);
+   } else if (rail === moduleRail && index === 3) slot.append(galleryButton);
    else if (rail === moduleRail && index === 4) slot.append(returnButton);
    else slot.setAttribute('aria-hidden', 'true');
    slots.append(slot);

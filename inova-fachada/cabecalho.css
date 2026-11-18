@@ -272,3 +272,17 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
 @media (max-width: 850px) {
  .itop-inova-materials { grid-template-columns: minmax(0, 1fr); }
 }
+
+.itop-inova-slot:has(> .itop-inova-section-cover) {
+ display: grid;
+ align-items: center;
+ min-width: 0;
+ padding: 2px;
+}
+
+.itop-inova-section-cover {
+ display: block;
+ width: 100%;
+ max-height: 72px;
+ object-fit: contain;
+}
