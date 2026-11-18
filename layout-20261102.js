@@ -15,7 +15,8 @@
  railLayout.textContent = `
   @media screen and (min-width: 901px) {
    html body > main:has(> .itop-work-rail) {
-    --itop-rail-width: max(248px, 21%);
+    --itop-rail-width: clamp(198.4px, 16.8%, 299.712px);
+    max-width: none !important;
     grid-template-columns: var(--itop-rail-width) minmax(0, 1fr) var(--itop-rail-width) !important;
     padding-inline: 8px !important;
     column-gap: 6px !important;
