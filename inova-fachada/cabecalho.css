@@ -6,7 +6,7 @@
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) {
  --inova-green: #74dd23;
  --inova-height: clamp(156px, 11.2vw, 228px);
- --inova-rail-width: max(248px, calc(21vw - 3.36px));
+ --inova-rail-width: max(198.4px, calc(16.8vw - 2.688px));
 }
 
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main > :is(.itop-work-rail, .itop-work-content),
@@ -370,9 +370,11 @@ html:not(.itop-authorized) #itop-calculadora-abrir {
 
 .inova-proposta-grid {
  display: grid;
- grid-template-columns: repeat(auto-fit, minmax(min(100%, 155px), 1fr));
- gap: 12px;
- padding: 13px;
+ grid-auto-flow: column;
+ grid-auto-columns: minmax(100px, 1fr);
+ gap: 8px;
+ padding: 12px;
+ overflow-x: auto;
 }
 
 #inova-proposta label, #itop-calculadora label {
@@ -407,7 +409,8 @@ html body #inova-blocos #inova-proposta :is(input, select, button) {
 html body #inova-blocos #inova-proposta :is(input, select) {
  height: 40px !important;
  align-self: end;
- padding: 6px 9px !important;
+ margin: 0 !important;
+ padding: 6px 5px !important;
  background: #fff !important;
  color: #171717 !important;
  font-size: .95rem;
@@ -445,8 +448,7 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
 }
 
 #inova-proposta .inova-cep-status {
- grid-column: 1 / -1;
- margin: 0;
+ margin: 0 12px 10px;
  color: #4d4d4d;
 }
 
@@ -473,12 +475,20 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
  white-space: nowrap;
 }
 
-#inova-proposta { container-type: inline-size; }
+.inova-proposta-cliente {
+ grid-template-columns:
+  minmax(112px, 1.5fr) minmax(128px, 1.25fr) minmax(114px, 1.15fr)
+  minmax(81px, .8fr) minmax(105px, 1.35fr) minmax(62px, .65fr)
+  minmax(88px, 1fr) minmax(74px, 1fr) minmax(74px, 1fr) minmax(42px, .45fr);
+}
 
-@container (min-width: 650px) {
- .inova-proposta-cliente {
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr);
- }
+#inova-proposta .inova-proposta-item output {
+ display: grid;
+ align-items: center;
+ box-sizing: border-box;
+ height: 40px;
+ padding: 4px;
+ text-align: center;
 }
 
 #itop-calculadora-abrir {

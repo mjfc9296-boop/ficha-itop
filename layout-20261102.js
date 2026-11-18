@@ -101,7 +101,7 @@
  `;
  document.getElementById('comercial').after(inovaPanel);
  const proposalScript = document.createElement('script');
- proposalScript.src = 'inova-fachada/proposta.js?v=2';
+ proposalScript.src = 'inova-fachada/proposta.js?v=3';
  document.head.append(proposalScript);
  const surveyProposalButton = document.createElement('button');
  surveyProposalButton.type = 'button';
@@ -124,7 +124,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=15';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=16';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
