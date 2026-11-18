@@ -103,7 +103,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=7';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=8';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -147,7 +147,7 @@
  const videosButton = document.createElement('button');
  videosButton.type = 'button';
  videosButton.className = 'itop-inova-gallery-button';
- videosButton.textContent = 'Vídeos Úteis';
+ videosButton.innerHTML = '<img src="inova-fachada/videos-uteis.webp" alt="Vídeos Úteis">';
  videosButton.setAttribute('aria-controls', videos.id);
  videosButton.setAttribute('aria-expanded', 'false');
  videosButton.addEventListener('click', () => {
@@ -191,11 +191,13 @@
   { file: 'envios.webp', title: 'Envios' },
   { file: 'feedback.webp', title: 'Feedback' }
  ];
+ const moduleSlots = [galleryButton, videosButton, returnButton];
  for (const rail of [moduleRail, linkRail]) {
   const slots = document.createElement('div');
   slots.className = 'itop-inova-slots';
   slots.hidden = true;
-  for (let index = 0; index < 5; index += 1) {
+  const slotCount = rail === moduleRail ? sectionCovers.length + moduleSlots.length : 5;
+  for (let index = 0; index < slotCount; index += 1) {
    const slot = document.createElement('div');
    slot.className = 'itop-inova-slot';
    const sectionCover = rail === moduleRail ? sectionCovers[index] : undefined;
@@ -205,8 +207,7 @@
     image.src = 'inova-fachada/' + sectionCover.file;
     image.alt = sectionCover.title;
     slot.append(image);
-   } else if (rail === moduleRail && index === 3) slot.append(galleryButton);
-   else if (rail === moduleRail && index === 4) slot.append(returnButton);
+   } else if (rail === moduleRail) slot.append(moduleSlots[index - sectionCovers.length]);
    else if (rail === linkRail && usefulLinks[index]) {
     const { file, title, href } = usefulLinks[index];
     const link = document.createElement('a');
@@ -219,8 +220,7 @@
     image.alt = title;
     link.append(image);
     slot.append(link);
-   } else if (rail === linkRail && index === 2) slot.append(videosButton);
-   else slot.setAttribute('aria-hidden', 'true');
+   } else slot.setAttribute('aria-hidden', 'true');
    slots.append(slot);
   }
   rail.append(slots);
