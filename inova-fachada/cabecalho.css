@@ -548,3 +548,58 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
 #itop-calculadora::backdrop { background: #0008; }
 #itop-calculadora form { display: grid; gap: 8px; }
 #itop-calculadora output { font-weight: 700; }
+
+#inova-solicitacoes {
+ width: min(720px, 94vw);
+ max-height: 90dvh;
+ box-sizing: border-box;
+ overflow: auto;
+ padding: clamp(14px, 3vw, 26px);
+ border: 1px solid var(--inova-green, #74dd23);
+ border-radius: 12px;
+ background: #1d2220;
+ color: #fff;
+}
+
+#inova-solicitacoes::backdrop { background: #000b; }
+#inova-solicitacoes > header,
+#inova-solicitacoes > nav {
+ display: flex;
+ align-items: center;
+ flex-wrap: wrap;
+ gap: 10px;
+ margin-bottom: 14px;
+}
+
+#inova-solicitacoes > header { justify-content: space-between; }
+#inova-solicitacoes :is(h2, h3, p) { margin: 0; color: inherit; }
+#inova-solicitacoes form { display: grid; gap: 12px; }
+#inova-solicitacoes label { display: grid; gap: 5px; min-width: 0; color: inherit; }
+#inova-solicitacoes .inova-solicitacoes-dados {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+ gap: 12px;
+}
+
+#inova-solicitacoes :is(input, textarea) {
+ box-sizing: border-box;
+ width: 100%;
+ min-width: 0;
+ padding: 9px;
+ border: 1px solid #919d94;
+ border-radius: 6px;
+ background: #f6f8f6;
+ color: #19221a;
+ font: inherit;
+}
+
+#inova-solicitacoes textarea { resize: vertical; }
+#inova-solicitacoes button { justify-self: start; }
+#inova-solicitacoes button[aria-pressed="true"],
+#inova-solicitacoes button[type="submit"] {
+ background: #9be95c !important;
+ color: #17250f !important;
+ border-color: #9be95c !important;
+}
+
+#inova-solicitacoes [data-status]:not(:empty) { margin-top: 12px; }
