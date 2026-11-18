@@ -1,5 +1,11 @@
-.itop-inova-header {
+.itop-inova-header,
+.itop-inova-slots {
  display: none;
+}
+
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) {
+ --inova-height: clamp(156px, 11.2vw, 228px);
+ --inova-rail-width: max(248px, calc(21vw - 3.36px));
 }
 
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > header {
@@ -8,34 +14,29 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > header {
  max-height: none !important;
  aspect-ratio: auto !important;
  padding: 0 !important;
- background: #16191a !important;
+ background: #151818 !important;
  border-bottom: 0 !important;
 }
 
-html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > header .head {
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > header .head,
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main > .itop-work-rail > details {
  display: none !important;
 }
 
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header {
- --inova-height: clamp(146px, 10.3vw, 218px);
  display: grid !important;
- grid-template-columns: var(--inova-height) 9px minmax(0, 1fr);
+ grid-template-columns: var(--inova-rail-width) 9px minmax(0, 1fr);
  align-items: center;
- gap: clamp(9px, 1.1vw, 24px);
+ gap: 4px;
  height: var(--inova-height);
- padding-inline: clamp(10px, 1.35vw, 28px) clamp(54px, 4vw, 80px);
+ padding: 0 clamp(54px, 4vw, 80px) 0 8px;
  box-sizing: border-box;
- background: repeating-linear-gradient(135deg, transparent 0 3px, #ffffff06 4px 5px), linear-gradient(135deg, #272b2d, #101213 70%, #282d2e);
+ background: repeating-linear-gradient(135deg, transparent 0 3px, #ffffff06 4px 5px), linear-gradient(135deg, #222626, #101213 70%, #202424);
  color: white;
 }
 
 .itop-inova-mark {
- width: 100%;
- aspect-ratio: 1;
- display: grid;
- place-items: center;
- padding: 4%;
- box-sizing: border-box;
+ padding: 0 clamp(10px, 1.2vw, 25px);
 }
 
 .itop-inova-mark img {
@@ -47,74 +48,116 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header 
 
 .itop-inova-divider {
  width: 100%;
- height: 77%;
+ height: 80%;
+ margin-left: -8px;
  clip-path: polygon(50% 0, 100% 13%, 100% 87%, 50% 100%, 0 87%, 0 13%);
- background: linear-gradient(90deg, #106e00, #a8ff31 54%, #42ad0d), #55e200;
+ background: linear-gradient(90deg, #106e00, #a8ff31 54%, #42ad0d);
 }
 
 .itop-inova-detail {
  display: grid;
- align-items: center;
- grid-template-columns: minmax(0, 1fr) auto;
- gap: clamp(10px, 1.4vw, 28px);
+ grid-template-columns: repeat(4, minmax(0, 1fr));
+ gap: clamp(6px, .9vw, 20px);
  min-width: 0;
 }
 
-.itop-inova-photos {
+.itop-inova-detail figure {
  display: grid;
- grid-template-columns: repeat(3, minmax(0, 1fr));
- align-items: center;
- gap: clamp(7px, 1vw, 20px);
-}
-
-.itop-inova-photos img {
- display: block;
- width: 100%;
- max-width: calc(var(--inova-height) * .94);
- aspect-ratio: 302 / 220;
- height: auto;
- justify-self: center;
- object-fit: contain;
- border: 2px solid #74dd23;
- border-radius: 11px;
- box-sizing: border-box;
-}
-
-.itop-inova-benefits {
- margin: 6px 0 0;
- display: flex;
- justify-content: space-between;
- flex-wrap: wrap;
- gap: 3px 9px;
- font-size: clamp(11px, 1.04vw, 19px);
+ grid-template-rows: auto minmax(2.35em, auto);
+ justify-items: center;
+ align-items: start;
+ gap: 4px;
+ margin: 0;
+ text-align: center;
+ font-size: clamp(11px, 1.05vw, 19px);
  line-height: 1.15;
  font-weight: 700;
  font-style: italic;
 }
 
-.itop-inova-catalog {
+.itop-inova-detail img {
  display: block;
- width: auto;
- height: calc(var(--inova-height) * .88);
- border-radius: 5px;
+ width: 100%;
+ max-width: calc(var(--inova-height) * .94);
+ aspect-ratio: 302 / 220;
+ object-fit: cover;
+ border: 2px solid #74dd23;
+ border-radius: 11px;
+ box-sizing: border-box;
 }
+
+.itop-inova-detail figure:last-child img {
+ object-fit: contain;
+ padding: 2px;
+}
+
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
+ display: grid !important;
+ grid-template-rows: repeat(5, minmax(44px, 1fr));
+ gap: 6px;
+ padding: 4px;
+ min-height: min(100%, 390px);
+ box-sizing: border-box;
+ direction: ltr;
+}
+
+.itop-inova-slot {
+ border: 1px solid #505656;
+ border-radius: 10px;
+ background: linear-gradient(145deg, #242829, #161819);
+}
+
+.itop-inova-return {
+ width: 100%;
+ height: 100%;
+ min-height: 44px;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ gap: 10px;
+ padding: 5px 10px;
+ margin: 0;
+ border: 1px solid #74dd23;
+ border-radius: 9px;
+ background: #191c1c;
+ color: #fff;
+ font: inherit;
+ font-weight: 700;
+ cursor: pointer;
+}
+
+.itop-inova-return img {
+ width: min(42%, 94px);
+ max-height: 28px;
+ object-fit: contain;
+}
+
+.itop-inova-return:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
 
 @media (min-width: 901px) {
  html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main {
-  height: calc(100dvh - clamp(146px, 10.3vw, 218px)) !important;
-  max-height: calc(100dvh - clamp(146px, 10.3vw, 218px)) !important;
+  --itop-rail-width: var(--inova-rail-width);
+  height: calc(100dvh - var(--inova-height)) !important;
+  max-height: calc(100dvh - var(--inova-height)) !important;
  }
 }
 
-@media (max-width: 600px) {
- html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header {
-  grid-template-columns: clamp(64px, 19vw, 115px) 5px minmax(0, 1fr);
-  height: auto;
-  min-height: 146px;
-  padding: 29px 8px 8px;
+@media (max-width: 900px) {
+ html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr) !important;
+  gap: 4px !important;
  }
- .itop-inova-detail { grid-template-columns: minmax(0, 1fr); gap: 7px; }
- .itop-inova-photos { gap: 4px; }
- .itop-inova-photos img { height: auto; aspect-ratio: 4 / 3; border-radius: 5px; }
- .itop-inova-catalog { height: 112px; justify-self: center; }
+ html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main > .itop-links-rail {
+  display: block !important;
+ }
+ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header {
+  grid-template-columns: 20% 5px minmax(0, 1fr);
+  height: auto;
+  padding: 30px 8px 8px;
+ }
+ .itop-inova-divider { margin-left: 0; }
+ .itop-inova-mark { padding: 0 3px; }
+ .itop-inova-detail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+ .itop-inova-return { flex-direction: column; gap: 2px; padding-inline: 2px; font-size: 12px; }
 }

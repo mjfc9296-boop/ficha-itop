@@ -71,7 +71,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=2';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -83,25 +83,53 @@
   </div>
   <div class="itop-inova-divider" aria-hidden="true"></div>
   <div class="itop-inova-detail">
-   <div>
-    <div class="itop-inova-photos">
-     <img src="inova-fachada/palete.webp" alt="Blocos empilhados em um palete">
-     <img src="inova-fachada/fundacao.webp" alt="Assentamento dos blocos na obra">
-     <img src="inova-fachada/obra.webp" alt="Construção com blocos">
-    </div>
-    <p class="itop-inova-benefits">
-     <span>Isolamento Térmico e Acústico</span>
-     <span>Eficiência Energética</span>
-     <span>Economia</span>
-     <span>Rapidez</span>
-    </p>
-   </div>
-   <img class="itop-inova-catalog" src="inova-fachada/linha-de-blocos.png"
-    alt="Conheça nossa linha de blocos. Blocos com isopor de 10 cm, 13 cm, 20 cm e 15 cm.">
+   <figure>
+    <img src="inova-fachada/palete.webp" alt="Blocos empilhados em um palete">
+    <figcaption>Isolamento Térmico e Acústico</figcaption>
+   </figure>
+   <figure>
+    <img src="inova-fachada/fundacao.webp" alt="Assentamento dos blocos na obra">
+    <figcaption>Eficiência Energética</figcaption>
+   </figure>
+   <figure>
+    <img src="inova-fachada/obra.webp" alt="Construção com blocos">
+    <figcaption>Economia</figcaption>
+   </figure>
+   <figure>
+    <img src="inova-fachada/linha-de-blocos-transparente.png"
+     alt="Conheça nossa linha de blocos. Blocos com isopor de 10 cm, 13 cm, 20 cm e 15 cm.">
+    <figcaption>Rapidez</figcaption>
+   </figure>
   </div>
  `;
  header.prepend(inovaHeader);
 
+ const returnButton = document.createElement('button');
+ returnButton.type = 'button';
+ returnButton.className = 'itop-inova-return';
+ returnButton.innerHTML = '<img src="logo-itop.png" alt="ITOP"><span>Voltar</span>';
+
+ for (const rail of [moduleRail, linkRail]) {
+  const slots = document.createElement('div');
+  slots.className = 'itop-inova-slots';
+  slots.hidden = true;
+  for (let index = 0; index < 5; index += 1) {
+   const slot = document.createElement('div');
+   slot.className = 'itop-inova-slot';
+   if (rail === moduleRail && index === 4) slot.append(returnButton);
+   else slot.setAttribute('aria-hidden', 'true');
+   slots.append(slot);
+  }
+  rail.append(slots);
+ }
+
+ let previousModule = 'sondagem';
+ returnButton.addEventListener('click', () => {
+  switchModule(previousModule);
+  if (inovaPanel.classList.contains('active')) switchModule('sondagem');
+  if (mq.matches) menu.open = true;
+  menu.querySelector('.nav-tab.active')?.focus({ preventScroll: true });
+ });
 
  const archiveToggle = inovaPanel.querySelector('[aria-controls="inova-arquivos"]');
  const archives = inovaPanel.querySelector('#inova-arquivos');
@@ -138,7 +166,10 @@
  }
 
  inovaTab.addEventListener('click', () => {
-  if (!inovaTab.hidden) switchModule(inovaPanel.id);
+  if (inovaTab.hidden) return;
+  const activeModule = document.querySelector('.module.active');
+  if (activeModule && activeModule !== inovaPanel) previousModule = activeModule.id;
+  switchModule(inovaPanel.id);
  });
  archiveToggle.addEventListener('click', () => {
   archives.hidden = !archives.hidden;
