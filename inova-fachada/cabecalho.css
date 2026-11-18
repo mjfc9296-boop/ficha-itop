@@ -319,6 +319,7 @@ html:not(.itop-authorized) #itop-calculadora-abrir {
 }
 
 #inova-proposta {
+ --proposta-contorno: #777;
  margin: 12px 0 18px;
  color: #fff;
 }
@@ -347,29 +348,44 @@ html:not(.itop-authorized) #itop-calculadora-abrir {
 
 #inova-proposta fieldset {
  min-width: 0;
- margin: 12px 0;
- padding: 12px;
- border: 1px solid #5e685d;
+ margin: 14px 0;
+ padding: 0;
+ border: 1px solid #dadada;
  border-radius: 10px;
- background: #202423;
+ background: #fafafa;
+ color: #171717;
 }
 
 #inova-proposta legend {
- padding: 0 6px;
- font-weight: 700;
+ width: 100%;
+ box-sizing: border-box;
+ padding: 9px 14px;
+ border-radius: 9px 9px 0 0;
+ background: #161616;
+ color: #fff;
+ font-size: .84rem;
+ font-weight: 750;
+ text-transform: uppercase;
 }
 
 .inova-proposta-grid {
  display: grid;
- grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
- gap: 10px;
+ grid-template-columns: repeat(auto-fit, minmax(min(100%, 155px), 1fr));
+ gap: 12px;
+ padding: 13px;
 }
 
 #inova-proposta label, #itop-calculadora label {
  display: grid;
  align-content: start;
- gap: 4px;
+ gap: 5px;
  margin: 0;
+}
+
+#inova-proposta label {
+ color: #171717 !important;
+ font-size: .875rem;
+ font-weight: 700;
 }
 
 #inova-proposta :is(input, select), #itop-calculadora :is(input, select) {
@@ -378,16 +394,55 @@ html:not(.itop-authorized) #itop-calculadora-abrir {
  box-sizing: border-box;
 }
 
+html body #inova-blocos #inova-proposta :is(input, select, button) {
+ min-height: 38px;
+ border: 2px solid var(--proposta-contorno) !important;
+ border-radius: 9px;
+ box-shadow: none !important;
+}
+
+html body #inova-blocos #inova-proposta :is(input, select) {
+ padding: 6px 9px !important;
+ background: #fff !important;
+ color: #171717 !important;
+ font-size: .95rem;
+ text-align: center;
+}
+
+html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible {
+ outline: 2px solid #454545 !important;
+ outline-offset: 2px;
+}
+
+#inova-proposta :is(button[type="submit"], [data-inova-add], [data-remove]) {
+ background: #292929 !important;
+ color: #fff !important;
+}
+
+#inova-proposta .inova-proposta-itens {
+ padding: 0 12px;
+}
+
+#inova-proposta .inova-proposta-item legend {
+ background: #e6e6e6;
+ color: #171717;
+}
+
+#inova-proposta :is([data-remove], [data-inova-add]) {
+ margin: 0 12px 12px;
+}
+
 #inova-proposta output {
  display: block;
- padding: 7px;
- color: #b6f08a;
- font-weight: 700;
+ padding: 7px 0;
+ color: inherit;
+ font-weight: 750;
 }
 
 #inova-proposta .inova-cep-status {
  grid-column: 1 / -1;
  margin: 0;
+ color: #4d4d4d;
 }
 
 #inova-proposta :is(.inova-cep-status, .inova-pdf-status) {
@@ -398,12 +453,27 @@ html:not(.itop-authorized) #itop-calculadora-abrir {
  display: flex;
  align-items: center;
  justify-content: space-between;
- margin: 8px 0 0;
+ gap: 8px;
+ margin: 0;
+ padding: 8px 13px;
+ border-top: 1px solid var(--proposta-contorno);
+ border-radius: 0 0 9px 9px;
+ background: #161616;
+ color: #fff;
  font-size: 1.15rem;
 }
 
-#inova-proposta [data-remove] {
- margin-top: 8px;
+#inova-proposta .inova-proposta-total output {
+ color: #fff;
+ white-space: nowrap;
+}
+
+#inova-proposta { container-type: inline-size; }
+
+@container (min-width: 650px) {
+ .inova-proposta-cliente {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr);
+ }
 }
 
 #itop-calculadora-abrir {

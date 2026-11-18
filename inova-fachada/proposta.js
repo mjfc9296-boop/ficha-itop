@@ -19,9 +19,9 @@
   <button type="submit">Baixar PDF</button>
   <p role="status" class="inova-pdf-status"></p>
   <fieldset><legend>Dados do cliente</legend>
-   <div class="inova-proposta-grid">
+   <div class="inova-proposta-grid inova-proposta-cliente">
     <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
-    <label>CPF ou CNPJ<input name="documento" inputmode="numeric" maxlength="18" placeholder="000.000.000-00 ou 00.000.000/0000-00" required></label>
+    <label>CPF ou CNPJ<input name="documento" inputmode="numeric" maxlength="18" placeholder="CPF ou CNPJ" title="CPF: 000.000.000-00. CNPJ: 00.000.000/0000-00." required></label>
     <label>Telefone de contato<input name="telefone" type="tel" maxlength="15" placeholder="(00) 00000-0000" required></label>
     <label>CEP<input name="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" required></label>
     <p class="inova-cep-status" role="status">O endereço pode ser preenchido manualmente.</p>
