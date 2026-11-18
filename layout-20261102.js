@@ -101,7 +101,7 @@
  `;
  document.getElementById('comercial').after(inovaPanel);
  const proposalScript = document.createElement('script');
- proposalScript.src = 'inova-fachada/proposta.js?v=3';
+ proposalScript.src = 'inova-fachada/proposta.js?v=4';
  document.head.append(proposalScript);
  const surveyProposalButton = document.createElement('button');
  surveyProposalButton.type = 'button';
