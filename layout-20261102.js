@@ -124,7 +124,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=16';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=17';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -154,6 +154,13 @@
     <figcaption>Rapidez</figcaption>
    </figure>
   </div>
+  <div class="itop-inova-divider" aria-hidden="true"></div>
+  <address class="itop-inova-contact">
+   <strong>INOVA BLOCOS SUL DE MINAS ARTEFATO DE CIMENTO LTDA</strong>
+   <span>CNPJ 63.802.378/0001-29</span>
+   <a href="mailto:comercial@inovablocos.com">comercial@inovablocos.com</a>
+   <a href="tel:+553530700929">(35) 3070-0929</a>
+  </address>
  `;
  header.prepend(inovaHeader);
 
