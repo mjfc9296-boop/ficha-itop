@@ -200,3 +200,24 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
 .itop-inova-image-dialog::backdrop { background: #000b; }
 .itop-inova-image-dialog form { display: flex; justify-content: flex-end; }
 .itop-inova-image-dialog img { display: block; width: 100%; height: auto; }
+
+.itop-inova-materials {
+ list-style: none;
+ padding: 0;
+ display: grid;
+ gap: 6px;
+}
+
+.itop-inova-materials li {
+ display: grid;
+ grid-template-columns: minmax(0, 1fr) auto;
+ align-items: center;
+ gap: 8px;
+}
+
+.itop-inova-materials button {
+ min-height: 44px;
+ margin: 0;
+}
+
+.itop-inova-materials button[data-visualizar] { text-align: left; }

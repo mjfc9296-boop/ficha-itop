@@ -56,6 +56,14 @@
  inovaPanel.className = 'module';
  inovaPanel.id = 'inova-blocos';
  inovaPanel.hidden = true;
+ const galleryMaterials = [
+  { id: 'imagem-rastreamento', title: 'Rastreamento pelo remetente', image: true },
+  { id: 'imagem-carregamento', title: 'Capacidade de carregamento', image: true },
+  { id: 'imagem-quantidade', title: 'Calcular quantidade de blocos', image: true },
+  { id: 'material-comparativo', title: 'Comparativo de blocos', image: true },
+  { id: 'material-precos', title: 'Tabela de preços', image: true },
+  { id: 'material-reducao', title: 'Redução de custo na obra', image: true }
+ ];
  inovaPanel.innerHTML = `
   <h2>Inova Blocos</h2>
   <button type="button" aria-expanded="false" aria-controls="inova-arquivos">Arquivos</button>
@@ -67,10 +75,15 @@
   <p role="status"></p>
   <section id="inova-imagens-uteis" hidden>
    <h3>Imagens Úteis</h3>
-   <ul>
-    <li><button type="button" data-arquivo="imagem-rastreamento" data-visualizar>Rastreamento pelo remetente</button></li>
-    <li><button type="button" data-arquivo="imagem-carregamento" data-visualizar>Capacidade de carregamento</button></li>
-    <li><button type="button" data-arquivo="imagem-quantidade" data-visualizar>Calcular quantidade de blocos</button></li>
+   <ul class="itop-inova-materials">
+    ${galleryMaterials.map(({ id, title, image }) => `
+     <li>
+      ${image
+       ? `<button type="button" data-arquivo="${id}" data-visualizar>${title}</button>`
+       : `<span>${title} (PDF)</span>`}
+      <button type="button" data-arquivo="${id}" ${image ? 'data-imagem' : ''} aria-label="Baixar ${title}">Baixar</button>
+     </li>
+    `).join('')}
    </ul>
    <dialog class="itop-inova-image-dialog" aria-labelledby="inova-imagem-titulo">
     <form method="dialog"><button type="submit">Fechar</button></form>
@@ -84,7 +97,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=3';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=4';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
