@@ -161,3 +161,42 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  .itop-inova-detail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
  .itop-inova-return { flex-direction: column; gap: 2px; padding-inline: 2px; font-size: 12px; }
 }
+
+.itop-inova-gallery-button {
+ display: block;
+ width: 100%;
+ height: 100%;
+ min-height: 44px;
+ padding: 2px;
+ background: #151818;
+ border: 1px solid #74dd23;
+ border-radius: 9px;
+ cursor: pointer;
+}
+
+.itop-inova-gallery-button img {
+ display: block;
+ width: 100%;
+ max-height: 72px;
+ object-fit: contain;
+}
+
+.itop-inova-gallery-button:focus-visible {
+ outline: 2px solid #fff;
+ outline-offset: -4px;
+}
+
+.itop-inova-image-dialog {
+ width: min(1100px, 94vw);
+ max-height: 92dvh;
+ padding: 12px;
+ box-sizing: border-box;
+ border: 1px solid #74dd23;
+ border-radius: 12px;
+ background: #151818;
+ color: white;
+}
+
+.itop-inova-image-dialog::backdrop { background: #000b; }
+.itop-inova-image-dialog form { display: flex; justify-content: flex-end; }
+.itop-inova-image-dialog img { display: block; width: 100%; height: auto; }

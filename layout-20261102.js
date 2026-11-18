@@ -65,13 +65,26 @@
    <li><button type="button" data-arquivo="cartaz-procedimentos-expedicao" data-imagem>Cartaz de Procedimentos de Expedição (JPEG)</button></li>
   </ul>
   <p role="status"></p>
+  <section id="inova-imagens-uteis" hidden>
+   <h3>Imagens Úteis</h3>
+   <ul>
+    <li><button type="button" data-arquivo="imagem-rastreamento" data-visualizar>Rastreamento pelo remetente</button></li>
+    <li><button type="button" data-arquivo="imagem-carregamento" data-visualizar>Capacidade de carregamento</button></li>
+    <li><button type="button" data-arquivo="imagem-quantidade" data-visualizar>Calcular quantidade de blocos</button></li>
+   </ul>
+   <dialog class="itop-inova-image-dialog" aria-labelledby="inova-imagem-titulo">
+    <form method="dialog"><button type="submit">Fechar</button></form>
+    <h3 id="inova-imagem-titulo"></h3>
+    <img alt="">
+   </dialog>
+  </section>
  `;
  document.getElementById('comercial').after(inovaPanel);
 
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=2';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=3';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -109,6 +122,29 @@
  returnButton.className = 'itop-inova-return';
  returnButton.innerHTML = '<img src="logo-itop.png" alt="ITOP"><span>Voltar</span>';
 
+ const gallery = inovaPanel.querySelector('#inova-imagens-uteis');
+ const imageDialog = gallery.querySelector('dialog');
+ const previewImage = imageDialog.querySelector('img');
+ const galleryButton = document.createElement('button');
+ galleryButton.type = 'button';
+ galleryButton.className = 'itop-inova-gallery-button';
+ galleryButton.setAttribute('aria-controls', gallery.id);
+ galleryButton.setAttribute('aria-expanded', 'false');
+ galleryButton.innerHTML = '<img src="inova-fachada/imagens-uteis.webp" alt="Imagens Úteis">';
+ galleryButton.addEventListener('click', () => {
+  if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
+  gallery.hidden = !gallery.hidden;
+  galleryButton.setAttribute('aria-expanded', String(!gallery.hidden));
+  if (!gallery.hidden) gallery.scrollIntoView({ block: 'nearest' });
+ });
+ let previewUrl;
+ imageDialog.addEventListener('close', () => {
+  if (imageDialog.open || !previewUrl) return;
+  previewImage.removeAttribute('src');
+  URL.revokeObjectURL(previewUrl);
+  previewUrl = undefined;
+ });
+
  for (const rail of [moduleRail, linkRail]) {
   const slots = document.createElement('div');
   slots.className = 'itop-inova-slots';
@@ -116,7 +152,8 @@
   for (let index = 0; index < 5; index += 1) {
    const slot = document.createElement('div');
    slot.className = 'itop-inova-slot';
-   if (rail === moduleRail && index === 4) slot.append(returnButton);
+   if (rail === moduleRail && index === 3) slot.append(galleryButton);
+   else if (rail === moduleRail && index === 4) slot.append(returnButton);
    else slot.setAttribute('aria-hidden', 'true');
    slots.append(slot);
   }
@@ -144,6 +181,9 @@
   inovaPanel.classList.remove('active');
   inovaTab.classList.remove('active');
   archives.hidden = true;
+  gallery.hidden = true;
+  galleryButton.setAttribute('aria-expanded', 'false');
+  if (imageDialog.open) imageDialog.close();
   archiveToggle.setAttribute('aria-expanded', 'false');
   archiveStatus.textContent = '';
  }
@@ -176,7 +216,7 @@
   archiveToggle.setAttribute('aria-expanded', String(!archives.hidden));
  });
 
- for (const button of archives.querySelectorAll('button[data-arquivo]')) {
+ for (const button of inovaPanel.querySelectorAll('button[data-arquivo]')) {
   button.addEventListener('click', async () => {
    const client = window.itopAuthClient;
    if (!client || inovaTab.hidden) return;
@@ -191,8 +231,23 @@
     const hex = data.pdf.slice(2);
     const bytes = new Uint8Array(hex.length / 2);
     for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-    const isImage = button.hasAttribute('data-imagem');
+    const showImage = button.hasAttribute('data-visualizar');
+    if (showImage && (!inovaPanel.classList.contains('active') || gallery.hidden || imageDialog.open)) {
+     archiveStatus.textContent = '';
+     return;
+    }
+    const isImage = showImage || button.hasAttribute('data-imagem');
     const url = URL.createObjectURL(new Blob([bytes], { type: isImage ? 'image/jpeg' : 'application/pdf' }));
+    if (showImage) {
+     if (previewUrl) URL.revokeObjectURL(previewUrl);
+     previewUrl = url;
+     imageDialog.querySelector('h3').textContent = data.titulo;
+     previewImage.alt = data.titulo;
+     previewImage.src = url;
+     imageDialog.showModal();
+     archiveStatus.textContent = '';
+     return;
+    }
     const download = document.createElement('a');
     download.href = url;
     download.download = data.titulo + ' - Inova Blocos' + (isImage ? '.jpg' : '.pdf');
@@ -200,7 +255,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 60000);
     archiveStatus.textContent = '';
    } catch {
-    if (session === archiveSession) archiveStatus.textContent = 'Não foi possível baixar o arquivo. Tente novamente.';
+    if (session === archiveSession) archiveStatus.textContent = 'Não foi possível abrir o arquivo. Tente novamente.';
    } finally {
     button.disabled = false;
    }
