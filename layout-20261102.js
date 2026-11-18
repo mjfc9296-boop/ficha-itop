@@ -124,7 +124,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=19';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=20';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -219,7 +219,36 @@
   { file: 'envios.webp', title: 'Envios' },
   { file: 'feedback.webp', title: 'Feedback' }
  ];
- const moduleSlots = [galleryButton, videosButton, returnButton];
+ const requestsButton = document.createElement('button');
+ requestsButton.type = 'button';
+ requestsButton.className = 'itop-inova-gallery-button';
+ requestsButton.setAttribute('aria-haspopup', 'dialog');
+ requestsButton.setAttribute('aria-controls', 'inova-solicitacoes');
+ requestsButton.innerHTML = '<img src="inova-fachada/solicitacoes.webp" alt="Solicitações">';
+ requestsButton.addEventListener('click', () => {
+  if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
+  const dialog = inovaPanel.querySelector('#inova-solicitacoes');
+  if (dialog) {
+   dialog.showModal();
+   return;
+  }
+  requestsButton.disabled = true;
+  const script = document.createElement('script');
+  script.src = 'inova-fachada/solicitacoes.js?v=1';
+  script.addEventListener('load', () => {
+   requestsButton.disabled = false;
+   if (!inovaTab.hidden && inovaPanel.classList.contains('active')) {
+    inovaPanel.querySelector('#inova-solicitacoes')?.showModal();
+   }
+  });
+  script.addEventListener('error', () => {
+   requestsButton.disabled = false;
+   script.remove();
+   archiveStatus.textContent = 'Não foi possível abrir Solicitações. Tente novamente.';
+  });
+  document.head.append(script);
+ });
+ const moduleSlots = [requestsButton, galleryButton, videosButton, returnButton];
  for (const rail of [moduleRail, linkRail]) {
   const slots = document.createElement('div');
   slots.className = 'itop-inova-slots';
