@@ -64,40 +64,46 @@
   { id: 'material-precos', title: 'Tabela de preços', image: true },
   { id: 'material-reducao', title: 'Redução de custo na obra', image: true }
  ];
+ const archiveMaterials = [
+  { id: 'manual-assistente-expedicao', title: 'Manual do Assistente de Expedição', cover: 'capa-manual-assistente-expedicao' },
+  { id: 'procedimento-expedicao', title: 'Procedimento de Expedição, Carga e Descarga', cover: 'capa-procedimento-expedicao' },
+  { id: 'cartaz-procedimentos-expedicao', title: 'Cartaz de Procedimentos de Expedição', image: true }
+ ];
+ galleryMaterials.push({ id: 'locacao-munck-sao-judas-tadeu', title: 'Locação de Munck São Judas Tadeu', cover: 'capa-locacao-munck-sao-judas-tadeu' });
+ function materialCards(materials) {
+  return materials.map(({ id, title, image, cover }) => `
+   <li>
+    ${image
+     ? `<button type="button" data-arquivo="${id}" data-visualizar><img alt="" data-capa="${id}"><span>${title}</span></button>`
+     : `<span class="itop-inova-file-label"><img alt="" data-capa="${cover}"><span>${title} (PDF)</span></span>`}
+    <button type="button" data-arquivo="${id}" ${image ? 'data-imagem' : ''} aria-label="Baixar ${title}">Baixar</button>
+   </li>`).join('');
+ }
  inovaPanel.innerHTML = `
   <h2>Inova Blocos</h2>
   <button type="button" aria-expanded="false" aria-controls="inova-arquivos">Arquivos</button>
-  <ul id="inova-arquivos" hidden>
-   <li><button type="button" data-arquivo="manual-assistente-expedicao">Manual do Assistente de Expedição (PDF)</button></li>
-   <li><button type="button" data-arquivo="procedimento-expedicao">Procedimento de Expedição, Carga e Descarga (PDF)</button></li>
-   <li><button type="button" data-arquivo="cartaz-procedimentos-expedicao" data-imagem>Cartaz de Procedimentos de Expedição (JPEG)</button></li>
-  </ul>
+  <ul id="inova-arquivos" class="itop-inova-materials" hidden>${materialCards(archiveMaterials)}</ul>
   <p role="status"></p>
+  <section id="inova-videos-uteis" hidden>
+   <h3>Vídeos Úteis</h3>
+   <button type="button" data-arquivo="video-demonstracao-inova" data-video>Demonstração da Inova Blocos</button>
+   <video controls playsinline hidden aria-label="Demonstração da Inova Blocos"></video>
+  </section>
   <section id="inova-imagens-uteis" hidden>
    <h3>Imagens Úteis</h3>
-   <ul class="itop-inova-materials">
-    ${galleryMaterials.map(({ id, title, image }) => `
-     <li>
-      ${image
-       ? `<button type="button" data-arquivo="${id}" data-visualizar><img alt=""><span>${title}</span></button>`
-       : `<span>${title} (PDF)</span>`}
-      <button type="button" data-arquivo="${id}" ${image ? 'data-imagem' : ''} aria-label="Baixar ${title}">Baixar</button>
-     </li>
-    `).join('')}
-   </ul>
+   <ul class="itop-inova-materials">${materialCards(galleryMaterials)}</ul>
    <dialog class="itop-inova-image-dialog" aria-labelledby="inova-imagem-titulo">
     <form method="dialog"><button type="submit">Fechar</button></form>
     <h3 id="inova-imagem-titulo"></h3>
     <img alt="">
    </dialog>
-  </section>
  `;
  document.getElementById('comercial').after(inovaPanel);
 
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=6';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=7';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -133,10 +139,25 @@
  const returnButton = document.createElement('button');
  returnButton.type = 'button';
  returnButton.className = 'itop-inova-return';
- returnButton.innerHTML = '<img src="logo-itop.png" alt="ITOP"><span>Voltar</span>';
+ returnButton.innerHTML = '<img src="inova-fachada/voltar.webp" alt="Voltar">';
 
  const gallery = inovaPanel.querySelector('#inova-imagens-uteis');
- const imageDialog = gallery.querySelector('dialog');
+ const videos = inovaPanel.querySelector('#inova-videos-uteis');
+ const video = videos.querySelector('video');
+ const videosButton = document.createElement('button');
+ videosButton.type = 'button';
+ videosButton.className = 'itop-inova-gallery-button';
+ videosButton.textContent = 'Vídeos Úteis';
+ videosButton.setAttribute('aria-controls', videos.id);
+ videosButton.setAttribute('aria-expanded', 'false');
+ videosButton.addEventListener('click', () => {
+  if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
+  videos.hidden = !videos.hidden;
+  videosButton.setAttribute('aria-expanded', String(!videos.hidden));
+  if (videos.hidden) video.pause();
+  else videos.scrollIntoView({ block: 'nearest' });
+ });
+ const imageDialog = inovaPanel.querySelector('dialog');
  const previewImage = imageDialog.querySelector('img');
  const galleryButton = document.createElement('button');
  galleryButton.type = 'button';
@@ -150,7 +171,7 @@
   galleryButton.setAttribute('aria-expanded', String(!gallery.hidden));
   if (!gallery.hidden) {
    gallery.scrollIntoView({ block: 'nearest' });
-   void loadGalleryCovers();
+   void loadMaterialCovers(gallery);
   }
  });
  let previewUrl;
@@ -161,6 +182,10 @@
   previewUrl = undefined;
  });
 
+ const usefulLinks = [
+  { file: 'olist.webp', title: 'Olist', href: 'https://erp.olist.com/' },
+  { file: 'fretebras.webp', title: 'Fretebras', href: 'https://novacentral.fretebras.com.br/' }
+ ];
  const sectionCovers = [
   { file: 'pedido.webp', title: 'Pedido' },
   { file: 'envios.webp', title: 'Envios' },
@@ -182,6 +207,19 @@
     slot.append(image);
    } else if (rail === moduleRail && index === 3) slot.append(galleryButton);
    else if (rail === moduleRail && index === 4) slot.append(returnButton);
+   else if (rail === linkRail && usefulLinks[index]) {
+    const { file, title, href } = usefulLinks[index];
+    const link = document.createElement('a');
+    link.className = 'itop-inova-covered-link';
+    link.href = href;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    const image = document.createElement('img');
+    image.src = 'inova-fachada/' + file;
+    image.alt = title;
+    link.append(image);
+    slot.append(link);
+   } else if (rail === linkRail && index === 2) slot.append(videosButton);
    else slot.setAttribute('aria-hidden', 'true');
    slots.append(slot);
   }
@@ -201,8 +239,8 @@
  const archiveStatus = inovaPanel.querySelector('[role="status"]');
  let archiveSession = 0;
 
- const galleryCovers = [...gallery.querySelectorAll('[data-visualizar]')];
- let coversLoading = false;
+ const materialCovers = [...inovaPanel.querySelectorAll('img[data-capa]')];
+ const loadingCovers = new Set();
 
  function inovaFileBlob(hexData, type) {
   if (!hexData?.startsWith(String.fromCharCode(92) + 'x')) throw new Error('Arquivo indisponível');
@@ -212,24 +250,25 @@
   return new Blob([bytes], { type });
  }
 
- async function loadGalleryCovers() {
+ async function loadMaterialCovers(section) {
   const client = window.itopAuthClient;
-  const missing = galleryCovers.filter(button => !button.querySelector('img').hasAttribute('src'));
-  if (!client || inovaTab.hidden || coversLoading || !missing.length) return;
+  const missing = [...section.querySelectorAll('img[data-capa]:not([src])')];
+  if (!client || inovaTab.hidden || loadingCovers.has(section) || !missing.length) return;
   const session = archiveSession;
-  coversLoading = true;
+  loadingCovers.add(section);
   try {
    const { data, error } = await client.from('inova_blocos_arquivos')
-    .select('id,pdf').in('id', missing.map(button => button.dataset.arquivo));
+    .select('id,pdf').in('id', missing.map(image => image.dataset.capa));
    if (error || session !== archiveSession || inovaTab.hidden) return;
    for (const row of data) {
-    const cover = missing.find(button => button.dataset.arquivo === row.id)?.querySelector('img');
-    if (cover) cover.src = URL.createObjectURL(inovaFileBlob(row.pdf, 'image/jpeg'));
+    for (const image of missing.filter(item => item.dataset.capa === row.id)) {
+     image.src = URL.createObjectURL(inovaFileBlob(row.pdf, 'image/jpeg'));
+    }
    }
   } catch {
-   // A visualização e o download continuam disponíveis mesmo sem miniaturas.
+   // O download continua disponível mesmo sem miniaturas.
   } finally {
-   coversLoading = false;
+   loadingCovers.delete(section);
   }
  }
 
@@ -242,10 +281,16 @@
   inovaTab.classList.remove('active');
   archives.hidden = true;
   gallery.hidden = true;
-  for (const button of galleryCovers) {
-   const cover = button.querySelector('img');
+  for (const cover of materialCovers) {
    if (cover.hasAttribute('src')) URL.revokeObjectURL(cover.src);
    cover.removeAttribute('src');
+  }
+  videos.hidden = video.hidden = true;
+  videosButton.setAttribute('aria-expanded', 'false');
+  if (video.hasAttribute('src')) {
+   URL.revokeObjectURL(video.src);
+   video.removeAttribute('src');
+   video.load();
   }
   galleryButton.setAttribute('aria-expanded', 'false');
   if (imageDialog.open) imageDialog.close();
@@ -279,6 +324,7 @@
  archiveToggle.addEventListener('click', () => {
   archives.hidden = !archives.hidden;
   archiveToggle.setAttribute('aria-expanded', String(!archives.hidden));
+  if (!archives.hidden) void loadMaterialCovers(archives);
  });
 
  for (const button of inovaPanel.querySelectorAll('button[data-arquivo]')) {
@@ -293,8 +339,20 @@
      .select('titulo,pdf').eq('id', button.dataset.arquivo).single();
     if (session !== archiveSession) return;
     if (error || !data) throw new Error('Arquivo indisponível');
+    if (button.hasAttribute('data-video')) {
+     if (!inovaPanel.classList.contains('active') || videos.hidden) {
+      archiveStatus.textContent = '';
+      return;
+     }
+     if (video.hasAttribute('src')) URL.revokeObjectURL(video.src);
+     video.src = URL.createObjectURL(inovaFileBlob(data.pdf, 'video/mp4'));
+     video.hidden = false;
+     void video.play().catch(() => {});
+     archiveStatus.textContent = '';
+     return;
+    }
     const showImage = button.hasAttribute('data-visualizar');
-    if (showImage && (!inovaPanel.classList.contains('active') || gallery.hidden || imageDialog.open)) {
+    if (showImage && (!inovaPanel.classList.contains('active') || button.closest('[hidden]') || imageDialog.open)) {
      archiveStatus.textContent = '';
      return;
     }
@@ -312,7 +370,8 @@
     }
     const download = document.createElement('a');
     download.href = url;
-    download.download = data.titulo + ' - Inova Blocos' + (isImage ? '.jpg' : '.pdf');
+    const suffix = button.dataset.arquivo === 'locacao-munck-sao-judas-tadeu' ? '' : ' - Inova Blocos';
+    download.download = data.titulo + suffix + (isImage ? '.jpg' : '.pdf');
     download.click();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
     archiveStatus.textContent = '';
