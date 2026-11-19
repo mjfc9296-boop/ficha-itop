@@ -29,11 +29,34 @@
  dialog.hidden = true;
  dialog.setAttribute('aria-labelledby', 'inova-envios-titulo');
  dialog.innerHTML = `
+  <style>
+   html body #inova-blocos #inova-envios .inova-view-heading {
+    background: #e6f7dc !important;
+    border-bottom: 2px solid #69b942 !important;
+    border-radius: 8px;
+    padding: 10px 12px;
+   }
+   html body #inova-blocos #inova-envios :is(button, select) {
+    border: 1px solid #45872a !important;
+    color: #162610 !important;
+    -webkit-text-fill-color: #162610 !important;
+   }
+   html body #inova-blocos #inova-envios button {
+    background: #9be95c !important;
+   }
+   html body #inova-blocos #inova-envios select {
+    background: #f2faed !important;
+   }
+   html body #inova-blocos #inova-envios :is(input, select, button):focus-visible {
+    outline: 2px solid #45872a !important;
+    outline-offset: 2px;
+   }
+  </style>
   <div class="inova-view-heading"><h2 id="inova-envios-titulo">Envios</h2></div>
   <form data-envio>
-   <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
-   <label>Vendedor<input name="vendedor" maxlength="150" required></label>
    <label>Tipo de envio<select name="tipo_envio" required>${options(shipmentTypes)}</select></label>
+   <label>Vendedor<input name="vendedor" maxlength="150" required></label>
+   <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
    <label>CPF ou CNPJ<input name="documento" maxlength="18" placeholder="CPF ou CNPJ" required></label>
    <label>E-mail<input name="email" type="email" maxlength="254" autocomplete="email" autocapitalize="none"></label>
    <label>CEP da entrega<input name="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" required></label>
