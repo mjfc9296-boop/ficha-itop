@@ -1,13 +1,13 @@
 (() => {
  const panel = document.getElementById('inova-blocos');
- const dialog = document.createElement('dialog');
+ const dialog = document.createElement('section');
  dialog.id = 'inova-solicitacoes';
+ dialog.hidden = true;
  dialog.setAttribute('aria-labelledby', 'inova-solicitacoes-titulo');
  dialog.innerHTML = `
-  <header>
+  <div class="inova-view-heading">
    <h2 id="inova-solicitacoes-titulo">Solicitações</h2>
-   <button type="button" data-fechar>Fechar</button>
-  </header>
+  </div>
   <nav aria-label="Tipo de solicitação">
    <button type="button" data-tipo="visita" aria-controls="inova-ata-visita" aria-pressed="true">Ata de Visita</button>
    <button type="button" data-tipo="reposicao" aria-controls="inova-reposicao" aria-pressed="false">Reposição</button>
@@ -59,9 +59,8 @@
  }
 
  choices.forEach((button, index) => button.addEventListener('click', () => select(index)));
- dialog.querySelector('[data-fechar]').addEventListener('click', () => dialog.close());
  window.addEventListener('itop:logged-out', () => {
-  dialog.close();
+  dialog.hidden = true;
   reset();
  });
  reset();
@@ -135,7 +134,7 @@
   });
   form.addEventListener('submit', event => {
    event.preventDefault();
-   if (panel.hidden || !panel.classList.contains('active') || !dialog.open) return;
+   if (panel.hidden || !panel.classList.contains('active') || dialog.hidden) return;
    const isVisit = index === 0;
    const {itens, contato} = form.elements;
    const items = parseItems(itens.value, !isVisit);

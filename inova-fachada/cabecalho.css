@@ -420,6 +420,7 @@ html:not(.itop-authorized) #itop-calculadora-abrir {
 
 #inova-proposta label, #itop-calculadora label {
  display: grid;
+ text-align: left;
  align-content: start;
  gap: 5px;
  margin: 0;
@@ -554,31 +555,39 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
 #itop-calculadora form { display: grid; gap: 8px; }
 #itop-calculadora output { font-weight: 700; }
 
-:is(#inova-solicitacoes, #inova-estoque) {
- width: min(720px, 94vw);
- max-height: 90dvh;
+#inova-blocos > :is(#inova-solicitacoes, #inova-estoque, #inova-fornecedores, #inova-envios) {
+ width: 100%;
+ min-width: 0;
  box-sizing: border-box;
- overflow: auto;
- padding: clamp(14px, 3vw, 26px);
- border: 1px solid var(--inova-green, #74dd23);
- border-radius: 12px;
- background: #1d2220;
- color: #fff;
+ padding: clamp(14px, 2vw, 24px);
+ background: #fff;
+ color: #111;
 }
 
-:is(#inova-solicitacoes, #inova-estoque)::backdrop { background: #000b; }
-#inova-estoque > header,
-#inova-solicitacoes > header,
+#inova-blocos .inova-view-heading {
+ margin-bottom: 16px;
+ padding-bottom: 10px;
+ border-bottom: 1px solid #d8dfd9;
+}
+
+#inova-blocos .inova-view-heading h2 {
+ margin: 0;
+ color: #111 !important;
+ -webkit-text-fill-color: #111 !important;
+}
+
+.itop-inova-slot:has(> button[aria-current="page"]) {
+ outline: 2px solid var(--inova-green);
+ outline-offset: 1px;
+}
+
 #inova-solicitacoes > nav {
  display: flex;
- align-items: center;
  flex-wrap: wrap;
  gap: 10px;
  margin-bottom: 14px;
 }
 
-:is(#inova-solicitacoes, #inova-estoque) > header { justify-content: space-between; }
-:is(#inova-solicitacoes, #inova-estoque) :is(h2, h3, p) { margin: 0; color: inherit; }
 #inova-solicitacoes form { display: grid; gap: 12px; }
 #inova-solicitacoes label { display: grid; gap: 5px; min-width: 0; color: inherit; }
 #inova-solicitacoes .inova-solicitacoes-dados {
@@ -651,36 +660,17 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
  transform: scale(1.04, 1.14);
 }
 
-:is(#inova-fornecedores, #inova-envios) {
- width: min(720px, 94vw);
- max-height: 90dvh;
- box-sizing: border-box;
- padding: clamp(14px, 3vw, 26px);
- border: 1px solid var(--inova-green, #74dd23);
- border-radius: 12px;
- background: #fff;
- color: #000;
- overflow: auto;
-}
-
-:is(#inova-fornecedores, #inova-envios)::backdrop { background: #000b; }
-
 :is(#inova-fornecedores, #inova-envios) :is(h2, h3, label, p, li, strong, span, input, textarea) {
  color: #000 !important;
  -webkit-text-fill-color: #000 !important;
 }
 
-:is(#inova-fornecedores, #inova-envios) > header, :is(#inova-fornecedores, #inova-envios) > footer {
+:is(#inova-fornecedores, #inova-envios) > footer {
  display: flex;
  align-items: center;
  justify-content: space-between;
  flex-wrap: wrap;
  gap: 10px;
-}
-
-:is(#inova-fornecedores, #inova-envios) > header {
- background: #eef2ee;
- margin-bottom: 14px;
 }
 
 :is(#inova-fornecedores, #inova-envios) :is([data-fornecedor], [data-envio]) {
@@ -691,6 +681,7 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
 
 :is(#inova-fornecedores, #inova-envios) label {
  display: grid;
+ text-align: left;
  align-content: start;
  gap: 5px;
  font-weight: 600;

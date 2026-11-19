@@ -83,19 +83,17 @@
  inovaPanel.innerHTML = `
   <h2>Inova Blocos</h2>
   <p role="status"></p>
-  <dialog id="inova-estoque" aria-labelledby="inova-estoque-titulo">
-   <header>
+  <section hidden id="inova-estoque" aria-labelledby="inova-estoque-titulo">
+   <div class="inova-view-heading">
     <h2 id="inova-estoque-titulo">Estoque</h2>
-    <form method="dialog"><button type="submit">Fechar</button></form>
-   </header>
+   </div>
    <p role="status"></p>
    <div class="inova-estoque-grupos"></div>
-  </dialog>
-  <dialog id="inova-fornecedores" aria-labelledby="inova-fornecedores-titulo">
-   <header>
+  </section>
+  <section hidden id="inova-fornecedores" aria-labelledby="inova-fornecedores-titulo">
+   <div class="inova-view-heading">
     <h2 id="inova-fornecedores-titulo">Fornecedores</h2>
-    <form method="dialog"><button type="submit">Fechar</button></form>
-   </header>
+   </div>
    <form data-fornecedor>
     <label>Nome <input name="nome" maxlength="160" required></label>
     <label>Telefone <input name="telefone" type="tel" maxlength="40"></label>
@@ -113,7 +111,7 @@
     <button type="button" data-pagina="-1" hidden>Anterior</button>
     <button type="button" data-pagina="1" hidden>Próxima</button>
    </footer>
-  </dialog>
+  </section>
   <section id="inova-videos-uteis" hidden>
    <h3>Vídeos Úteis</h3>
    <button type="button" data-arquivo="video-demonstracao-inova" data-video>Demonstração da Inova Blocos</button>
@@ -132,6 +130,20 @@
   </section>
  `;
  document.getElementById('comercial').after(inovaPanel);
+ const inovaViews = '#inova-proposta, #inova-envios, #inova-solicitacoes, #inova-estoque, #inova-fornecedores, #inova-imagens-uteis, #inova-videos-uteis';
+ let selectedInovaView = '';
+ function selectInovaView(id) {
+  selectedInovaView = id;
+  for (const view of inovaPanel.querySelectorAll(inovaViews)) view.hidden = view.id !== id;
+  for (const button of moduleRail.querySelectorAll('.itop-inova-slot > button[aria-controls]')) {
+   const active = button.getAttribute('aria-controls') === id;
+   button.setAttribute('aria-current', active ? 'page' : 'false');
+   if (button.hasAttribute('aria-expanded')) button.setAttribute('aria-expanded', String(active));
+  }
+  if (id !== 'inova-videos-uteis') inovaPanel.querySelector('video')?.pause();
+  if (id) inovaPanel.querySelector('#' + id)?.scrollIntoView({block: 'start'});
+ }
+
  const proposalScript = document.createElement('script');
  proposalScript.src = 'inova-fachada/proposta.js?v=5';
  document.head.append(proposalScript);
@@ -147,7 +159,12 @@
    previousModule = 'sondagem';
    switchModule(inovaPanel.id);
   }
-  const open = () => window.dispatchEvent(new Event('itop:open-inova-proposta'));
+  selectInovaView('inova-proposta');
+  const open = () => {
+   if (selectedInovaView === 'inova-proposta' && inovaPanel.classList.contains('active') && !inovaTab.hidden) {
+    window.dispatchEvent(new Event('itop:open-inova-proposta'));
+   }
+  };
   if (document.getElementById('inova-proposta')) open();
   else proposalScript.addEventListener('load', open, {once: true});
  }
@@ -156,7 +173,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=24';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=25';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -212,10 +229,7 @@
  videosButton.setAttribute('aria-expanded', 'false');
  videosButton.addEventListener('click', () => {
   if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
-  videos.hidden = !videos.hidden;
-  videosButton.setAttribute('aria-expanded', String(!videos.hidden));
-  if (videos.hidden) video.pause();
-  else videos.scrollIntoView({ block: 'nearest' });
+  selectInovaView(videos.id);
  });
  const imageDialog = gallery.querySelector('dialog');
  const previewImage = imageDialog.querySelector('img');
@@ -227,12 +241,8 @@
  galleryButton.innerHTML = '<span>Imagens Úteis</span><span>Arquivos Úteis</span>';
  galleryButton.addEventListener('click', () => {
   if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
-  gallery.hidden = !gallery.hidden;
-  galleryButton.setAttribute('aria-expanded', String(!gallery.hidden));
-  if (!gallery.hidden) {
-   gallery.scrollIntoView({ block: 'nearest' });
-   void loadMaterialCovers(gallery);
-  }
+  selectInovaView(gallery.id);
+  void loadMaterialCovers(gallery);
  });
  let previewUrl;
  imageDialog.addEventListener('close', () => {
@@ -254,23 +264,23 @@
  const requestsButton = document.createElement('button');
  requestsButton.type = 'button';
  requestsButton.className = 'itop-inova-gallery-button';
- requestsButton.setAttribute('aria-haspopup', 'dialog');
  requestsButton.setAttribute('aria-controls', 'inova-solicitacoes');
  requestsButton.innerHTML = '<img src="inova-fachada/solicitacoes.webp" alt="Solicitações">';
  requestsButton.addEventListener('click', () => {
   if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
   const dialog = inovaPanel.querySelector('#inova-solicitacoes');
   if (dialog) {
-   dialog.showModal();
+   selectInovaView(dialog.id);
    return;
   }
+  selectInovaView('inova-solicitacoes');
   requestsButton.disabled = true;
   const script = document.createElement('script');
-  script.src = 'inova-fachada/solicitacoes.js?v=1';
+  script.src = 'inova-fachada/solicitacoes.js?v=2';
   script.addEventListener('load', () => {
    requestsButton.disabled = false;
-   if (!inovaTab.hidden && inovaPanel.classList.contains('active')) {
-    inovaPanel.querySelector('#inova-solicitacoes')?.showModal();
+   if (!inovaTab.hidden && inovaPanel.classList.contains('active') && selectedInovaView === 'inova-solicitacoes') {
+    selectInovaView('inova-solicitacoes');
    }
   });
   script.addEventListener('error', () => {
@@ -287,7 +297,6 @@
  const stockButton = document.createElement('button');
  stockButton.type = 'button';
  stockButton.className = 'itop-inova-gallery-button';
- stockButton.setAttribute('aria-haspopup', 'dialog');
  stockButton.setAttribute('aria-controls', stockDialog.id);
  stockButton.innerHTML = '<img src="inova-fachada/estoque.webp" alt="Estoque">';
 
@@ -315,25 +324,25 @@
  }
 
  stockButton.addEventListener('click', async () => {
-  if (inovaTab.hidden || !inovaPanel.classList.contains('active') || stockDialog.open) return;
+  if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
   stockGroups.replaceChildren();
   stockStatus.textContent = 'Carregando estoque…';
-  stockDialog.showModal();
+  selectInovaView(stockDialog.id);
   const session = archiveSession;
   try {
    const { data, error } = await window.itopAuthClient.from('inova_blocos_arquivos')
     .select('pdf').eq('id', 'estoque-inicial').single();
    if (error || !data) throw new Error('Estoque indisponível');
    const stock = JSON.parse(await inovaFileBlob(data.pdf, 'application/json').text());
-   if (session !== archiveSession || !stockDialog.open) return;
+   if (session !== archiveSession || stockDialog.hidden) return;
    stockGroups.replaceChildren(
     stockTable('Máscara', 'isopor', stock.mascara),
     stockTable('Blocos', 'blocos', stock.blocos)
    );
    stockStatus.textContent = '';
   } catch {
-   if (session === archiveSession && stockDialog.open) {
-    stockStatus.textContent = 'Não foi possível carregar o estoque. Feche e abra novamente para tentar.';
+   if (session === archiveSession && !stockDialog.hidden) {
+    stockStatus.textContent = 'Não foi possível carregar o estoque. Selecione Estoque novamente para tentar.';
    }
   }
  });
@@ -348,7 +357,6 @@
  const supplierButton = document.createElement('button');
  supplierButton.type = 'button';
  supplierButton.className = 'itop-inova-gallery-button';
- supplierButton.setAttribute('aria-haspopup', 'dialog');
  supplierButton.setAttribute('aria-controls', supplierDialog.id);
  supplierButton.innerHTML = '<img src="inova-fachada/fornecedores.webp" alt="Fornecedores">';
  const supplierPageSize = 30;
@@ -367,7 +375,7 @@
     .order('criado_em', { ascending: false }).order('id', { ascending: false })
     .range(offset, offset + supplierPageSize);
    if (error) throw error;
-   if (request !== supplierQuery || !supplierDialog.open) return;
+   if (request !== supplierQuery || supplierDialog.hidden) return;
    supplierPage = page;
    supplierList.replaceChildren(...data.slice(0, supplierPageSize).map(record => {
     const item = document.createElement('li');
@@ -389,8 +397,8 @@
    supplierPages[0].hidden = page === 0;
    supplierPages[1].hidden = data.length <= supplierPageSize;
   } catch {
-   if (request === supplierQuery && supplierDialog.open) {
-    supplierListStatus.textContent = 'Não foi possível consultar os fornecedores. Feche e abra novamente para tentar.';
+   if (request === supplierQuery && !supplierDialog.hidden) {
+    supplierListStatus.textContent = 'Não foi possível consultar os fornecedores. Selecione Fornecedores novamente para tentar.';
    }
   } finally {
    if (request === supplierQuery) supplierPages.forEach(button => { button.disabled = false; });
@@ -398,10 +406,10 @@
  }
 
  supplierButton.addEventListener('click', () => {
-  if (inovaTab.hidden || !inovaPanel.classList.contains('active') || supplierDialog.open) return;
+  if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
   supplierList.replaceChildren();
   supplierPages.forEach(button => { button.hidden = true; });
-  supplierDialog.showModal();
+  selectInovaView(supplierDialog.id);
   loadSuppliers();
  });
  supplierPages.forEach(button => button.addEventListener('click', () => {
@@ -434,7 +442,7 @@
    if (session !== archiveSession) return;
    supplierForm.reset();
    supplierStatus.textContent = 'Fornecedor cadastrado.';
-   if (supplierDialog.open) loadSuppliers();
+   if (!supplierDialog.hidden) loadSuppliers();
   } catch (error) {
    if (session !== archiveSession) return;
    supplierStatus.textContent = error?.code === '23505' ? 'Já existe um fornecedor com esse CNPJ.'
@@ -467,20 +475,20 @@
       button.setAttribute('aria-controls', 'inova-proposta');
       button.addEventListener('click', openInovaProposal);
      } else {
-      button.setAttribute('aria-haspopup', 'dialog');
       button.setAttribute('aria-controls', 'inova-envios');
       const openEnvios = () => {
        const dialog = inovaPanel.querySelector('#inova-envios');
-       if (!dialog || dialog.open || inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
-       dialog.showModal();
+       if (!dialog || selectedInovaView !== dialog.id || inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
+       selectInovaView(dialog.id);
        dialog.dispatchEvent(new Event('inova:abriu'));
       };
       button.addEventListener('click', () => {
-       if (inovaPanel.querySelector('#inova-envios')) return openEnvios();
        if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
+       selectInovaView('inova-envios');
+       if (inovaPanel.querySelector('#inova-envios')) return openEnvios();
        button.disabled = true;
        const script = document.createElement('script');
-       script.src = 'inova-fachada/envios.js?v=2';
+       script.src = 'inova-fachada/envios.js?v=3';
        script.addEventListener('load', () => {
         button.disabled = false;
         openEnvios();
@@ -588,9 +596,9 @@
   }
   galleryButton.setAttribute('aria-expanded', 'false');
   if (imageDialog.open) imageDialog.close();
-  if (stockDialog.open) stockDialog.close();
+  selectInovaView('');
   inovaPanel.querySelector('#inova-envios')?.dispatchEvent(new Event('inova:saiu'));
-  if (supplierDialog.open) supplierDialog.close();
+
   supplierQuery += 1;
   supplierForm.reset();
   supplierList.replaceChildren();

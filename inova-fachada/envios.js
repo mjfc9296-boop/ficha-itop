@@ -13,11 +13,12 @@
  const documentRaw = value => value.toUpperCase().replace(/[^A-Z0-9]/g, '');
  const today = new Intl.DateTimeFormat('sv-SE', {timeZone: 'America/Sao_Paulo', dateStyle: 'short'});
  const options = entries => Object.entries(entries).map(([key, label]) => '<option value="' + key + '">' + label + '</option>').join('');
- const dialog = document.createElement('dialog');
+ const dialog = document.createElement('section');
  dialog.id = 'inova-envios';
+ dialog.hidden = true;
  dialog.setAttribute('aria-labelledby', 'inova-envios-titulo');
  dialog.innerHTML = `
-  <header><h2 id="inova-envios-titulo">Envios</h2><form method="dialog"><button>Fechar</button></form></header>
+  <div class="inova-view-heading"><h2 id="inova-envios-titulo">Envios</h2></div>
   <form data-envio>
    <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
    <label>CPF ou CNPJ<input name="documento" maxlength="18" placeholder="CPF ou CNPJ" required></label>
@@ -131,7 +132,7 @@
     .select('id,cliente,documento,cep,endereco,tipo_entrega,data_entrega,status,item,quantidade,valor_unitario_centavos,valor_total_centavos')
     .order('data_entrega', {ascending: false}).order('id', {ascending: false}).range(offset, offset + pageSize);
    if (error) throw error;
-   if (request !== listRequest || !dialog.open) return;
+   if (request !== listRequest || dialog.hidden) return;
    page = nextPage;
    list.replaceChildren(...data.slice(0, pageSize).map(row => {
     const entry = document.createElement('li');
@@ -157,7 +158,7 @@
     statusMessage.setAttribute('role', 'status');
     let savedStatus = row.status;
     statusSelect.addEventListener('change', async () => {
-     if (!dialog.open) return;
+     if (dialog.hidden) return;
      const next = statusSelect.value;
      statusSelect.disabled = true;
      statusMessage.textContent = 'Atualizando status…';
@@ -182,7 +183,7 @@
    buttons[0].hidden = page === 0;
    buttons[1].hidden = data.length <= pageSize;
   } catch {
-   if (request === listRequest && dialog.open) listStatus.textContent = 'Não foi possível consultar os envios. Feche e abra a janela para tentar novamente.';
+   if (request === listRequest && !dialog.hidden) listStatus.textContent = 'Não foi possível consultar os envios. Selecione Envios novamente para tentar.';
   } finally {
    if (request === listRequest) buttons.forEach(button => { button.disabled = false; });
   }
@@ -207,7 +208,7 @@
  dialog.addEventListener('inova:saiu', () => {
   session++;
   listRequest++;
-  if (dialog.open) dialog.close();
+  dialog.hidden = true;
   resetForm();
   list.replaceChildren();
   saveStatus.textContent = listStatus.textContent = '';
@@ -215,7 +216,7 @@
 
  form.addEventListener('submit', async event => {
   event.preventDefault();
-  if (save.disabled || !dialog.open) return;
+  if (save.disabled || dialog.hidden) return;
   const data = Object.fromEntries(new FormData(form));
   delete data.preco;
   data.cliente = data.cliente.trim();
@@ -245,7 +246,7 @@
    if (current !== session) return;
    resetForm();
    saveStatus.textContent = 'Envio cadastrado.';
-   if (dialog.open) load();
+   if (!dialog.hidden) load();
   } catch {
    if (current === session) saveStatus.textContent = 'Não foi possível salvar o envio. Tente novamente.';
   } finally {
