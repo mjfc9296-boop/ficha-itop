@@ -42,7 +42,7 @@
     border-radius: 8px;
     padding: 10px 12px;
    }
-   html body #inova-blocos #inova-envios :is(button, select) {
+   html body #inova-blocos #inova-envios :is(button, input, select, output) {
     border: 1px solid #45872a !important;
     color: #162610 !important;
     -webkit-text-fill-color: #162610 !important;
@@ -50,8 +50,12 @@
    html body #inova-blocos #inova-envios button {
     background: #9be95c !important;
    }
-   html body #inova-blocos #inova-envios select {
+   html body #inova-blocos #inova-envios :is(input, select, output) {
     background: #f2faed !important;
+   }
+   html body #inova-blocos #inova-envios output {
+    padding: 4px 8px;
+    border-radius: 6px;
    }
    html body #inova-blocos #inova-envios :is(input, select, button):focus-visible {
     outline: 2px solid #45872a !important;
@@ -66,11 +70,11 @@
     <label>Número de pedido<input name="numero_pedido" maxlength="50"></label>
    </div>
    <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
-   <label>CPF ou CNPJ<input name="documento" maxlength="18" placeholder="CPF ou CNPJ" required></label>
+   <label>CPF ou CNPJ<input name="documento" maxlength="18" required></label>
    <label>E-mail<input name="email" type="email" maxlength="254" autocomplete="email" autocapitalize="none"></label>
-   <label>CEP da entrega<input name="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" required></label>
-   <label>Logradouro<input name="logradouro" maxlength="150" placeholder="RUA, AVENIDA OU ESTRADA" required></label>
-   <label>Número<input name="numero" maxlength="20" placeholder="NÚMERO OU S/N" required></label>
+   <label>CEP da entrega<input name="cep" inputmode="numeric" maxlength="9" required></label>
+   <label>Logradouro<input name="logradouro" maxlength="150" required></label>
+   <label>Número<input name="numero" maxlength="20" required></label>
    <label>Bairro<input name="bairro" maxlength="100"></label>
    <label>Cidade<input name="cidade" maxlength="100" required></label>
    <label>UF<input name="uf" maxlength="2" pattern="[A-Z]{2}" required></label>
