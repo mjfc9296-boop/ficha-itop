@@ -30,6 +30,12 @@
  dialog.setAttribute('aria-labelledby', 'inova-envios-titulo');
  dialog.innerHTML = `
   <style>
+   #inova-envios [data-identificacao-envio] {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+    gap: 12px;
+   }
    html body #inova-blocos #inova-envios .inova-view-heading {
     background: #e6f7dc !important;
     border-bottom: 2px solid #69b942 !important;
@@ -54,8 +60,11 @@
   </style>
   <div class="inova-view-heading"><h2 id="inova-envios-titulo">Envios</h2></div>
   <form data-envio>
-   <label>Tipo de envio<select name="tipo_envio" required>${options(shipmentTypes)}</select></label>
-   <label>Vendedor<input name="vendedor" maxlength="150" required></label>
+   <div data-identificacao-envio>
+    <label>Tipo de envio<select name="tipo_envio" required>${options(shipmentTypes)}</select></label>
+    <label>Vendedor<input name="vendedor" maxlength="150" required></label>
+    <label>Número de pedido<input name="numero_pedido" maxlength="50"></label>
+   </div>
    <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
    <label>CPF ou CNPJ<input name="documento" maxlength="18" placeholder="CPF ou CNPJ" required></label>
    <label>E-mail<input name="email" type="email" maxlength="254" autocomplete="email" autocapitalize="none"></label>
@@ -212,7 +221,7 @@
   buttons.forEach(button => { button.disabled = true; });
   try {
    const {data, error} = await window.itopAuthClient.from('inova_blocos_envios')
-    .select('id,cliente,vendedor,documento,email,cep,logradouro,numero,endereco,bairro,cidade,uf,complemento,tipo_envio,tipo_entrega,data_entrega,status,pesquisa_confirmada,item,quantidade,valor_unitario_centavos,itens_adicionais')
+    .select('id,cliente,vendedor,numero_pedido,documento,email,cep,logradouro,numero,endereco,bairro,cidade,uf,complemento,tipo_envio,tipo_entrega,data_entrega,status,pesquisa_confirmada,item,quantidade,valor_unitario_centavos,itens_adicionais')
     .order('data_entrega', {ascending: false}).order('id', {ascending: false}).range(offset, offset + pageSize);
    if (error) throw error;
    if (request !== listRequest || dialog.hidden) return;
@@ -234,6 +243,7 @@
      )].filter(Boolean).join(', ').toUpperCase() + ' · CEP ' + mask(row.cep, '#####-###'),
      'Tipo de envio: ' + shipmentTypes[row.tipo_envio],
      row.email,
+     row.numero_pedido && 'Número de pedido: ' + row.numero_pedido,
      row.vendedor && 'Vendedor: ' + row.vendedor,
      ...orderItems.map((item, index) => items[item.item] + ' · ' + item.quantidade + ' × '
       + money(item.valor_unitario_centavos) + ' = ' + amounts[index].text),
@@ -326,6 +336,7 @@
   for (const name of upperFields) data[name] = data[name].trim().toUpperCase();
   data.endereco = [data.bairro, data.cidade, data.uf, data.complemento].filter(Boolean).join(', ');
   for (const name of ['bairro', 'complemento']) data[name] ||= null;
+  data.numero_pedido = data.numero_pedido.trim() || null;
   data.email = data.email.trim().toLowerCase() || null;
   Object.assign(data, trackingFields(data.status));
   data.documento = documentRaw(data.documento);
