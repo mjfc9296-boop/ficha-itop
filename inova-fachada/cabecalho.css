@@ -726,3 +726,5 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
 #inova-envios [data-preco-ajuda][hidden] { display: none !important; }
 #inova-envios [data-total] { margin: 0; font-weight: 700; }
 #inova-envios output { color: #000 !important; }
+
+#inova-blocos > h2, #inova-blocos > [role="status"]:empty { display: none !important; }
