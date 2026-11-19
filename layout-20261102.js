@@ -83,6 +83,14 @@
  inovaPanel.innerHTML = `
   <h2>Inova Blocos</h2>
   <p role="status"></p>
+  <dialog id="inova-estoque" aria-labelledby="inova-estoque-titulo">
+   <header>
+    <h2 id="inova-estoque-titulo">Estoque</h2>
+    <form method="dialog"><button type="submit">Fechar</button></form>
+   </header>
+   <p role="status"></p>
+   <div class="inova-estoque-grupos"></div>
+  </dialog>
   <section id="inova-videos-uteis" hidden>
    <h3>Vídeos Úteis</h3>
    <button type="button" data-arquivo="video-demonstracao-inova" data-video>Demonstração da Inova Blocos</button>
@@ -125,7 +133,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=21';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=22';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -186,7 +194,7 @@
   if (videos.hidden) video.pause();
   else videos.scrollIntoView({ block: 'nearest' });
  });
- const imageDialog = inovaPanel.querySelector('dialog');
+ const imageDialog = gallery.querySelector('dialog');
  const previewImage = imageDialog.querySelector('img');
  const galleryButton = document.createElement('button');
  galleryButton.type = 'button';
@@ -249,7 +257,65 @@
   });
   document.head.append(script);
  });
- const moduleSlots = [galleryButton, requestsButton, videosButton, returnButton];
+ const stockDialog = inovaPanel.querySelector('#inova-estoque');
+ const stockStatus = stockDialog.querySelector('[role="status"]');
+ const stockGroups = stockDialog.querySelector('.inova-estoque-grupos');
+ const stockNumber = new Intl.NumberFormat('pt-BR');
+ const stockButton = document.createElement('button');
+ stockButton.type = 'button';
+ stockButton.className = 'itop-inova-gallery-button';
+ stockButton.setAttribute('aria-haspopup', 'dialog');
+ stockButton.setAttribute('aria-controls', stockDialog.id);
+ stockButton.innerHTML = '<img src="inova-fachada/estoque.webp" alt="Estoque">';
+
+ function stockTable(title, prefix, rows) {
+  const section = document.createElement('section');
+  section.innerHTML = `
+   <h3 id="inova-estoque-${prefix}">${title}</h3>
+   <table aria-labelledby="inova-estoque-${prefix}">
+    <thead><tr><th scope="col">Item</th><th scope="col">Contagem</th><th scope="col">Total</th></tr></thead>
+    <tbody></tbody>
+   </table>`;
+  const body = section.querySelector('tbody');
+  for (const [size, base, extra, isNew] of rows) {
+   const row = body.insertRow();
+   const label = document.createElement('th');
+   label.scope = 'row';
+   label.textContent = `${prefix === 'isopor' ? 'Isopor de ' : ''}${size} cm`;
+   row.append(label);
+   const count = row.insertCell();
+   count.textContent = stockNumber.format(base);
+   if (extra) count.textContent += ` + ${stockNumber.format(extra)}${isNew ? ' (novos)' : ''}`;
+   row.insertCell().textContent = stockNumber.format(base + extra);
+  }
+  return section;
+ }
+
+ stockButton.addEventListener('click', async () => {
+  if (inovaTab.hidden || !inovaPanel.classList.contains('active') || stockDialog.open) return;
+  stockGroups.replaceChildren();
+  stockStatus.textContent = 'Carregando estoque…';
+  stockDialog.showModal();
+  const session = archiveSession;
+  try {
+   const { data, error } = await window.itopAuthClient.from('inova_blocos_arquivos')
+    .select('pdf').eq('id', 'estoque-inicial').single();
+   if (error || !data) throw new Error('Estoque indisponível');
+   const stock = JSON.parse(await inovaFileBlob(data.pdf, 'application/json').text());
+   if (session !== archiveSession || !stockDialog.open) return;
+   stockGroups.replaceChildren(
+    stockTable('Máscara', 'isopor', stock.mascara),
+    stockTable('Blocos', 'blocos', stock.blocos)
+   );
+   stockStatus.textContent = '';
+  } catch {
+   if (session === archiveSession && stockDialog.open) {
+    stockStatus.textContent = 'Não foi possível carregar o estoque. Feche e abra novamente para tentar.';
+   }
+  }
+ });
+
+ const moduleSlots = [galleryButton, requestsButton, stockButton, videosButton, returnButton];
  for (const rail of [moduleRail, linkRail]) {
   const slots = document.createElement('div');
   slots.className = 'itop-inova-slots';
@@ -365,6 +431,9 @@
   }
   galleryButton.setAttribute('aria-expanded', 'false');
   if (imageDialog.open) imageDialog.close();
+  if (stockDialog.open) stockDialog.close();
+  stockGroups.replaceChildren();
+  stockStatus.textContent = '';
   archiveStatus.textContent = '';
  }
 

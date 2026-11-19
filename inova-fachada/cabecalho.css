@@ -549,7 +549,7 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
 #itop-calculadora form { display: grid; gap: 8px; }
 #itop-calculadora output { font-weight: 700; }
 
-#inova-solicitacoes {
+:is(#inova-solicitacoes, #inova-estoque) {
  width: min(720px, 94vw);
  max-height: 90dvh;
  box-sizing: border-box;
@@ -561,7 +561,8 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
  color: #fff;
 }
 
-#inova-solicitacoes::backdrop { background: #000b; }
+:is(#inova-solicitacoes, #inova-estoque)::backdrop { background: #000b; }
+#inova-estoque > header,
 #inova-solicitacoes > header,
 #inova-solicitacoes > nav {
  display: flex;
@@ -571,8 +572,8 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
  margin-bottom: 14px;
 }
 
-#inova-solicitacoes > header { justify-content: space-between; }
-#inova-solicitacoes :is(h2, h3, p) { margin: 0; color: inherit; }
+:is(#inova-solicitacoes, #inova-estoque) > header { justify-content: space-between; }
+:is(#inova-solicitacoes, #inova-estoque) :is(h2, h3, p) { margin: 0; color: inherit; }
 #inova-solicitacoes form { display: grid; gap: 12px; }
 #inova-solicitacoes label { display: grid; gap: 5px; min-width: 0; color: inherit; }
 #inova-solicitacoes .inova-solicitacoes-dados {
@@ -619,3 +620,24 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
 
 .itop-inova-materials-button > span:last-child { color: var(--inova-green); }
 #inova-arquivos-titulo { margin-top: 20px; }
+
+#inova-estoque .inova-estoque-grupos {
+ display: grid;
+ gap: 16px;
+}
+#inova-estoque table {
+ width: 100%;
+ border-collapse: collapse;
+ margin-top: 6px;
+ font-variant-numeric: tabular-nums;
+}
+#inova-estoque :is(th, td) {
+ padding: 7px clamp(4px, 2vw, 12px);
+ border-bottom: 1px solid #4b5650;
+ color: inherit;
+ text-align: right;
+}
+#inova-estoque tr > :first-child { text-align: left; }
+#inova-estoque tr > :last-child { font-weight: 700; }
+#inova-estoque tbody td:last-child { color: #b7f08d; }
+.itop-inova-slot > [aria-controls="inova-estoque"] > img { object-fit: contain; }
