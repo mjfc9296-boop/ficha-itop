@@ -30,6 +30,16 @@
  dialog.setAttribute('aria-labelledby', 'inova-envios-titulo');
  dialog.innerHTML = `
   <style>
+   html body #inova-blocos #inova-envios input:is(:autofill, :-webkit-autofill) {
+    -webkit-box-shadow: inset 0 0 0 1000px #f2faed !important;
+    box-shadow: inset 0 0 0 1000px #f2faed !important;
+    -webkit-text-fill-color: #162610 !important;
+   }
+   html body #inova-blocos #inova-envios [data-lista] > li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+   }
+   #inova-envios [data-cancelar-edicao][hidden] { display: none !important; }
    html body main #inova-blocos > #inova-envios,
    html body main #inova-blocos #inova-envios section[data-itens] {
     border: none !important;
@@ -104,6 +114,7 @@
    <button type="button" data-add-item>Adicionar linha</button>
    <p data-total>Total geral <output aria-live="polite">R$ 0,00</output></p>
    <button type="submit">Salvar envio</button>
+   <button type="button" data-cancelar-edicao hidden>Cancelar edição</button>
   </form>
   <p data-salvamento role="status"></p>
   <h3>Relação de envios</h3>
@@ -119,6 +130,12 @@
  const form = dialog.querySelector('[data-envio]');
  const fields = form.elements;
  const save = form.querySelector('button[type=submit]');
+ const cancelEdit = form.querySelector('[data-cancelar-edicao]');
+ let editing = null;
+ cancelEdit.addEventListener('click', () => {
+  resetForm();
+  saveStatus.textContent = '';
+ });
  const lineList = form.querySelector('[data-itens]');
  const addItem = form.querySelector('[data-add-item]');
  const grandTotal = form.querySelector('[data-total] output');
@@ -215,10 +232,13 @@
    clearTimeout(timeout);
   }
  });
+ function rowPrice(row, item) {
+  return row.dataset.savedItem === item ? Number(row.dataset.savedPrice) : prices[item];
+ }
  function updateTotal() {
   let total = 0;
   for (const row of lineList.children) {
-   const price = prices[row.querySelector('[data-produto]').value];
+   const price = rowPrice(row, row.querySelector('[data-produto]').value);
    const quantity = row.querySelector('input[type=number]').valueAsNumber;
    const subtotal = (price ?? 0) * (Number.isInteger(quantity) && quantity > 0 ? quantity : 0);
    row.querySelector('[data-unitario]').value = price === undefined ? '' : money(price);
@@ -229,7 +249,7 @@
   grandTotal.value = money(total);
   addItem.disabled = lineList.children.length >= 100;
  }
- function addLine(focus = false) {
+ function addLine(focus = false, savedItem = null) {
   const row = document.createElement('div');
   row.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;align-items:end;margin-bottom:8px';
   row.innerHTML = `
@@ -247,6 +267,15 @@
    updateTotal();
    addItem.focus();
   });
+  if (savedItem) {
+   row.querySelector('[data-tipo-envio]').value = savedItem.tipo_envio;
+   row.querySelector('[data-produto]').value = savedItem.item ?? '';
+   row.querySelector('input[type=number]').value = savedItem.quantidade ?? '';
+   if (savedItem.valor_unitario_centavos != null) {
+    row.dataset.savedItem = savedItem.item ?? '';
+    row.dataset.savedPrice = savedItem.valor_unitario_centavos;
+   }
+  }
   lineList.append(row);
   updateTotal();
   if (focus) row.querySelector('[data-tipo-envio]').focus();
@@ -280,7 +309,14 @@
     details.dataset.detalhes = '';
     const client = row.cliente?.toUpperCase() || 'Cliente não informado';
     disclosure.append(summary, details);
-    entry.append(disclosure);
+    const editButton = document.createElement('button');
+    editButton.type = 'button';
+    editButton.textContent = 'Editar';
+    editButton.setAttribute('aria-label', 'Editar envio de ' + client);
+    editButton.addEventListener('click', () => {
+     if (!save.disabled) beginEdit({...row, ...saved});
+    });
+    entry.append(disclosure, editButton);
     const alert = document.createElement('strong');
     alert.setAttribute('role', 'status');
     details.append(alert);
@@ -363,7 +399,29 @@
   buttons.forEach(button => { button.hidden = true; });
   load();
  });
+ function beginEdit(row) {
+  resetForm();
+  editing = row;
+  for (const name of [...upperFields, 'numero_pedido', 'email', 'whatsapp', 'tipo_entrega', 'data_entrega']) {
+   fields[name].value = row[name] ?? '';
+  }
+  fields.documento.value = row.documento ? maskDocument(row.documento) : '';
+  fields.cep.value = row.cep ? mask(row.cep, '#####-###') : '';
+  fields.status.value = row.status === 'entregue' && row.pesquisa_confirmada ? 'avaliado' : row.status;
+  lineList.replaceChildren();
+  const orderItems = [row, ...row.itens_adicionais].filter(item => item.item || item.quantidade);
+  orderItems.forEach((item, index) => addLine(index > 0, {...item, tipo_envio: item.tipo_envio ?? row.tipo_envio}));
+  if (!lineList.children.length) addLine();
+  save.textContent = 'Salvar alterações';
+  cancelEdit.hidden = false;
+  saveStatus.textContent = '';
+  fields.cliente.focus({preventScroll: true});
+  dialog.closest('.itop-work-content')?.scrollTo({top: 0, behavior: 'instant'});
+ }
  function resetForm() {
+  editing = null;
+  save.textContent = 'Salvar envio';
+  cancelEdit.hidden = true;
   cepRequest?.abort();
   cepRequest = null;
   autoAddress.clear();
@@ -394,7 +452,11 @@
   data.whatsapp = whatsapp ? (data.whatsapp.trim().startsWith('+') ? '+' : '') + whatsapp : null;
   data.numero_pedido = data.numero_pedido.trim() || null;
   data.email = data.email.trim().toLowerCase() || null;
-  Object.assign(data, trackingFields(data.status));
+  if (editing && fields.status.value === (editing.status === 'entregue' && editing.pesquisa_confirmada ? 'avaliado' : editing.status)) {
+   delete data.status;
+  } else {
+   Object.assign(data, trackingFields(data.status));
+  }
   data.documento = documentRaw(data.documento) || null;
   data.cep = numberOnly(data.cep) || null;
   const [firstItem, ...additionalItems] = Array.from(lineList.children, row => {
@@ -403,12 +465,15 @@
     item,
     tipo_envio: row.querySelector('[data-tipo-envio]').value,
     quantidade: row.querySelector('input[type=number]').valueAsNumber || null,
-    valor_unitario_centavos: prices[item]
+    valor_unitario_centavos: rowPrice(row, item)
    };
   }).filter(row => row.item || row.quantidade).map(row => ({
    ...row, item: row.item || null, valor_unitario_centavos: row.valor_unitario_centavos ?? null
   }));
-  Object.assign(data, firstItem, {itens_adicionais: additionalItems});
+  if (!data.endereco && editing && ![editing.bairro, editing.cidade, editing.uf, editing.complemento].some(Boolean)) {
+   data.endereco = editing.endereco;
+  }
+  Object.assign(data, firstItem ?? {item: null, quantidade: null, valor_unitario_centavos: null, tipo_envio: 'venda'}, {itens_adicionais: additionalItems});
   for (const [field, valid, message] of [
    ['documento', !data.documento || /^(?:[0-9]{11}|[A-Z0-9]{12}[0-9]{2})$/.test(data.documento), 'Informe um CPF de 11 dígitos ou um CNPJ de 14 caracteres.'],
    ['cep', !data.cep || data.cep.length === 8, 'Informe um CEP de 8 dígitos.'],
@@ -420,21 +485,25 @@
    return;
   }
   const current = session;
-  save.disabled = true;
+  const editId = editing?.id;
+  save.disabled = cancelEdit.disabled = true;
   saveStatus.textContent = 'Salvando envio…';
   try {
-   const {error} = await window.itopAuthClient.from('inova_blocos_envios').insert(data);
+   const table = window.itopAuthClient.from('inova_blocos_envios');
+   const {error} = await (editId
+    ? table.update(data).eq('id', editId).select('id').single()
+    : table.insert(data));
    if (error) throw error;
    if (current !== session) return;
    resetForm();
-   saveStatus.textContent = 'Envio cadastrado.';
+   saveStatus.textContent = editId ? 'Alterações salvas.' : 'Envio cadastrado.';
    searchForm.reset();
    search = filter = '';
    if (!dialog.hidden) load();
   } catch {
    if (current === session) saveStatus.textContent = 'Não foi possível salvar o envio. Tente novamente.';
   } finally {
-   save.disabled = false;
+   save.disabled = cancelEdit.disabled = false;
   }
  });
 })();
