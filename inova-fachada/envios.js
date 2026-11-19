@@ -5,6 +5,7 @@
  const items = Object.fromEntries([['bloco', 'Bloco'], ['espacador', 'Espaçador']].flatMap(([key, name]) =>
   [10, 13, 15, 20].map(size => [key + '_' + size, name + ' ' + size + ' cm'])
  ));
+ const shipmentTypes = {venda: 'Venda', bonificacao: 'Bonificação'};
  const delivery = {propria: 'Própria', terceirizada: 'Terceirizada'};
  const statuses = {preparado: 'A entregar', entregue: 'Entregue', avaliado: 'Avaliado'};
  const upperFields = ['cliente', 'vendedor', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'complemento'];
@@ -14,6 +15,11 @@
  });
  const currency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'});
  const money = cents => currency.format(cents / 100);
+ const itemTotal = (gross, shipmentType) => {
+  const discount = shipmentType === 'bonificacao' ? gross : 0;
+  const net = gross - discount;
+  return {net, text: discount ? money(gross) + ' − ' + money(discount) + ' = ' + money(net) : money(net)};
+ };
  const numberOnly = value => value.replace(/\D/g, '');
  const documentRaw = value => value.toUpperCase().replace(/[^A-Z0-9]/g, '');
  const today = new Intl.DateTimeFormat('sv-SE', {timeZone: 'America/Sao_Paulo', dateStyle: 'short'});
@@ -27,6 +33,7 @@
   <form data-envio>
    <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
    <label>Vendedor<input name="vendedor" maxlength="150" required></label>
+   <label>Tipo de envio<select name="tipo_envio" required>${options(shipmentTypes)}</select></label>
    <label>CPF ou CNPJ<input name="documento" maxlength="18" placeholder="CPF ou CNPJ" required></label>
    <label>E-mail<input name="email" type="email" maxlength="254" autocomplete="email" autocapitalize="none"></label>
    <label>CEP da entrega<input name="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" required></label>
@@ -144,8 +151,9 @@
    const quantity = row.querySelector('input[type=number]').valueAsNumber;
    const subtotal = (price ?? 0) * (Number.isInteger(quantity) && quantity > 0 ? quantity : 0);
    row.querySelector('[data-unitario]').value = price === undefined ? '' : money(price);
-   row.querySelector('output').value = money(subtotal);
-   total += subtotal;
+   const amount = itemTotal(subtotal, fields.tipo_envio.value);
+   row.querySelector('output').value = amount.text;
+   total += amount.net;
   }
   grandTotal.value = money(total);
   addItem.disabled = lineList.children.length >= 100;
@@ -170,6 +178,7 @@
   updateTotal();
   if (focus) row.querySelector('select').focus();
  }
+ fields.tipo_envio.addEventListener('change', updateTotal);
  addItem.addEventListener('click', () => addLine(true));
  addLine();
 
@@ -180,7 +189,7 @@
   buttons.forEach(button => { button.disabled = true; });
   try {
    const {data, error} = await window.itopAuthClient.from('inova_blocos_envios')
-    .select('id,cliente,vendedor,documento,email,cep,logradouro,numero,endereco,bairro,cidade,uf,complemento,tipo_entrega,data_entrega,status,pesquisa_confirmada,item,quantidade,valor_unitario_centavos,valor_total_centavos,itens_adicionais')
+    .select('id,cliente,vendedor,documento,email,cep,logradouro,numero,endereco,bairro,cidade,uf,complemento,tipo_envio,tipo_entrega,data_entrega,status,pesquisa_confirmada,item,quantidade,valor_unitario_centavos,itens_adicionais')
     .order('data_entrega', {ascending: false}).order('id', {ascending: false}).range(offset, offset + pageSize);
    if (error) throw error;
    if (request !== listRequest || dialog.hidden) return;
@@ -193,16 +202,18 @@
     alert.setAttribute('role', 'status');
     entry.append(title, alert);
     const orderItems = [row, ...row.itens_adicionais];
-    const total = orderItems.reduce((sum, item) => sum + item.quantidade * item.valor_unitario_centavos, 0);
+    const amounts = orderItems.map(item => itemTotal(item.quantidade * item.valor_unitario_centavos, row.tipo_envio));
+    const total = amounts.reduce((sum, amount) => sum + amount.net, 0);
     for (const line of [
      maskDocument(row.documento) + ' · ' + row.data_entrega.split('-').reverse().join('/') + ' · ' + delivery[row.tipo_entrega],
      [row.logradouro, row.numero, ...(
       row.cidade ? [row.bairro, row.cidade, row.uf, row.complemento] : [row.endereco]
      )].filter(Boolean).join(', ').toUpperCase() + ' · CEP ' + mask(row.cep, '#####-###'),
+     'Tipo de envio: ' + shipmentTypes[row.tipo_envio],
      row.email,
      row.vendedor && 'Vendedor: ' + row.vendedor,
-     ...orderItems.map(item => items[item.item] + ' · ' + item.quantidade + ' × '
-      + money(item.valor_unitario_centavos) + ' = ' + money(item.quantidade * item.valor_unitario_centavos)),
+     ...orderItems.map((item, index) => items[item.item] + ' · ' + item.quantidade + ' × '
+      + money(item.valor_unitario_centavos) + ' = ' + amounts[index].text),
      'Total geral: ' + money(total)
     ]) {
      if (!line) continue;
