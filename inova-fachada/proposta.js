@@ -14,16 +14,16 @@
  form.innerHTML = `
   <div class="inova-proposta-banner">
    <img src="${logoUrl}" alt="Inova Blocos">
-   <h2>Proposta comercial</h2>
+   <h2>Monte da Carga</h2>
   </div>
   <button type="submit">Baixar PDF</button>
   <p role="status" class="inova-pdf-status"></p>
   <fieldset><legend>Dados do cliente</legend>
    <div class="inova-proposta-grid inova-proposta-cliente">
     <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
-    <label>CPF ou CNPJ<input name="documento" inputmode="numeric" maxlength="18" placeholder="CPF ou CNPJ" title="CPF: 000.000.000-00. CNPJ: 00.000.000/0000-00." required></label>
-    <label>Telefone de contato<input name="telefone" type="tel" maxlength="15" placeholder="(00) 00000-0000" required></label>
-    <label>CEP<input name="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" required></label>
+    <label>CPF ou CNPJ<input name="documento" inputmode="numeric" maxlength="18" title="CPF: 000.000.000-00. CNPJ: 00.000.000/0000-00." required></label>
+    <label>Telefone de contato<input name="telefone" type="tel" maxlength="15" required></label>
+    <label>CEP<input name="cep" inputmode="numeric" maxlength="9" required></label>
     <label>Logradouro<input name="logradouro" maxlength="150" required></label>
     <label>Número<input name="numero" maxlength="20" required></label>
     <label>Complemento<input name="complemento" maxlength="100"></label>
