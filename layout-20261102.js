@@ -145,7 +145,7 @@
  }
 
  const proposalScript = document.createElement('script');
- proposalScript.src = 'inova-fachada/proposta.js?v=5';
+ proposalScript.src = 'inova-fachada/proposta.js?v=6';
  document.head.append(proposalScript);
  const surveyProposalButton = document.createElement('button');
  surveyProposalButton.type = 'button';
@@ -172,7 +172,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=27';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=28';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');

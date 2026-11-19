@@ -479,8 +479,22 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
  color: #171717;
 }
 
-#inova-proposta :is([data-remove], [data-inova-add]) {
+#inova-proposta [data-inova-add] {
  margin: 0 12px 12px;
+}
+
+#inova-proposta .inova-proposta-item .inova-proposta-grid {
+ grid-template-columns:
+  minmax(86px, 1.1fr) minmax(88px, 1fr) minmax(114px, 1.35fr) minmax(80px, 1fr)
+  minmax(75px, 1fr) minmax(74px, 1fr) minmax(88px, 1fr) minmax(97px, 1fr) auto;
+}
+
+html body #inova-blocos #inova-proposta [data-remove] {
+ align-self: end;
+ height: 40px;
+ padding: 4px 8px !important;
+ margin: 0 !important;
+ white-space: nowrap;
 }
 
 #inova-proposta output {

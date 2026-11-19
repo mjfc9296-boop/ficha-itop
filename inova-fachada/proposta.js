@@ -152,7 +152,8 @@
     <label>Desconto<input data-field="discount" inputmode="decimal" maxlength="8" value="0,00"></label>
     <label>Unitário<output data-output="net"></output></label>
     <label>Total<output data-output="total"></output></label>
-   </div><button type="button" data-remove>Remover linha</button>`;
+    <button type="button" data-remove aria-label="Remover linha">Remover</button>
+   </div>`;
   items.append(row);
   refreshItems();
   if (focus) row.querySelector('select').focus();
