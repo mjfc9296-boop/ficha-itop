@@ -30,6 +30,15 @@
  dialog.setAttribute('aria-labelledby', 'inova-envios-titulo');
  dialog.innerHTML = `
   <style>
+   #inova-envios [data-busca-envios] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 10px;
+   }
+   #inova-envios summary { cursor: pointer; }
+   #inova-envios [data-detalhes] { display: grid; gap: 6px; margin-top: 8px; }
+   #inova-envios [data-lista] > li { border-color: #69b942 !important; }
    #inova-envios [data-identificacao-envio] {
     grid-column: 1 / -1;
     display: grid;
@@ -48,7 +57,7 @@
     -webkit-text-fill-color: #162610 !important;
    }
    html body #inova-blocos #inova-envios button {
-    background: #9be95c !important;
+    background: #f2faed !important;
    }
    html body #inova-blocos #inova-envios :is(input, select, output) {
     background: #f2faed !important;
@@ -65,24 +74,25 @@
   <div class="inova-view-heading"><h2 id="inova-envios-titulo">Envios</h2></div>
   <form data-envio>
    <div data-identificacao-envio>
-    <label>Tipo de envio<select name="tipo_envio" required>${options(shipmentTypes)}</select></label>
-    <label>Vendedor<input name="vendedor" maxlength="150" required></label>
+    <label>Tipo de envio<select name="tipo_envio">${options(shipmentTypes)}</select></label>
+    <label>Vendedor<input name="vendedor" maxlength="150"></label>
     <label>Número de pedido<input name="numero_pedido" maxlength="50"></label>
    </div>
-   <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
-   <label>CPF ou CNPJ<input name="documento" maxlength="18" required></label>
+   <label>Nome ou razão social<input name="cliente" maxlength="150"></label>
+   <label>CPF ou CNPJ<input name="documento" maxlength="18"></label>
+   <label>WhatsApp do cliente<input name="whatsapp" type="tel" autocomplete="tel" maxlength="25"></label>
    <label>E-mail<input name="email" type="email" maxlength="254" autocomplete="email" autocapitalize="none"></label>
-   <label>CEP da entrega<input name="cep" inputmode="numeric" maxlength="9" required></label>
-   <label>Logradouro<input name="logradouro" maxlength="150" required></label>
-   <label>Número<input name="numero" maxlength="20" required></label>
+   <label>CEP da entrega<input name="cep" inputmode="numeric" maxlength="9"></label>
+   <label>Logradouro<input name="logradouro" maxlength="150"></label>
+   <label>Número<input name="numero" maxlength="20"></label>
    <label>Bairro<input name="bairro" maxlength="100"></label>
-   <label>Cidade<input name="cidade" maxlength="100" required></label>
-   <label>UF<input name="uf" maxlength="2" pattern="[A-Z]{2}" required></label>
+   <label>Cidade<input name="cidade" maxlength="100"></label>
+   <label>UF<input name="uf" maxlength="2" pattern="[A-Z]{2}"></label>
    <label>Complemento<input name="complemento" maxlength="100"></label>
    <p data-cep-status role="status"></p>
-   <label>Tipo de entrega<select name="tipo_entrega" required><option value="">Selecione</option>${options(delivery)}</select></label>
-   <label>Data da entrega<input name="data_entrega" type="date" required></label>
-   <label>Status<select name="status" required>${options(statuses)}</select></label>
+   <label>Tipo de entrega<select name="tipo_entrega"><option value="">Selecione</option>${options(delivery)}</select></label>
+   <label>Data da entrega<input name="data_entrega" type="date"></label>
+   <label>Status<select name="status">${options(statuses)}</select></label>
    <section data-itens aria-label="Itens do envio" style="grid-column: 1 / -1"></section>
    <button type="button" data-add-item>Adicionar linha</button>
    <p data-total>Total geral <output aria-live="polite">R$ 0,00</output></p>
@@ -90,6 +100,11 @@
   </form>
   <p data-salvamento role="status"></p>
   <h3>Relação de envios</h3>
+  <form data-busca-envios>
+   <label>Nome do cliente<input name="busca" type="search" maxlength="150"></label>
+   <label>Status<select name="filtro"><option value="">Todos os status</option>${options(statuses)}</select></label>
+   <button type="submit">Buscar</button>
+  </form>
   <p data-consulta role="status"></p>
   <ul data-lista></ul>
   <footer><button type="button" data-pagina="-1" hidden>Anterior</button><button type="button" data-pagina="1" hidden>Próxima</button></footer>`;
@@ -104,6 +119,19 @@
  const saveStatus = dialog.querySelector('[data-salvamento]');
  const listStatus = dialog.querySelector('[data-consulta]');
  const list = dialog.querySelector('[data-lista]');
+ const searchForm = dialog.querySelector('[data-busca-envios]');
+ let search = '';
+ let filter = '';
+ searchForm.addEventListener('submit', event => {
+  event.preventDefault();
+  search = searchForm.elements.busca.value.trim();
+  load();
+ });
+ searchForm.elements.filtro.addEventListener('change', event => {
+  filter = event.target.value;
+  search = searchForm.elements.busca.value.trim();
+  load();
+ });
  const buttons = [...dialog.querySelectorAll('[data-pagina]')];
  const pageSize = 25;
  let page = 0;
@@ -198,8 +226,8 @@
   const row = document.createElement('div');
   row.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;align-items:end;margin-bottom:8px';
   row.innerHTML = `
-   <label>Item<select required><option value="">Selecione</option>${options(items)}</select></label>
-   <label>Quantidade<input type="number" min="1" max="999999" step="1" required></label>
+   <label>Item<select><option value="">Selecione</option>${options(items)}</select></label>
+   <label>Quantidade<input type="number" min="1" max="999999" step="1"></label>
    <label>Valor unitário<input data-unitario readonly></label>
    <label>Total do item<output>R$ 0,00</output></label>
    ${focus ? '<button type="button" aria-label="Remover linha do envio">Remover</button>' : ''}`;
@@ -224,46 +252,60 @@
   listStatus.textContent = 'Carregando envios…';
   buttons.forEach(button => { button.disabled = true; });
   try {
-   const {data, error} = await window.itopAuthClient.from('inova_blocos_envios')
-    .select('id,cliente,vendedor,numero_pedido,documento,email,cep,logradouro,numero,endereco,bairro,cidade,uf,complemento,tipo_envio,tipo_entrega,data_entrega,status,pesquisa_confirmada,item,quantidade,valor_unitario_centavos,itens_adicionais')
-    .order('data_entrega', {ascending: false}).order('id', {ascending: false}).range(offset, offset + pageSize);
+   let query = window.itopAuthClient.from('inova_blocos_envios')
+    .select('id,cliente,vendedor,numero_pedido,documento,email,whatsapp,cep,logradouro,numero,endereco,bairro,cidade,uf,complemento,tipo_envio,tipo_entrega,data_entrega,status,pesquisa_confirmada,item,quantidade,valor_unitario_centavos,itens_adicionais')
+    .order('criado_em', {ascending: false}).order('id', {ascending: false});
+   if (search) query = query.ilike('cliente', '%' + search.replace(/[\\%_]/g, '\\$&') + '%');
+   if (filter === 'preparado') query = query.eq('status', 'preparado');
+   if (filter === 'entregue' || filter === 'avaliado') {
+    query = query.eq('status', 'entregue').eq('pesquisa_confirmada', filter === 'avaliado');
+   }
+   const {data, error} = await query.range(offset, offset + pageSize);
    if (error) throw error;
    if (request !== listRequest || dialog.hidden) return;
    page = nextPage;
    list.replaceChildren(...data.slice(0, pageSize).map(row => {
     const entry = document.createElement('li');
-    const title = document.createElement('strong');
-    title.textContent = row.cliente.toUpperCase();
+    const disclosure = document.createElement('details');
+    const summary = document.createElement('summary');
+    const details = document.createElement('div');
+    details.dataset.detalhes = '';
+    const client = row.cliente?.toUpperCase() || 'Cliente não informado';
+    disclosure.append(summary, details);
+    entry.append(disclosure);
     const alert = document.createElement('strong');
     alert.setAttribute('role', 'status');
-    entry.append(title, alert);
-    const orderItems = [row, ...row.itens_adicionais];
-    const amounts = orderItems.map(item => itemTotal(item.quantidade * item.valor_unitario_centavos, row.tipo_envio));
+    details.append(alert);
+    const orderItems = [row, ...row.itens_adicionais].filter(item => item.item || item.quantidade);
+    const amounts = orderItems.map(item => itemTotal((item.quantidade ?? 0) * item.valor_unitario_centavos, row.tipo_envio));
     const total = amounts.reduce((sum, amount) => sum + amount.net, 0);
     for (const line of [
-     maskDocument(row.documento) + ' · ' + row.data_entrega.split('-').reverse().join('/') + ' · ' + delivery[row.tipo_entrega],
-     [row.logradouro, row.numero, ...(
-      row.cidade ? [row.bairro, row.cidade, row.uf, row.complemento] : [row.endereco]
-     )].filter(Boolean).join(', ').toUpperCase() + ' · CEP ' + mask(row.cep, '#####-###'),
+     [row.documento && maskDocument(row.documento), row.data_entrega?.split('-').reverse().join('/'),
+      delivery[row.tipo_entrega]].filter(Boolean).join(' · '),
+     [[row.logradouro, row.numero, ...(
+      row.bairro || row.cidade || row.uf || row.complemento
+       ? [row.bairro, row.cidade, row.uf, row.complemento] : [row.endereco]
+     )].filter(Boolean).join(', ').toUpperCase(), row.cep && 'CEP ' + mask(row.cep, '#####-###')].filter(Boolean).join(' · '),
      'Tipo de envio: ' + shipmentTypes[row.tipo_envio],
      row.email,
+     row.whatsapp && 'WhatsApp: ' + row.whatsapp,
      row.numero_pedido && 'Número de pedido: ' + row.numero_pedido,
      row.vendedor && 'Vendedor: ' + row.vendedor,
-     ...orderItems.map((item, index) => items[item.item] + ' · ' + item.quantidade + ' × '
+     ...orderItems.map((item, index) => (items[item.item] || 'Produto não informado') + ' · ' + (item.quantidade ?? 'Quantidade não informada') + ' × '
       + money(item.valor_unitario_centavos) + ' = ' + amounts[index].text),
      'Total geral: ' + money(total)
     ]) {
      if (!line) continue;
      const detail = document.createElement('span');
      detail.textContent = line;
-     entry.append(detail);
+     details.append(detail);
     }
     const statusLabel = document.createElement('label');
     statusLabel.textContent = 'Status da entrega';
     const statusSelect = document.createElement('select');
     statusSelect.innerHTML = options(statuses);
     statusSelect.value = row.status;
-    statusSelect.setAttribute('aria-label', 'Status da entrega de ' + row.cliente);
+    statusSelect.setAttribute('aria-label', 'Status da entrega de ' + client);
     statusLabel.append(statusSelect);
     const statusMessage = document.createElement('span');
     statusMessage.setAttribute('role', 'status');
@@ -274,6 +316,7 @@
      alert.textContent = evaluated ? '' : saved.status === 'entregue'
       ? '🔴 Pendente: pesquisa de satisfação' : '🔴 Pendente: entrega e pesquisa de satisfação';
      alert.hidden = evaluated;
+     summary.textContent = client + ' · ' + (evaluated ? '🟢 ' : '🔴 ') + statuses[statusSelect.value];
     }
     async function updateTracking(change) {
      if (dialog.hidden) return;
@@ -294,7 +337,7 @@
     }
     statusSelect.addEventListener('change', () => updateTracking(trackingFields(statusSelect.value)));
     renderTracking();
-    entry.append(statusLabel, statusMessage);
+    details.append(statusLabel, statusMessage);
     return entry;
    }));
    listStatus.textContent = data.length ? '' : 'Nenhum envio cadastrado.';
@@ -339,30 +382,29 @@
   const data = Object.fromEntries(new FormData(form));
   for (const name of upperFields) data[name] = data[name].trim().toUpperCase();
   data.endereco = [data.bairro, data.cidade, data.uf, data.complemento].filter(Boolean).join(', ');
-  for (const name of ['bairro', 'complemento']) data[name] ||= null;
+  for (const name of [...upperFields, 'endereco', 'data_entrega', 'tipo_entrega']) data[name] ||= null;
+  const whatsapp = numberOnly(data.whatsapp);
+  data.whatsapp = whatsapp ? (data.whatsapp.trim().startsWith('+') ? '+' : '') + whatsapp : null;
   data.numero_pedido = data.numero_pedido.trim() || null;
   data.email = data.email.trim().toLowerCase() || null;
   Object.assign(data, trackingFields(data.status));
-  data.documento = documentRaw(data.documento);
-  data.cep = numberOnly(data.cep);
+  data.documento = documentRaw(data.documento) || null;
+  data.cep = numberOnly(data.cep) || null;
   const [firstItem, ...additionalItems] = Array.from(lineList.children, row => {
    const item = row.querySelector('select').value;
    return {
     item,
-    quantidade: row.querySelector('input[type=number]').valueAsNumber,
+    quantidade: row.querySelector('input[type=number]').valueAsNumber || null,
     valor_unitario_centavos: prices[item]
    };
-  });
+  }).filter(row => row.item || row.quantidade).map(row => ({
+   ...row, item: row.item || null, valor_unitario_centavos: row.valor_unitario_centavos ?? null
+  }));
   Object.assign(data, firstItem, {itens_adicionais: additionalItems});
   for (const [field, valid, message] of [
-   ['cliente', data.cliente, 'Informe o nome ou a razão social.'],
-   ['vendedor', data.vendedor, 'Informe o vendedor.'],
-   ['documento', /^(?:[0-9]{11}|[A-Z0-9]{12}[0-9]{2})$/.test(data.documento), 'Informe um CPF de 11 dígitos ou um CNPJ de 14 caracteres.'],
-   ['cep', data.cep.length === 8, 'Informe um CEP de 8 dígitos.'],
-   ['logradouro', data.logradouro, 'Informe o logradouro.'],
-   ['numero', data.numero, 'Informe o número ou S/N.'],
-   ['cidade', data.cidade, 'Informe a cidade.'],
-   ['uf', /^[A-Z]{2}$/.test(data.uf), 'Informe a UF com duas letras.']
+   ['documento', !data.documento || /^(?:[0-9]{11}|[A-Z0-9]{12}[0-9]{2})$/.test(data.documento), 'Informe um CPF de 11 dígitos ou um CNPJ de 14 caracteres.'],
+   ['cep', !data.cep || data.cep.length === 8, 'Informe um CEP de 8 dígitos.'],
+   ['uf', !data.uf || /^[A-Z]{2}$/.test(data.uf), 'Informe a UF com duas letras.']
   ]) {
    if (valid) continue;
    fields[field].setCustomValidity(message);
@@ -378,6 +420,8 @@
    if (current !== session) return;
    resetForm();
    saveStatus.textContent = 'Envio cadastrado.';
+   searchForm.reset();
+   search = filter = '';
    if (!dialog.hidden) load();
   } catch {
    if (current === session) saveStatus.textContent = 'Não foi possível salvar o envio. Tente novamente.';
