@@ -650,3 +650,83 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
 .itop-inova-slot > [aria-controls="inova-estoque"] > img {
  transform: scale(1.04, 1.14);
 }
+
+#inova-fornecedores {
+ width: min(720px, 94vw);
+ max-height: 90dvh;
+ box-sizing: border-box;
+ padding: clamp(14px, 3vw, 26px);
+ border: 1px solid var(--inova-green, #74dd23);
+ border-radius: 12px;
+ background: #fff;
+ color: #000;
+ overflow: auto;
+}
+
+#inova-fornecedores::backdrop { background: #000b; }
+
+#inova-fornecedores :is(h2, h3, label, p, li, strong, span, input, textarea) {
+ color: #000 !important;
+ -webkit-text-fill-color: #000 !important;
+}
+
+#inova-fornecedores > header, #inova-fornecedores > footer {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ flex-wrap: wrap;
+ gap: 10px;
+}
+
+#inova-fornecedores > header {
+ background: #eef2ee;
+ margin-bottom: 14px;
+}
+
+#inova-fornecedores [data-fornecedor] {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+ gap: 12px;
+}
+
+#inova-fornecedores label {
+ display: grid;
+ align-content: start;
+ gap: 5px;
+ font-weight: 600;
+}
+
+#inova-fornecedores label:has(textarea) { grid-column: 1 / -1; }
+
+#inova-fornecedores :is(input, textarea) {
+ width: 100%;
+ box-sizing: border-box;
+ padding: 9px;
+ border: 1px solid #879188;
+ border-radius: 6px;
+ background: #fff;
+ font: inherit;
+}
+
+#inova-fornecedores textarea { resize: vertical; }
+
+#inova-fornecedores [data-fornecedor] > button { justify-self: start; }
+#inova-fornecedores [data-pagina][hidden] { display: none !important; }
+
+#inova-fornecedores [data-fornecedores] {
+ display: grid;
+ gap: 8px;
+ padding: 0;
+ list-style: none;
+}
+
+#inova-fornecedores [data-fornecedores] > li {
+ display: grid;
+ gap: 4px;
+ padding: 10px;
+ border: 1px solid #c9d2ca;
+ border-radius: 8px;
+ background: #f5f8f5;
+ overflow-wrap: anywhere;
+ white-space: pre-wrap;
+}

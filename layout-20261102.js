@@ -91,6 +91,29 @@
    <p role="status"></p>
    <div class="inova-estoque-grupos"></div>
   </dialog>
+  <dialog id="inova-fornecedores" aria-labelledby="inova-fornecedores-titulo">
+   <header>
+    <h2 id="inova-fornecedores-titulo">Fornecedores</h2>
+    <form method="dialog"><button type="submit">Fechar</button></form>
+   </header>
+   <form data-fornecedor>
+    <label>Nome <input name="nome" maxlength="160" required></label>
+    <label>Telefone <input name="telefone" type="tel" maxlength="40"></label>
+    <label>Endereço <input name="endereco" maxlength="300"></label>
+    <label>CNPJ <input name="cnpj" maxlength="18"></label>
+    <label>Segmento <input name="segmento" maxlength="120"></label>
+    <label>Observação <textarea name="observacao" maxlength="2000" rows="3"></textarea></label>
+    <button type="submit">Salvar fornecedor</button>
+   </form>
+   <p data-salvamento role="status"></p>
+   <h3>Fornecedores cadastrados</h3>
+   <p data-consulta role="status"></p>
+   <ul data-fornecedores></ul>
+   <footer>
+    <button type="button" data-pagina="-1" hidden>Anterior</button>
+    <button type="button" data-pagina="1" hidden>Próxima</button>
+   </footer>
+  </dialog>
   <section id="inova-videos-uteis" hidden>
    <h3>Vídeos Úteis</h3>
    <button type="button" data-arquivo="video-demonstracao-inova" data-video>Demonstração da Inova Blocos</button>
@@ -133,7 +156,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=22';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=23';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -315,7 +338,113 @@
   }
  });
 
- const moduleSlots = [galleryButton, requestsButton, stockButton, videosButton, returnButton];
+ const supplierDialog = inovaPanel.querySelector('#inova-fornecedores');
+ const supplierForm = supplierDialog.querySelector('[data-fornecedor]');
+ const supplierSave = supplierForm.querySelector('[type="submit"]');
+ const supplierStatus = supplierDialog.querySelector('[data-salvamento]');
+ const supplierListStatus = supplierDialog.querySelector('[data-consulta]');
+ const supplierList = supplierDialog.querySelector('[data-fornecedores]');
+ const supplierPages = [...supplierDialog.querySelectorAll('[data-pagina]')];
+ const supplierButton = document.createElement('button');
+ supplierButton.type = 'button';
+ supplierButton.className = 'itop-inova-gallery-button';
+ supplierButton.setAttribute('aria-haspopup', 'dialog');
+ supplierButton.setAttribute('aria-controls', supplierDialog.id);
+ supplierButton.innerHTML = '<img src="inova-fachada/fornecedores.webp" alt="Fornecedores">';
+ const supplierPageSize = 30;
+ let supplierPage = 0;
+ let supplierQuery = 0;
+ let supplierSaving = false;
+
+ async function loadSuppliers(page = 0) {
+  const request = ++supplierQuery;
+  const offset = page * supplierPageSize;
+  supplierListStatus.textContent = 'Carregando fornecedores…';
+  supplierPages.forEach(button => { button.disabled = true; });
+  try {
+   const { data, error } = await window.itopAuthClient.from('inova_blocos_fornecedores')
+    .select('id,nome,telefone,endereco,cnpj,segmento,observacao')
+    .order('criado_em', { ascending: false }).order('id', { ascending: false })
+    .range(offset, offset + supplierPageSize);
+   if (error) throw error;
+   if (request !== supplierQuery || !supplierDialog.open) return;
+   supplierPage = page;
+   supplierList.replaceChildren(...data.slice(0, supplierPageSize).map(record => {
+    const item = document.createElement('li');
+    const name = document.createElement('strong');
+    name.textContent = record.nome;
+    item.append(name);
+    for (const [field, label] of Object.entries({
+     telefone: 'Telefone', endereco: 'Endereço', cnpj: 'CNPJ',
+     segmento: 'Segmento', observacao: 'Observação'
+    })) {
+     if (!record[field]) continue;
+     const detail = document.createElement('span');
+     detail.textContent = `${label}: ${record[field]}`;
+     item.append(detail);
+    }
+    return item;
+   }));
+   supplierListStatus.textContent = data.length ? '' : 'Nenhum fornecedor cadastrado.';
+   supplierPages[0].hidden = page === 0;
+   supplierPages[1].hidden = data.length <= supplierPageSize;
+  } catch {
+   if (request === supplierQuery && supplierDialog.open) {
+    supplierListStatus.textContent = 'Não foi possível consultar os fornecedores. Feche e abra novamente para tentar.';
+   }
+  } finally {
+   if (request === supplierQuery) supplierPages.forEach(button => { button.disabled = false; });
+  }
+ }
+
+ supplierButton.addEventListener('click', () => {
+  if (inovaTab.hidden || !inovaPanel.classList.contains('active') || supplierDialog.open) return;
+  supplierList.replaceChildren();
+  supplierPages.forEach(button => { button.hidden = true; });
+  supplierDialog.showModal();
+  loadSuppliers();
+ });
+ supplierPages.forEach(button => button.addEventListener('click', () => {
+  loadSuppliers(supplierPage + Number(button.dataset.pagina));
+ }));
+
+ supplierForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (supplierSaving || inovaTab.hidden) return;
+  const fields = Object.fromEntries([...new FormData(supplierForm)].map(([key, value]) => [key, value.trim() || null]));
+  if (!fields.nome) {
+   supplierStatus.textContent = 'Preencha o nome do fornecedor.';
+   supplierForm.elements.nome.focus();
+   return;
+  }
+  if (fields.cnpj) {
+   fields.cnpj = fields.cnpj.replace(/[.\/\s-]/g, '').toUpperCase();
+   if (!/^[A-Z0-9]{12}[0-9]{2}$/.test(fields.cnpj)) {
+    supplierStatus.textContent = 'Confira o formato do CNPJ.';
+    supplierForm.elements.cnpj.focus();
+    return;
+   }
+  }
+  const session = archiveSession;
+  supplierSaving = supplierSave.disabled = true;
+  supplierStatus.textContent = 'Salvando fornecedor…';
+  try {
+   const { error } = await window.itopAuthClient.from('inova_blocos_fornecedores').insert(fields);
+   if (error) throw error;
+   if (session !== archiveSession) return;
+   supplierForm.reset();
+   supplierStatus.textContent = 'Fornecedor cadastrado.';
+   if (supplierDialog.open) loadSuppliers();
+  } catch (error) {
+   if (session !== archiveSession) return;
+   supplierStatus.textContent = error?.code === '23505' ? 'Já existe um fornecedor com esse CNPJ.'
+    : 'Não foi possível salvar o fornecedor. Tente novamente.';
+  } finally {
+   supplierSaving = supplierSave.disabled = false;
+  }
+ });
+
+ const moduleSlots = [galleryButton, requestsButton, stockButton, supplierButton, videosButton, returnButton];
  for (const rail of [moduleRail, linkRail]) {
   const slots = document.createElement('div');
   slots.className = 'itop-inova-slots';
@@ -432,6 +561,11 @@
   galleryButton.setAttribute('aria-expanded', 'false');
   if (imageDialog.open) imageDialog.close();
   if (stockDialog.open) stockDialog.close();
+  if (supplierDialog.open) supplierDialog.close();
+  supplierQuery += 1;
+  supplierForm.reset();
+  supplierList.replaceChildren();
+  supplierStatus.textContent = supplierListStatus.textContent = '';
   stockGroups.replaceChildren();
   stockStatus.textContent = '';
   archiveStatus.textContent = '';
