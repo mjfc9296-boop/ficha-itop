@@ -723,9 +723,11 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
  white-space: pre-wrap;
 }
 
-#inova-envios :is([data-endereco], [data-preco-ajuda], [data-total]) { grid-column: 1 / -1; }
+#inova-envios :is([data-endereco], [data-cep-status], [data-preco-ajuda], [data-total]) { grid-column: 1 / -1; }
 #inova-envios [data-preco-ajuda][hidden] { display: none !important; }
 #inova-envios [data-total] { margin: 0; font-weight: 700; }
 #inova-envios output { color: #000 !important; }
 
 #inova-blocos > h2, #inova-blocos > [role="status"]:empty { display: none !important; }
+
+#inova-envios [data-cep-status]:empty { display: none; }

@@ -172,7 +172,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=26';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=27';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -490,7 +490,7 @@
        if (inovaPanel.querySelector('#inova-envios')) return openEnvios();
        button.disabled = true;
        const script = document.createElement('script');
-       script.src = 'inova-fachada/envios.js?v=3';
+       script.src = 'inova-fachada/envios.js?v=4';
        script.addEventListener('load', () => {
         button.disabled = false;
         openEnvios();
