@@ -156,7 +156,6 @@
  function openInovaProposal() {
   if (inovaTab.hidden) return;
   if (!inovaPanel.classList.contains('active')) {
-   previousModule = 'sondagem';
    switchModule(inovaPanel.id);
   }
   selectInovaView('inova-proposta');
@@ -173,7 +172,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=25';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=26';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -207,6 +206,9 @@
   <address class="itop-inova-contact">
    <strong>INOVA BLOCOS SUL DE MINAS ARTEFATO DE CIMENTO LTDA</strong>
    <span>CNPJ 63.802.378/0001-29</span>
+   <span>Rua Alberto de Oliveira, 887</span>
+   <span>Jardim São Carlos · Alfenas/MG</span>
+   <span>CEP 37137-214</span>
    <a href="mailto:comercial@inovablocos.com">comercial@inovablocos.com</a>
    <a href="tel:+553530700929">(35) 3070-0929</a>
   </address>
@@ -216,7 +218,7 @@
  const returnButton = document.createElement('button');
  returnButton.type = 'button';
  returnButton.className = 'itop-inova-return';
- returnButton.innerHTML = '<img src="inova-fachada/voltar.webp" alt="Voltar">';
+ returnButton.innerHTML = '<img src="inova-fachada/voltar.webp" alt="Voltar à UVI">';
 
  const gallery = inovaPanel.querySelector('#inova-imagens-uteis');
  const videos = inovaPanel.querySelector('#inova-videos-uteis');
@@ -523,10 +525,8 @@
   rail.append(slots);
  }
 
- let previousModule = 'sondagem';
  returnButton.addEventListener('click', () => {
-  switchModule(previousModule);
-  if (inovaPanel.classList.contains('active')) switchModule('sondagem');
+  switchModule('procedimentos');
   if (mq.matches) menu.open = true;
   menu.querySelector('.nav-tab.active')?.focus({ preventScroll: true });
  });
@@ -617,8 +617,6 @@
 
  inovaTab.addEventListener('click', () => {
   if (inovaTab.hidden) return;
-  const activeModule = document.querySelector('.module.active');
-  if (activeModule && activeModule !== inovaPanel) previousModule = activeModule.id;
   switchModule(inovaPanel.id);
  });
  for (const button of inovaPanel.querySelectorAll('button[data-arquivo]')) {

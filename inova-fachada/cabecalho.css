@@ -29,6 +29,7 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > header {
 }
 
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > header .head,
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) #itop-logout,
 html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main > .itop-work-rail > details {
  display: none !important;
 }
