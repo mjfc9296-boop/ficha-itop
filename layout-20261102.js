@@ -156,7 +156,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=23';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=24';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -459,12 +459,40 @@
     image.className = 'itop-inova-section-cover';
     image.src = 'inova-fachada/' + sectionCover.file;
     image.alt = sectionCover.title;
-    if (sectionCover.file === 'pedido.webp') {
+    if (sectionCover.file === 'pedido.webp' || sectionCover.file === 'envios.webp') {
      const button = document.createElement('button');
      button.type = 'button';
      button.className = 'itop-inova-gallery-button';
-     button.setAttribute('aria-controls', 'inova-proposta');
-     button.addEventListener('click', openInovaProposal);
+     if (sectionCover.file === 'pedido.webp') {
+      button.setAttribute('aria-controls', 'inova-proposta');
+      button.addEventListener('click', openInovaProposal);
+     } else {
+      button.setAttribute('aria-haspopup', 'dialog');
+      button.setAttribute('aria-controls', 'inova-envios');
+      const openEnvios = () => {
+       const dialog = inovaPanel.querySelector('#inova-envios');
+       if (!dialog || dialog.open || inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
+       dialog.showModal();
+       dialog.dispatchEvent(new Event('inova:abriu'));
+      };
+      button.addEventListener('click', () => {
+       if (inovaPanel.querySelector('#inova-envios')) return openEnvios();
+       if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
+       button.disabled = true;
+       const script = document.createElement('script');
+       script.src = 'inova-fachada/envios.js?v=1';
+       script.addEventListener('load', () => {
+        button.disabled = false;
+        openEnvios();
+       });
+       script.addEventListener('error', () => {
+        button.disabled = false;
+        script.remove();
+        archiveStatus.textContent = 'Não foi possível abrir Envios. Tente novamente.';
+       });
+       document.head.append(script);
+      });
+     }
      button.append(image);
      slot.append(button);
     } else slot.append(image);
@@ -561,6 +589,7 @@
   galleryButton.setAttribute('aria-expanded', 'false');
   if (imageDialog.open) imageDialog.close();
   if (stockDialog.open) stockDialog.close();
+  inovaPanel.querySelector('#inova-envios')?.dispatchEvent(new Event('inova:saiu'));
   if (supplierDialog.open) supplierDialog.close();
   supplierQuery += 1;
   supplierForm.reset();
