@@ -141,7 +141,7 @@
    if (button.hasAttribute('aria-expanded')) button.setAttribute('aria-expanded', String(active));
   }
   if (id !== 'inova-videos-uteis') inovaPanel.querySelector('video')?.pause();
-  if (id) inovaPanel.querySelector('#' + id)?.scrollIntoView({block: 'start'});
+  if (id) inovaPanel.closest('.itop-work-content')?.scrollTo({top: 0, behavior: 'instant'});
  }
 
  const proposalScript = document.createElement('script');
@@ -172,7 +172,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=28';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=29';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');

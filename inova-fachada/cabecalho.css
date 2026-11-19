@@ -39,7 +39,7 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header 
  grid-template-columns: var(--inova-rail-width) 9px minmax(0, 1fr) 9px var(--inova-rail-width);
  align-items: center;
  gap: clamp(6px, 1vw, 18px);
- height: var(--inova-height);
+ min-height: var(--inova-height);
  padding: 0 8px;
  box-sizing: border-box;
  background: repeating-linear-gradient(135deg, transparent 0 3px, #ffffff06 4px 5px), linear-gradient(135deg, #222626, #101213 70%, #202424);
@@ -139,8 +139,6 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main {
   --inova-menu-width: clamp(158.72px, 13.44%, 239.77px);
   grid-template-columns: minmax(0, var(--inova-menu-width)) minmax(0, 1fr) minmax(0, var(--inova-menu-width)) !important;
-  height: calc(100dvh - var(--inova-height)) !important;
-  max-height: calc(100dvh - var(--inova-height)) !important;
  }
 }
 
@@ -155,7 +153,7 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
  }
  html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-header {
   grid-template-columns: minmax(0, 1fr) 5px minmax(0, 2fr) 5px minmax(0, 1fr);
-  height: auto;
+  min-height: 0;
   padding: 30px 8px 8px;
  }
  .itop-inova-mark,
@@ -745,3 +743,35 @@ html body #inova-blocos #inova-proposta [data-remove] {
 #inova-blocos > h2, #inova-blocos > [role="status"]:empty { display: none !important; }
 
 #inova-envios [data-cep-status]:empty { display: none; }
+
+/* Keep the entire banner outside the scrollable columns. */
+html.itop-authorized:has(#inova-blocos.active:not([hidden])),
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) body {
+ overflow: clip !important;
+}
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) body {
+ display: flex !important;
+ flex-direction: column;
+ height: 100dvh !important;
+}
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > header {
+ flex: 0 0 auto;
+ overflow: visible !important;
+}
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main {
+ flex: 1 1 0;
+ grid-template-rows: minmax(0, 1fr);
+ height: auto !important;
+ min-height: 0 !important;
+ max-height: none !important;
+ overflow: hidden !important;
+}
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > main > :is(.itop-work-rail, .itop-work-content) {
+ min-height: 0 !important;
+ max-height: 100% !important;
+ overflow-y: auto !important;
+ overscroll-behavior: contain;
+}
+html.itop-authorized:has(#inova-blocos.active:not([hidden])) body > footer {
+ flex: 0 0 auto;
+}
