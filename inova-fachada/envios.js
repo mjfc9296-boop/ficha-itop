@@ -39,13 +39,46 @@
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: start;
    }
+   html body main #inova-blocos #inova-envios [data-quadro-itens] {
+    grid-column: 1 / -1;
+    border: 1px solid #69b942 !important;
+    border-radius: 8px;
+    padding: 12px;
+   }
+   #inova-envios [data-quadro-itens] [data-total] {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    padding-top: 8px;
+   }
+   #inova-envios [data-acoes-envio] {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: min(100%, 480px);
+    justify-self: center;
+    gap: 8px;
+   }
+   html body #inova-blocos #inova-envios [data-acoes-envio] > button {
+    box-sizing: border-box;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+    margin: 0 !important;
+    white-space: normal;
+   }
+   #inova-envios [data-cancelar-edicao] {
+    grid-column: 1 / -1;
+    justify-self: center;
+   }
    #inova-envios [data-cancelar-edicao][hidden] { display: none !important; }
    html body main #inova-blocos > #inova-envios,
-   html body main #inova-blocos #inova-envios section[data-itens] {
+   html body main #inova-blocos #inova-envios [data-itens] {
     border: none !important;
     box-shadow: none !important;
    }
-   html body main #inova-blocos #inova-envios section[data-itens] {
+   html body main #inova-blocos #inova-envios [data-itens] {
     padding: 0 !important;
    }
    #inova-envios [data-busca-envios] {
@@ -110,10 +143,15 @@
    <label>Tipo de entrega<select name="tipo_entrega"><option value="">Selecione</option>${options(delivery)}</select></label>
    <label>Data da entrega<input name="data_entrega" type="date"></label>
    <label>Status<select name="status">${options(statuses)}</select></label>
-   <section data-itens aria-label="Itens do envio" style="grid-column: 1 / -1"></section>
-   <button type="button" data-add-item>Adicionar linha</button>
-   <p data-total>Total geral <output aria-live="polite">R$ 0,00</output></p>
-   <button type="submit">Salvar envio</button>
+   <section data-quadro-itens aria-label="Itens do envio">
+    <div data-itens></div>
+    <p data-total>Total geral <output aria-live="polite">R$ 0,00</output></p>
+   </section>
+   <div data-acoes-envio>
+    <button type="button" data-add-item>Adicionar linha</button>
+    <button type="button" data-remove-item aria-label="Remover última linha" title="Remover última linha" disabled>Remover</button>
+    <button type="submit">Salvar envio</button>
+   </div>
    <button type="button" data-cancelar-edicao hidden>Cancelar edição</button>
   </form>
   <p data-salvamento role="status"></p>
@@ -138,6 +176,7 @@
  });
  const lineList = form.querySelector('[data-itens]');
  const addItem = form.querySelector('[data-add-item]');
+ const removeItem = form.querySelector('[data-remove-item]');
  const grandTotal = form.querySelector('[data-total] output');
  const cepStatus = form.querySelector('[data-cep-status]');
  const saveStatus = dialog.querySelector('[data-salvamento]');
@@ -248,6 +287,7 @@
   }
   grandTotal.value = money(total);
   addItem.disabled = lineList.children.length >= 100;
+  removeItem.disabled = lineList.children.length <= 1;
  }
  function addLine(focus = false, savedItem = null) {
   const row = document.createElement('div');
@@ -257,16 +297,10 @@
    <label>Item<select data-produto><option value="">Selecione</option>${options(items)}</select></label>
    <label>Quantidade<input type="number" min="1" max="999999" step="1"></label>
    <label>Valor unitário<input data-unitario readonly></label>
-   <label>Total do item<output>R$ 0,00</output></label>
-   ${focus ? '<button type="button" aria-label="Remover linha do envio">Remover</button>' : ''}`;
+   <label>Total do item<output>R$ 0,00</output></label>`;
   row.querySelector('[data-tipo-envio]').addEventListener('change', updateTotal);
   row.querySelector('[data-produto]').addEventListener('change', updateTotal);
   row.querySelector('input[type=number]').addEventListener('input', updateTotal);
-  row.querySelector('button')?.addEventListener('click', () => {
-   row.remove();
-   updateTotal();
-   addItem.focus();
-  });
   if (savedItem) {
    row.querySelector('[data-tipo-envio]').value = savedItem.tipo_envio;
    row.querySelector('[data-produto]').value = savedItem.item ?? '';
@@ -281,6 +315,12 @@
   if (focus) row.querySelector('[data-tipo-envio]').focus();
  }
  addItem.addEventListener('click', () => addLine(true));
+ removeItem.addEventListener('click', () => {
+  if (lineList.children.length <= 1) return;
+  lineList.lastElementChild.remove();
+  updateTotal();
+  if (removeItem.disabled) addItem.focus();
+ });
  addLine();
 
  async function load(nextPage = 0) {
