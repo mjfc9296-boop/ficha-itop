@@ -480,7 +480,7 @@
        if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
        button.disabled = true;
        const script = document.createElement('script');
-       script.src = 'inova-fachada/envios.js?v=1';
+       script.src = 'inova-fachada/envios.js?v=2';
        script.addEventListener('load', () => {
         button.disabled = false;
         openEnvios();

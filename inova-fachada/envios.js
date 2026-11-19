@@ -6,6 +6,7 @@
   [10, 13, 15, 20].map(size => [key + '_' + size, name + ' ' + size + ' cm'])
  ));
  const delivery = {propria: 'Própria', terceirizada: 'Terceirizada'};
+ const statuses = {preparado: 'Preparado para entrega', entregue: 'Entregue'};
  const currency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'});
  const money = cents => currency.format(cents / 100);
  const numberOnly = value => value.replace(/\D/g, '');
@@ -26,6 +27,7 @@
     <span data-cep-status role="status"></span>
    </label>
    <label>Data da entrega<input name="data_entrega" type="date" required></label>
+   <label>Status<select name="status" required>${options(statuses)}</select></label>
    <label>Item<select name="item" required><option value="">Selecione</option>${options(items)}</select></label>
    <label>Quantidade<input name="quantidade" type="number" min="1" max="999999" step="1" required></label>
    <label>Valor unitário (R$)<input name="preco" inputmode="decimal" maxlength="9" readonly required></label>
@@ -126,7 +128,7 @@
   buttons.forEach(button => { button.disabled = true; });
   try {
    const {data, error} = await window.itopAuthClient.from('inova_blocos_envios')
-    .select('id,cliente,documento,cep,endereco,tipo_entrega,data_entrega,item,quantidade,valor_unitario_centavos,valor_total_centavos')
+    .select('id,cliente,documento,cep,endereco,tipo_entrega,data_entrega,status,item,quantidade,valor_unitario_centavos,valor_total_centavos')
     .order('data_entrega', {ascending: false}).order('id', {ascending: false}).range(offset, offset + pageSize);
    if (error) throw error;
    if (request !== listRequest || !dialog.open) return;
@@ -145,6 +147,35 @@
      detail.textContent = line;
      entry.append(detail);
     }
+    const statusLabel = document.createElement('label');
+    statusLabel.textContent = 'Status da entrega';
+    const statusSelect = document.createElement('select');
+    statusSelect.innerHTML = options(statuses);
+    statusSelect.value = row.status;
+    statusSelect.setAttribute('aria-label', 'Status da entrega de ' + row.cliente);
+    const statusMessage = document.createElement('span');
+    statusMessage.setAttribute('role', 'status');
+    let savedStatus = row.status;
+    statusSelect.addEventListener('change', async () => {
+     if (!dialog.open) return;
+     const next = statusSelect.value;
+     statusSelect.disabled = true;
+     statusMessage.textContent = 'Atualizando status…';
+     try {
+      const {error} = await window.itopAuthClient.from('inova_blocos_envios')
+       .update({status: next}).eq('id', row.id).select('id').single();
+      if (error) throw error;
+      savedStatus = next;
+      statusMessage.textContent = 'Status atualizado.';
+     } catch {
+      statusSelect.value = savedStatus;
+      statusMessage.textContent = 'Não foi possível atualizar o status. Tente novamente.';
+     } finally {
+      statusSelect.disabled = false;
+     }
+    });
+    statusLabel.append(statusSelect);
+    entry.append(statusLabel, statusMessage);
     return entry;
    }));
    listStatus.textContent = data.length ? '' : 'Nenhum envio cadastrado.';
