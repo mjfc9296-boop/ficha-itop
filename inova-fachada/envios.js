@@ -7,7 +7,7 @@
  ));
  const delivery = {propria: 'Própria', terceirizada: 'Terceirizada'};
  const statuses = {preparado: 'A entregar', entregue: 'Entregue', avaliado: 'Avaliado'};
- const upperFields = ['cliente', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'complemento'];
+ const upperFields = ['cliente', 'vendedor', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'complemento'];
  const trackingFields = status => ({
   status: status === 'preparado' ? 'preparado' : 'entregue',
   pesquisa_confirmada: status === 'avaliado'
@@ -26,6 +26,7 @@
   <div class="inova-view-heading"><h2 id="inova-envios-titulo">Envios</h2></div>
   <form data-envio>
    <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
+   <label>Vendedor<input name="vendedor" maxlength="150" required></label>
    <label>CPF ou CNPJ<input name="documento" maxlength="18" placeholder="CPF ou CNPJ" required></label>
    <label>E-mail<input name="email" type="email" maxlength="254" autocomplete="email" autocapitalize="none"></label>
    <label>CEP da entrega<input name="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" required></label>
@@ -39,11 +40,9 @@
    <label>Tipo de entrega<select name="tipo_entrega" required><option value="">Selecione</option>${options(delivery)}</select></label>
    <label>Data da entrega<input name="data_entrega" type="date" required></label>
    <label>Status<select name="status" required>${options(statuses)}</select></label>
-   <label>Item<select name="item" required><option value="">Selecione</option>${options(items)}</select></label>
-   <label>Quantidade<input name="quantidade" type="number" min="1" max="999999" step="1" required></label>
-   <label>Valor unitário (R$)<input name="preco" inputmode="decimal" maxlength="9" readonly required></label>
-   <p data-preco-ajuda hidden>Preço provisório do espaçador: R$ 0,00.</p>
-   <p data-total>Total <output>R$ 0,00</output></p>
+   <section data-itens aria-label="Itens do envio" style="grid-column: 1 / -1"></section>
+   <button type="button" data-add-item>Adicionar linha</button>
+   <p data-total>Total geral <output aria-live="polite">R$ 0,00</output></p>
    <button type="submit">Salvar envio</button>
   </form>
   <p data-salvamento role="status"></p>
@@ -54,7 +53,10 @@
  panel.append(dialog);
  const form = dialog.querySelector('[data-envio]');
  const fields = form.elements;
- const save = form.querySelector('button');
+ const save = form.querySelector('button[type=submit]');
+ const lineList = form.querySelector('[data-itens]');
+ const addItem = form.querySelector('[data-add-item]');
+ const grandTotal = form.querySelector('[data-total] output');
  const cepStatus = form.querySelector('[data-cep-status]');
  const saveStatus = dialog.querySelector('[data-salvamento]');
  const listStatus = dialog.querySelector('[data-consulta]');
@@ -135,22 +137,41 @@
    clearTimeout(timeout);
   }
  });
- function priceCents() {
-  const value = fields.preco.value.trim();
-  return /^\d{1,6}(?:[,.]\d{1,2})?$/.test(value) ? Math.round(Number(value.replace(',', '.')) * 100) : null;
- }
  function updateTotal() {
-  form.querySelector('output').textContent = money((priceCents() ?? 0) * (Number(fields.quantidade.value) || 0));
+  let total = 0;
+  for (const row of lineList.children) {
+   const price = prices[row.querySelector('select').value];
+   const quantity = row.querySelector('input[type=number]').valueAsNumber;
+   const subtotal = (price ?? 0) * (Number.isInteger(quantity) && quantity > 0 ? quantity : 0);
+   row.querySelector('[data-unitario]').value = price === undefined ? '' : money(price);
+   row.querySelector('output').value = money(subtotal);
+   total += subtotal;
+  }
+  grandTotal.value = money(total);
+  addItem.disabled = lineList.children.length >= 100;
  }
- function updateItem() {
-  const item = fields.item.value;
-  fields.preco.value = Object.hasOwn(prices, item) ? (prices[item] / 100).toFixed(2).replace('.', ',') : '';
-  fields.preco.setCustomValidity('');
-  form.querySelector('[data-preco-ajuda]').hidden = !item.startsWith('espacador_');
+ function addLine(focus = false) {
+  const row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;align-items:end;margin-bottom:8px';
+  row.innerHTML = `
+   <label>Item<select required><option value="">Selecione</option>${options(items)}</select></label>
+   <label>Quantidade<input type="number" min="1" max="999999" step="1" required></label>
+   <label>Valor unitário<input data-unitario readonly></label>
+   <label>Total do item<output>R$ 0,00</output></label>
+   ${focus ? '<button type="button" aria-label="Remover linha do envio">Remover</button>' : ''}`;
+  row.querySelector('select').addEventListener('change', updateTotal);
+  row.querySelector('input[type=number]').addEventListener('input', updateTotal);
+  row.querySelector('button')?.addEventListener('click', () => {
+   row.remove();
+   updateTotal();
+   addItem.focus();
+  });
+  lineList.append(row);
   updateTotal();
+  if (focus) row.querySelector('select').focus();
  }
- fields.item.addEventListener('change', updateItem);
- fields.quantidade.addEventListener('input', updateTotal);
+ addItem.addEventListener('click', () => addLine(true));
+ addLine();
 
  async function load(nextPage = 0) {
   const request = ++listRequest;
@@ -159,7 +180,7 @@
   buttons.forEach(button => { button.disabled = true; });
   try {
    const {data, error} = await window.itopAuthClient.from('inova_blocos_envios')
-    .select('id,cliente,documento,email,cep,logradouro,numero,endereco,bairro,cidade,uf,complemento,tipo_entrega,data_entrega,status,pesquisa_confirmada,item,quantidade,valor_unitario_centavos,valor_total_centavos')
+    .select('id,cliente,vendedor,documento,email,cep,logradouro,numero,endereco,bairro,cidade,uf,complemento,tipo_entrega,data_entrega,status,pesquisa_confirmada,item,quantidade,valor_unitario_centavos,valor_total_centavos,itens_adicionais')
     .order('data_entrega', {ascending: false}).order('id', {ascending: false}).range(offset, offset + pageSize);
    if (error) throw error;
    if (request !== listRequest || dialog.hidden) return;
@@ -171,13 +192,18 @@
     const alert = document.createElement('strong');
     alert.setAttribute('role', 'status');
     entry.append(title, alert);
+    const orderItems = [row, ...row.itens_adicionais];
+    const total = orderItems.reduce((sum, item) => sum + item.quantidade * item.valor_unitario_centavos, 0);
     for (const line of [
      maskDocument(row.documento) + ' · ' + row.data_entrega.split('-').reverse().join('/') + ' · ' + delivery[row.tipo_entrega],
      [row.logradouro, row.numero, ...(
       row.cidade ? [row.bairro, row.cidade, row.uf, row.complemento] : [row.endereco]
      )].filter(Boolean).join(', ').toUpperCase() + ' · CEP ' + mask(row.cep, '#####-###'),
      row.email,
-     items[row.item] + ' · ' + row.quantidade + ' × ' + money(row.valor_unitario_centavos) + ' = ' + money(row.valor_total_centavos)
+     row.vendedor && 'Vendedor: ' + row.vendedor,
+     ...orderItems.map(item => items[item.item] + ' · ' + item.quantidade + ' × '
+      + money(item.valor_unitario_centavos) + ' = ' + money(item.quantidade * item.valor_unitario_centavos)),
+     'Total geral: ' + money(total)
     ]) {
      if (!line) continue;
      const detail = document.createElement('span');
@@ -247,7 +273,8 @@
   for (const input of form.querySelectorAll('input, textarea')) input.setCustomValidity('');
   fields.data_entrega.value = today.format();
   cepStatus.textContent = '';
-  updateItem();
+  lineList.replaceChildren();
+  addLine();
  }
  dialog.addEventListener('inova:saiu', () => {
   session++;
@@ -262,7 +289,6 @@
   event.preventDefault();
   if (save.disabled || dialog.hidden) return;
   const data = Object.fromEntries(new FormData(form));
-  delete data.preco;
   for (const name of upperFields) data[name] = data[name].trim().toUpperCase();
   data.endereco = [data.bairro, data.cidade, data.uf, data.complemento].filter(Boolean).join(', ');
   for (const name of ['bairro', 'complemento']) data[name] ||= null;
@@ -270,17 +296,24 @@
   Object.assign(data, trackingFields(data.status));
   data.documento = documentRaw(data.documento);
   data.cep = numberOnly(data.cep);
-  data.quantidade = Number(data.quantidade);
-  data.valor_unitario_centavos = priceCents();
+  const [firstItem, ...additionalItems] = Array.from(lineList.children, row => {
+   const item = row.querySelector('select').value;
+   return {
+    item,
+    quantidade: row.querySelector('input[type=number]').valueAsNumber,
+    valor_unitario_centavos: prices[item]
+   };
+  });
+  Object.assign(data, firstItem, {itens_adicionais: additionalItems});
   for (const [field, valid, message] of [
    ['cliente', data.cliente, 'Informe o nome ou a razão social.'],
+   ['vendedor', data.vendedor, 'Informe o vendedor.'],
    ['documento', /^(?:[0-9]{11}|[A-Z0-9]{12}[0-9]{2})$/.test(data.documento), 'Informe um CPF de 11 dígitos ou um CNPJ de 14 caracteres.'],
    ['cep', data.cep.length === 8, 'Informe um CEP de 8 dígitos.'],
    ['logradouro', data.logradouro, 'Informe o logradouro.'],
    ['numero', data.numero, 'Informe o número ou S/N.'],
    ['cidade', data.cidade, 'Informe a cidade.'],
-   ['uf', /^[A-Z]{2}$/.test(data.uf), 'Informe a UF com duas letras.'],
-   ['preco', data.valor_unitario_centavos !== null, 'Informe um valor unitário válido.']
+   ['uf', /^[A-Z]{2}$/.test(data.uf), 'Informe a UF com duas letras.']
   ]) {
    if (valid) continue;
    fields[field].setCustomValidity(message);
