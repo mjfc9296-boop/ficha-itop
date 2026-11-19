@@ -454,17 +454,18 @@
   }
  });
 
- const moduleSlots = [galleryButton, requestsButton, stockButton, supplierButton, videosButton, returnButton];
+ const moduleSlots = [requestsButton, stockButton, supplierButton, videosButton, returnButton];
  for (const rail of [moduleRail, linkRail]) {
   const slots = document.createElement('div');
   slots.className = 'itop-inova-slots';
   slots.hidden = true;
-  const slotCount = rail === moduleRail ? sectionCovers.length + moduleSlots.length : usefulLinks.length;
+  const slotCount = rail === moduleRail ? 1 + sectionCovers.length + moduleSlots.length : usefulLinks.length;
   for (let index = 0; index < slotCount; index += 1) {
    const slot = document.createElement('div');
    slot.className = 'itop-inova-slot';
-   const sectionCover = rail === moduleRail ? sectionCovers[index] : undefined;
-   if (sectionCover) {
+   const sectionCover = rail === moduleRail ? sectionCovers[index - 1] : undefined;
+   if (rail === moduleRail && index === 0) slot.append(galleryButton);
+   else if (sectionCover) {
     const image = document.createElement('img');
     image.className = 'itop-inova-section-cover';
     image.src = 'inova-fachada/' + sectionCover.file;
@@ -506,7 +507,7 @@
      button.append(image);
      slot.append(button);
     } else slot.append(image);
-   } else if (rail === moduleRail) slot.append(moduleSlots[index - sectionCovers.length]);
+   } else if (rail === moduleRail) slot.append(moduleSlots[index - 1 - sectionCovers.length]);
    else {
     const { file, title, href } = usefulLinks[index];
     const link = document.createElement('a');
