@@ -30,6 +30,14 @@
  dialog.setAttribute('aria-labelledby', 'inova-envios-titulo');
  dialog.innerHTML = `
   <style>
+   html body main #inova-blocos > #inova-envios,
+   html body main #inova-blocos #inova-envios section[data-itens] {
+    border: none !important;
+    box-shadow: none !important;
+   }
+   html body main #inova-blocos #inova-envios section[data-itens] {
+    padding: 0 !important;
+   }
    #inova-envios [data-busca-envios] {
     display: flex;
     flex-wrap: wrap;
@@ -74,7 +82,6 @@
   <div class="inova-view-heading"><h2 id="inova-envios-titulo">Envios</h2></div>
   <form data-envio>
    <div data-identificacao-envio>
-    <label>Tipo de envio<select name="tipo_envio">${options(shipmentTypes)}</select></label>
     <label>Vendedor<input name="vendedor" maxlength="150"></label>
     <label>Número de pedido<input name="numero_pedido" maxlength="50"></label>
    </div>
@@ -211,11 +218,11 @@
  function updateTotal() {
   let total = 0;
   for (const row of lineList.children) {
-   const price = prices[row.querySelector('select').value];
+   const price = prices[row.querySelector('[data-produto]').value];
    const quantity = row.querySelector('input[type=number]').valueAsNumber;
    const subtotal = (price ?? 0) * (Number.isInteger(quantity) && quantity > 0 ? quantity : 0);
    row.querySelector('[data-unitario]').value = price === undefined ? '' : money(price);
-   const amount = itemTotal(subtotal, fields.tipo_envio.value);
+   const amount = itemTotal(subtotal, row.querySelector('[data-tipo-envio]').value);
    row.querySelector('output').value = amount.text;
    total += amount.net;
   }
@@ -226,12 +233,14 @@
   const row = document.createElement('div');
   row.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;align-items:end;margin-bottom:8px';
   row.innerHTML = `
-   <label>Item<select><option value="">Selecione</option>${options(items)}</select></label>
+   <label>Tipo de envio<select data-tipo-envio>${options(shipmentTypes)}</select></label>
+   <label>Item<select data-produto><option value="">Selecione</option>${options(items)}</select></label>
    <label>Quantidade<input type="number" min="1" max="999999" step="1"></label>
    <label>Valor unitário<input data-unitario readonly></label>
    <label>Total do item<output>R$ 0,00</output></label>
    ${focus ? '<button type="button" aria-label="Remover linha do envio">Remover</button>' : ''}`;
-  row.querySelector('select').addEventListener('change', updateTotal);
+  row.querySelector('[data-tipo-envio]').addEventListener('change', updateTotal);
+  row.querySelector('[data-produto]').addEventListener('change', updateTotal);
   row.querySelector('input[type=number]').addEventListener('input', updateTotal);
   row.querySelector('button')?.addEventListener('click', () => {
    row.remove();
@@ -240,9 +249,8 @@
   });
   lineList.append(row);
   updateTotal();
-  if (focus) row.querySelector('select').focus();
+  if (focus) row.querySelector('[data-tipo-envio]').focus();
  }
- fields.tipo_envio.addEventListener('change', updateTotal);
  addItem.addEventListener('click', () => addLine(true));
  addLine();
 
@@ -277,7 +285,7 @@
     alert.setAttribute('role', 'status');
     details.append(alert);
     const orderItems = [row, ...row.itens_adicionais].filter(item => item.item || item.quantidade);
-    const amounts = orderItems.map(item => itemTotal((item.quantidade ?? 0) * item.valor_unitario_centavos, row.tipo_envio));
+    const amounts = orderItems.map(item => itemTotal((item.quantidade ?? 0) * item.valor_unitario_centavos, item.tipo_envio ?? row.tipo_envio));
     const total = amounts.reduce((sum, amount) => sum + amount.net, 0);
     for (const line of [
      [row.documento && maskDocument(row.documento), row.data_entrega?.split('-').reverse().join('/'),
@@ -286,12 +294,11 @@
       row.bairro || row.cidade || row.uf || row.complemento
        ? [row.bairro, row.cidade, row.uf, row.complemento] : [row.endereco]
      )].filter(Boolean).join(', ').toUpperCase(), row.cep && 'CEP ' + mask(row.cep, '#####-###')].filter(Boolean).join(' · '),
-     'Tipo de envio: ' + shipmentTypes[row.tipo_envio],
      row.email,
      row.whatsapp && 'WhatsApp: ' + row.whatsapp,
      row.numero_pedido && 'Número de pedido: ' + row.numero_pedido,
      row.vendedor && 'Vendedor: ' + row.vendedor,
-     ...orderItems.map((item, index) => (items[item.item] || 'Produto não informado') + ' · ' + (item.quantidade ?? 'Quantidade não informada') + ' × '
+     ...orderItems.map((item, index) => shipmentTypes[item.tipo_envio ?? row.tipo_envio] + ' · ' + (items[item.item] || 'Produto não informado') + ' · ' + (item.quantidade ?? 'Quantidade não informada') + ' × '
       + money(item.valor_unitario_centavos) + ' = ' + amounts[index].text),
      'Total geral: ' + money(total)
     ]) {
@@ -391,9 +398,10 @@
   data.documento = documentRaw(data.documento) || null;
   data.cep = numberOnly(data.cep) || null;
   const [firstItem, ...additionalItems] = Array.from(lineList.children, row => {
-   const item = row.querySelector('select').value;
+   const item = row.querySelector('[data-produto]').value;
    return {
     item,
+    tipo_envio: row.querySelector('[data-tipo-envio]').value,
     quantidade: row.querySelector('input[type=number]').valueAsNumber || null,
     valor_unitario_centavos: prices[item]
    };
