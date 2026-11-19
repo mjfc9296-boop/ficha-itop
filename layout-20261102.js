@@ -490,7 +490,7 @@
        if (inovaPanel.querySelector('#inova-envios')) return openEnvios();
        button.disabled = true;
        const script = document.createElement('script');
-       script.src = 'inova-fachada/envios.js?v=4';
+       script.src = 'inova-fachada/envios.js?v=5';
        script.addEventListener('load', () => {
         button.disabled = false;
         openEnvios();

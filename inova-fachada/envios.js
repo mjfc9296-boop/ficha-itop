@@ -6,8 +6,12 @@
   [10, 13, 15, 20].map(size => [key + '_' + size, name + ' ' + size + ' cm'])
  ));
  const delivery = {propria: 'Própria', terceirizada: 'Terceirizada'};
- const statuses = {preparado: 'Preparado para entrega', entregue: 'Entregue'};
- const surveys = {pendente: 'Pendente', confirmada: 'Confirmada'};
+ const statuses = {preparado: 'A entregar', entregue: 'Entregue', avaliado: 'Avaliado'};
+ const upperFields = ['cliente', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'complemento'];
+ const trackingFields = status => ({
+  status: status === 'preparado' ? 'preparado' : 'entregue',
+  pesquisa_confirmada: status === 'avaliado'
+ });
  const currency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'});
  const money = cents => currency.format(cents / 100);
  const numberOnly = value => value.replace(/\D/g, '');
@@ -27,12 +31,14 @@
    <label>CEP da entrega<input name="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" required></label>
    <label>Logradouro<input name="logradouro" maxlength="150" placeholder="RUA, AVENIDA OU ESTRADA" required></label>
    <label>Número<input name="numero" maxlength="20" placeholder="NÚMERO OU S/N" required></label>
-   <label data-endereco>Endereço<textarea name="endereco" maxlength="400" rows="2" placeholder="BAIRRO, CIDADE, UF E COMPLEMENTO" required></textarea></label>
+   <label>Bairro<input name="bairro" maxlength="100"></label>
+   <label>Cidade<input name="cidade" maxlength="100" required></label>
+   <label>UF<input name="uf" maxlength="2" pattern="[A-Z]{2}" required></label>
+   <label>Complemento<input name="complemento" maxlength="100"></label>
    <p data-cep-status role="status"></p>
    <label>Tipo de entrega<select name="tipo_entrega" required><option value="">Selecione</option>${options(delivery)}</select></label>
    <label>Data da entrega<input name="data_entrega" type="date" required></label>
    <label>Status<select name="status" required>${options(statuses)}</select></label>
-   <label>Pesquisa de satisfação<select name="pesquisa" required>${options(surveys)}</select></label>
    <label>Item<select name="item" required><option value="">Selecione</option>${options(items)}</select></label>
    <label>Quantidade<input name="quantidade" type="number" min="1" max="999999" step="1" required></label>
    <label>Valor unitário (R$)<input name="preco" inputmode="decimal" maxlength="9" readonly required></label>
@@ -72,7 +78,7 @@
   fields.documento.value = maskDocument(documentRaw(fields.documento.value));
   fields.documento.setCustomValidity('');
  });
- for (const name of ['cliente', 'logradouro', 'numero', 'endereco', 'email']) {
+ for (const name of [...upperFields, 'email']) {
   const input = fields[name];
   input.addEventListener('input', () => {
    const convert = value => name === 'email' ? value.toLowerCase() : value.toUpperCase();
@@ -100,7 +106,9 @@
   if (cep.length !== 8) return;
   const request = new AbortController();
   cepRequest = request;
-  const previous = {logradouro: fields.logradouro.value, endereco: fields.endereco.value};
+  const previous = Object.fromEntries(
+   ['logradouro', 'bairro', 'cidade', 'uf'].map(name => [name, fields[name].value])
+  );
   const timeout = setTimeout(() => request.abort(), 7000);
   cepStatus.textContent = 'Consultando CEP…';
   try {
@@ -109,10 +117,11 @@
    const result = await response.json();
    if (result.erro) throw Error();
    if (request !== cepRequest || request.signal.aborted) return;
-   const location = [result.localidade, result.uf].filter(Boolean).join(' - ');
    for (const [name, value] of Object.entries({
     logradouro: result.logradouro,
-    endereco: [result.bairro, location].filter(Boolean).join(', ')
+    bairro: result.bairro,
+    cidade: result.localidade,
+    uf: result.uf
    })) {
     if (!value || fields[name].value !== previous[name]) continue;
     fields[name].value = value.toUpperCase();
@@ -150,7 +159,7 @@
   buttons.forEach(button => { button.disabled = true; });
   try {
    const {data, error} = await window.itopAuthClient.from('inova_blocos_envios')
-    .select('id,cliente,documento,email,cep,logradouro,numero,endereco,tipo_entrega,data_entrega,status,pesquisa_confirmada,item,quantidade,valor_unitario_centavos,valor_total_centavos')
+    .select('id,cliente,documento,email,cep,logradouro,numero,endereco,bairro,cidade,uf,complemento,tipo_entrega,data_entrega,status,pesquisa_confirmada,item,quantidade,valor_unitario_centavos,valor_total_centavos')
     .order('data_entrega', {ascending: false}).order('id', {ascending: false}).range(offset, offset + pageSize);
    if (error) throw error;
    if (request !== listRequest || dialog.hidden) return;
@@ -164,7 +173,9 @@
     entry.append(title, alert);
     for (const line of [
      maskDocument(row.documento) + ' · ' + row.data_entrega.split('-').reverse().join('/') + ' · ' + delivery[row.tipo_entrega],
-     [row.logradouro, row.numero, row.endereco].filter(Boolean).join(', ').toUpperCase() + ' · CEP ' + mask(row.cep, '#####-###'),
+     [row.logradouro, row.numero, ...(
+      row.cidade ? [row.bairro, row.cidade, row.uf, row.complemento] : [row.endereco]
+     )].filter(Boolean).join(', ').toUpperCase() + ' · CEP ' + mask(row.cep, '#####-###'),
      row.email,
      items[row.item] + ' · ' + row.quantidade + ' × ' + money(row.valor_unitario_centavos) + ' = ' + money(row.valor_total_centavos)
     ]) {
@@ -180,27 +191,19 @@
     statusSelect.value = row.status;
     statusSelect.setAttribute('aria-label', 'Status da entrega de ' + row.cliente);
     statusLabel.append(statusSelect);
-    const surveyLabel = document.createElement('label');
-    surveyLabel.textContent = 'Pesquisa de satisfação';
-    const surveySelect = document.createElement('select');
-    surveySelect.innerHTML = options(surveys);
-    surveySelect.setAttribute('aria-label', 'Pesquisa de satisfação de ' + row.cliente);
-    surveyLabel.append(surveySelect);
     const statusMessage = document.createElement('span');
     statusMessage.setAttribute('role', 'status');
     let saved = {status: row.status, pesquisa_confirmada: row.pesquisa_confirmada};
     function renderTracking() {
-     statusSelect.value = saved.status;
-     surveySelect.value = saved.pesquisa_confirmada ? 'confirmada' : 'pendente';
-     const pending = [];
-     if (saved.status !== 'entregue') pending.push('entrega');
-     if (!saved.pesquisa_confirmada) pending.push('pesquisa de satisfação');
-     alert.textContent = pending.length ? '🔴 Pendente: ' + pending.join(' e ') : '';
-     alert.hidden = !pending.length;
+     const evaluated = saved.status === 'entregue' && saved.pesquisa_confirmada;
+     statusSelect.value = evaluated ? 'avaliado' : saved.status;
+     alert.textContent = evaluated ? '' : saved.status === 'entregue'
+      ? '🔴 Pendente: pesquisa de satisfação' : '🔴 Pendente: entrega e pesquisa de satisfação';
+     alert.hidden = evaluated;
     }
     async function updateTracking(change) {
      if (dialog.hidden) return;
-     statusSelect.disabled = surveySelect.disabled = true;
+     statusSelect.disabled = true;
      statusMessage.textContent = 'Salvando acompanhamento…';
      try {
       const {data, error} = await window.itopAuthClient.from('inova_blocos_envios')
@@ -212,13 +215,12 @@
       statusMessage.textContent = 'Não foi possível atualizar. Tente novamente.';
      } finally {
       renderTracking();
-      statusSelect.disabled = surveySelect.disabled = false;
+      statusSelect.disabled = false;
      }
     }
-    statusSelect.addEventListener('change', () => updateTracking({status: statusSelect.value}));
-    surveySelect.addEventListener('change', () => updateTracking({pesquisa_confirmada: surveySelect.value === 'confirmada'}));
+    statusSelect.addEventListener('change', () => updateTracking(trackingFields(statusSelect.value)));
     renderTracking();
-    entry.append(statusLabel, surveyLabel, statusMessage);
+    entry.append(statusLabel, statusMessage);
     return entry;
    }));
    listStatus.textContent = data.length ? '' : 'Nenhum envio cadastrado.';
@@ -261,10 +263,11 @@
   if (save.disabled || dialog.hidden) return;
   const data = Object.fromEntries(new FormData(form));
   delete data.preco;
-  for (const name of ['cliente', 'logradouro', 'numero', 'endereco']) data[name] = data[name].trim().toUpperCase();
+  for (const name of upperFields) data[name] = data[name].trim().toUpperCase();
+  data.endereco = [data.bairro, data.cidade, data.uf, data.complemento].filter(Boolean).join(', ');
+  for (const name of ['bairro', 'complemento']) data[name] ||= null;
   data.email = data.email.trim().toLowerCase() || null;
-  data.pesquisa_confirmada = data.pesquisa === 'confirmada';
-  delete data.pesquisa;
+  Object.assign(data, trackingFields(data.status));
   data.documento = documentRaw(data.documento);
   data.cep = numberOnly(data.cep);
   data.quantidade = Number(data.quantidade);
@@ -275,7 +278,8 @@
    ['cep', data.cep.length === 8, 'Informe um CEP de 8 dígitos.'],
    ['logradouro', data.logradouro, 'Informe o logradouro.'],
    ['numero', data.numero, 'Informe o número ou S/N.'],
-   ['endereco', data.endereco, 'Informe o endereço de entrega.'],
+   ['cidade', data.cidade, 'Informe a cidade.'],
+   ['uf', /^[A-Z]{2}$/.test(data.uf), 'Informe a UF com duas letras.'],
    ['preco', data.valor_unitario_centavos !== null, 'Informe um valor unitário válido.']
   ]) {
    if (valid) continue;
