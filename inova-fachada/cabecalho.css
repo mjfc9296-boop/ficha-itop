@@ -300,8 +300,13 @@ html.itop-authorized:has(#inova-blocos.active:not([hidden])) .itop-inova-slots {
 }
 
 .itop-inova-slot > :is(.itop-inova-gallery-button, .itop-inova-return, .itop-inova-covered-link):focus-visible {
- outline: 2px solid #fff;
+ outline: 2px solid #fff !important;
  outline-offset: -3px;
+}
+
+.itop-work-rail:not(.itop-links-rail) .itop-inova-slot > :is(.itop-inova-gallery-button, .itop-inova-return) {
+ border: 0 !important;
+ box-shadow: none !important;
 }
 
 .itop-inova-slot img {
@@ -625,6 +630,10 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
  display: grid;
  gap: 16px;
 }
+#inova-estoque .inova-estoque-grupos :is(section, h3, table, th, td) {
+ color: #000 !important;
+ -webkit-text-fill-color: #000 !important;
+}
 #inova-estoque table {
  width: 100%;
  border-collapse: collapse;
@@ -634,10 +643,10 @@ html body #inova-blocos #inova-proposta :is(input, select, button):focus-visible
 #inova-estoque :is(th, td) {
  padding: 7px clamp(4px, 2vw, 12px);
  border-bottom: 1px solid #4b5650;
- color: inherit;
  text-align: right;
 }
 #inova-estoque tr > :first-child { text-align: left; }
 #inova-estoque tr > :last-child { font-weight: 700; }
-#inova-estoque tbody td:last-child { color: #b7f08d; }
-.itop-inova-slot > [aria-controls="inova-estoque"] > img { object-fit: contain; }
+.itop-inova-slot > [aria-controls="inova-estoque"] > img {
+ transform: scale(1.04, 1.14);
+}
