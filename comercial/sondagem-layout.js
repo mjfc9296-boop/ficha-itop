@@ -12,7 +12,7 @@
    if (customer) {
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
-    stylesheet.href = 'comercial/sondagem-painel.css?v=20261117-fechamento';
+    stylesheet.href = 'comercial/sondagem-painel.css?v=20261120-campos';
     document.head.append(stylesheet);
     const panel = document.createElement('section');
     panel.className = 'itop-sondagem-panel';
@@ -53,7 +53,8 @@
   banner.className = 'itop-package-banner';
   banner.src = 'comercial/adicionar-servicos-20261117.jpg';
   banner.alt = 'Adicionar Serviços';
-  packageCustomer.prepend(banner);
+  const progress = document.querySelector('#pacote > .itop-sales-flow');
+  (progress || packageCustomer).before(banner);
   const heading = packageCustomer.querySelector('h2');
   const title = document.createElement('span');
   title.textContent = 'Dados do Cliente';
