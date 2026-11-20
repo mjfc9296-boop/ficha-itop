@@ -138,3 +138,73 @@ html body #energia #energyMemoryComparison .energy-mini-table thead th:last-chil
 /* Cabeçalhos dos menus laterais centralizados. */
 html body .itop-work-rail details>summary{text-align:center!important;list-style-position:inside}
 html body .itop-work-rail details>summary span{text-align:center!important}
+
+html.itop-authorized body main #fechamento .itop-return-panel :is(#itop-return-push, #itop-return-save) {
+  background: #000 !important;
+  border-color: #000 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+html.itop-authorized body main #fechamento #itop-closing-actions > button:not([hidden]) {
+  box-sizing: border-box;
+  min-height: 29px !important;
+  height: 29px !important;
+  padding: 2px 4px !important;
+  font-size: 10px !important;
+  line-height: 1.1 !important;
+}
+html body main #energia .energy-entry .energy-input-grid {
+  align-items: stretch !important;
+}
+html body main #energia .energy-entry .energy-input-grid > .field {
+  display: flex;
+  flex-direction: column;
+}
+html body main #energia .energy-entry .energy-input-grid > .field > :is(input, select) {
+  box-sizing: border-box;
+  min-height: 43px !important;
+  height: 43px !important;
+  margin: auto 0 0 !important;
+}
+html.itop-authorized body main #procedimentos .training-filters > .training-filter {
+  box-sizing: border-box;
+  min-width: 0 !important;
+  min-height: 54px !important;
+  height: 54px !important;
+  padding: 3px 5px !important;
+  font-size: 11px !important;
+  line-height: 1.15 !important;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+html body #procedimentos .training-filter > b { flex: none; }
+html body main #portaria-seguranca section > .training-card {
+  display: grid !important;
+  grid-template-columns: minmax(95px, 25%) minmax(0, 1fr) !important;
+  grid-template-rows: auto auto auto !important;
+  align-items: center !important;
+  column-gap: 16px;
+  padding: 14px !important;
+}
+html body main #portaria-seguranca .training-card > .training-cover {
+  grid-area: 1 / 1 / 4 / 2 !important;
+  align-self: center !important;
+  justify-self: center !important;
+  position: static !important;
+  display: grid !important;
+  place-items: center;
+  margin: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9;
+}
+html body main #portaria-seguranca .training-cover img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center;
+}
+html body main #portaria-seguranca .training-card > :not(.training-cover) {
+  grid-column: 2 !important;
+}

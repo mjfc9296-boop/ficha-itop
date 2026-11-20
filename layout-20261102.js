@@ -1110,6 +1110,39 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#trainingSearch')?.dispatchEvent(new Event('input'));
   }
 
+  const hub = document.querySelector('#procedimentos .itop-hub');
+  const svaList = document.querySelector('#svas-area .sva-horizontal-list');
+  if (hub && svaList) {
+    const videos = [...hub.querySelectorAll('.hub-material:has(video)')];
+    for (const source of videos) {
+      const video = source.querySelector('video');
+      const title = source.querySelector('h3').textContent;
+      const link = source.querySelector('a');
+      const row = document.createElement('article');
+      row.className = 'training-card sva-horizontal-row';
+      const cover = link.cloneNode();
+      cover.className = 'training-cover';
+      cover.setAttribute('aria-label', 'Abrir vídeo: ' + title);
+      const image = document.createElement('img');
+      image.src = video.getAttribute('poster');
+      image.alt = '';
+      image.loading = 'lazy';
+      cover.append(image);
+      const description = document.createElement('p');
+      description.textContent = 'Vídeo de ativação';
+      const actions = document.createElement('div');
+      actions.className = 'training-actions';
+      link.className = 'training-open';
+      actions.append(link);
+      row.append(cover, source.querySelector('h3'), description, actions);
+      svaList.append(row);
+      source.remove();
+    }
+    const count = document.querySelector('#svas-area .section-tag');
+    if (count) count.textContent = svaList.children.length + ' MATERIAIS';
+    hub.querySelector('p').textContent = 'Campanhas e materiais internos para a equipe de vendas.';
+  }
+
   const talos = document.querySelector('#procedimentos [data-training^="TALOS"]');
   const moduleHeading = document.querySelector('#portaria-seguranca section > h3');
   const moduleActions = moduleHeading?.nextElementSibling;
