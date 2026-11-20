@@ -147,12 +147,6 @@
  const proposalScript = document.createElement('script');
  proposalScript.src = 'inova-fachada/proposta.js?v=7';
  document.head.append(proposalScript);
- const surveyProposalButton = document.createElement('button');
- surveyProposalButton.type = 'button';
- surveyProposalButton.className = 'itop-inova-survey-proposal';
- surveyProposalButton.textContent = 'Pedido — Proposta Inova Blocos';
- surveyProposalButton.hidden = true;
- document.getElementById('sondagem').prepend(surveyProposalButton);
  function openInovaProposal() {
   if (inovaTab.hidden) return;
   if (!inovaPanel.classList.contains('active')) {
@@ -167,7 +161,6 @@
   if (document.getElementById('inova-proposta')) open();
   else proposalScript.addEventListener('load', open, {once: true});
  }
- surveyProposalButton.addEventListener('click', openInovaProposal);
 
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
@@ -570,7 +563,7 @@
  }
 
  function setInovaAccess(allowed) {
-  inovaTab.hidden = inovaPanel.hidden = surveyProposalButton.hidden = !allowed;
+  inovaTab.hidden = inovaPanel.hidden = !allowed;
   if (allowed) {
    if (!openedInovaOnSignIn) {
     switchModule(inovaPanel.id);
@@ -1197,4 +1190,79 @@ for (const moduleId of ["sondagem","pacote","fechamento","energia","itop-movel",
     }
   `;
   document.head.append(style);
+})();
+
+(() => {
+  const fields = 'input:not([type=hidden],[type=checkbox],[type=radio],[type=range],[type=color],[type=button],[type=submit],[type=reset]), select, textarea';
+  const buttons = 'button, input[type=button], input[type=submit], [role=button], a.training-open, a.training-download, a.useful-link, .training-actions a';
+
+  function hasColor(value, matches) {
+    return [...value.matchAll(/rgba?\(([^)]+)\)/g)].some((color) => {
+      const [red, green, blue, alpha = 1] = color[1].split(',').map(Number);
+      return alpha > 0 && matches(red, green, blue);
+    });
+  }
+
+  const orange = (red, green, blue) => red >= 150 && red - green >= 30 && green - blue >= 30;
+  const blue = (red, green, blue) => blue - red >= 24 && blue - green >= 14;
+
+  function applyColors() {
+    for (const element of document.querySelectorAll(fields + ', ' + buttons)) {
+      const style = getComputedStyle(element);
+      if (element.matches(fields)) {
+        const orangeBorder = ['Top', 'Right', 'Bottom', 'Left'].some((side) =>
+          parseFloat(style['border' + side + 'Width']) > 0 &&
+          hasColor(style['border' + side + 'Color'], orange)
+        );
+        if (orangeBorder) element.style.setProperty('background-color', '#fff1e3', 'important');
+      } else if (!style.backgroundImage.includes('url(') &&
+        (hasColor(style.backgroundColor, blue) || hasColor(style.backgroundImage, blue))) {
+        element.style.setProperty('background', '#000', 'important');
+        element.style.setProperty('color', '#fff', 'important');
+        element.style.setProperty('-webkit-text-fill-color', '#fff', 'important');
+      }
+    }
+  }
+
+  let pending = false;
+  function scheduleColors() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => {
+      pending = false;
+      applyColors();
+    });
+  }
+
+  const styles = document.createElement('style');
+  styles.textContent = `
+    html.itop-authorized body main #sondagem .itop-sondagem-panel .itop-survey-proposal-row
+    :is(#itop-flow-new, #recover-proposal, #itop-phone-action, #itop-search-toggle, #itop-return-bell, .commercial-test-toggle):not([hidden]) {
+      box-sizing: border-box;
+      width: 100% !important;
+      height: 40px !important;
+      min-height: 40px !important;
+      max-height: 40px !important;
+      margin: 0 !important;
+      padding: 2px 5px !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px !important;
+      line-height: 1.1 !important;
+      white-space: normal !important;
+    }
+  `;
+  document.head.append(styles);
+  new MutationObserver(scheduleColors).observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class', 'hidden']
+  });
+  document.addEventListener('load', (event) => {
+    if (event.target.matches?.('link[rel=stylesheet]')) scheduleColors();
+  }, true);
+  window.addEventListener('resize', scheduleColors);
+  scheduleColors();
 })();
