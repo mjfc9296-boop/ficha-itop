@@ -39,6 +39,13 @@
 #sondagem .itop-sondagem-customer input {
   border: 1px solid #d96b17;
 }
+html body main #sondagem .itop-sondagem-customer .field > :is(input, select, textarea),
+html body main #pacote .itop-package-customer .field > :is(input, select, textarea) {
+  background: #fff1e3 !important;
+}
+html body main :is(#sondagem .itop-sondagem-customer, #pacote .itop-package-customer) .field > input:autofill {
+  box-shadow: inset 0 0 0 1000px #fff1e3 !important;
+}
 html.itop-authorized body main #sondagem .itop-sondagem-panel
 :is(#itop-flow-new, #recover-proposal, #itop-phone-action, #itop-search-toggle, #itop-return-bell):not([hidden]) {
   background: #000 !important;
@@ -71,7 +78,20 @@ html body #sondagem .itop-sondagem-panel .itop-survey-proposal-row
 html.itop-authorized body main #sondagem .itop-sondagem-panel
 :is(#itop-flow-new, #recover-proposal, #itop-phone-action, #itop-search-toggle, #itop-return-bell, .commercial-test-toggle):not([hidden]) {
   width: 100% !important;
-  min-height: 42px !important;
+  box-sizing: border-box;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 2px 6px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(11px, 1.6cqw, 14px) !important;
+  line-height: 1.1 !important;
+  white-space: normal !important;
+  text-align: center;
   background: linear-gradient(#252525, #000 75%) !important;
   border: 2px solid #fff !important;
   border-radius: 12px !important;
@@ -119,7 +139,11 @@ html.itop-authorized body main #sondagem .itop-sondagem-panel .commercial-test-t
   #sondagem .itop-sondagem-panel :is(#itop-flow-new, #recover-proposal, #itop-phone-action, #itop-global-search, #itop-test-control, #itop-return-bell) {
     grid-area: auto;
   }
-  #sondagem .itop-sondagem-panel #itop-proposal-number { grid-area: auto / 1 / auto / -1; }
+  #sondagem .itop-sondagem-panel #itop-proposal-number { grid-area: 3 / 1 / auto / -1; }
+  #sondagem .itop-sondagem-panel #itop-flow-new { grid-area: 1 / 1; }
+  #sondagem .itop-sondagem-panel #recover-proposal { grid-area: 1 / 2; }
+  #sondagem .itop-sondagem-panel #itop-phone-action { grid-area: 2 / 1; }
+  #sondagem .itop-sondagem-panel #itop-global-search { grid-area: 2 / 2; }
 }
 
 #sondagem .itop-sondagem-panel :is(#itop-flow-new, #recover-proposal, #itop-phone-action, #itop-search-toggle, .commercial-test-toggle)::before {
@@ -143,7 +167,9 @@ html body #pacote > .itop-package-customer {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 13px 13px 0 0;
+  border: 2px solid #e66a0a;
+  border-radius: 16px;
+  margin-bottom: 10px;
 }
 html body #pacote > .itop-package-customer > h2 {
   display: flex;
