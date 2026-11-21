@@ -297,7 +297,7 @@
       <div class="section-heading"><div><span class="eyebrow">U.V.I. · MÓDULO 16</span>
       <h2>Orçamento Comercial</h2></div><span class="section-tag">VENDA EM ESPERA</span></div>
       <form id="uvi-budget-form">
-        <fieldset><legend>1. Dados do cliente</legend><div class="grid">${customerFields.map(field).join('')}${field(['retencao_operador', 'Nome do operador', 'text', 'readonly'])}</div></fieldset>
+        <fieldset><legend>1. Dados do cliente</legend><div class="grid">${customerFields.map(field).join('')}${field(['retencao_operador', 'Nome do operador', 'text', 'readonly'])}${field(['codigo_workspace', 'Código Workspace', 'text'])}</div></fieldset>
         <fieldset id="uvi-budget-issue-fieldset"><legend>2. Data e horário</legend><div class="grid">${issueFields.map(field).join('')}</div></fieldset>
         <fieldset id="uvi-budget-unit-fieldset"><legend>3. Unidade ITOP emissora</legend>
           <div class="field"><label for="uvi-budget-unidade">Cidade da unidade</label>
@@ -424,8 +424,9 @@
         input(key).closest('.field').hidden = input(key).disabled = retention;
       }
       for (const fieldset of validityFields) fieldset.hidden = fieldset.disabled = retention;
-      retentionOperator.closest('.field').hidden = !retention;
-      retentionOperator.disabled = !retention;
+      for (const control of [retentionOperator, input('codigo_workspace')]) {
+        control.closest('.field').hidden = control.disabled = !retention;
+      }
       form.querySelector('label[for="uvi-budget-cliente_documento"]').textContent = retention ? 'CPF' : 'CPF ou CNPJ';
       input('retorno_em').closest('.field').hidden = retention;
       panel.querySelector('.section-tag').hidden = retention;
@@ -502,7 +503,7 @@
       const data = Object.fromEntries(fields.map(([key]) => [key, input(key).value.trim() || null]));
       return {
         ...data,
-        ...(returnModule === 'retencao' ? {plano_atual: currentItems.map(item => ({...item}))} : {}),
+        ...(returnModule === 'retencao' ? {codigo_workspace: input('codigo_workspace').value.trim(), plano_atual: currentItems.map(item => ({...item}))} : {}),
         consultor_nome: operator?.profile.nome || '',
         produtos: items,
         valor_mensal: Math.round(total * 100) / 100,
