@@ -273,3 +273,122 @@
  const bar=document.querySelector('#sondagem .itop-one-line-actions');
  const message=$('itop-next-message');if(bar&&message&&bar.contains(message))bar.insertAdjacentElement('afterend',message);
 })();
+
+(() => {
+ const list = document.getElementById('comunicaLista');
+ if (!list) return;
+
+ const style = document.createElement('style');
+ style.textContent = `
+  #itop-comunica #comunicaLista .comunica-item.itop-comunica-compact {
+   display: flex;
+   flex-wrap: nowrap;
+   align-items: center;
+   gap: 12px;
+   padding: 10px 12px;
+  }
+  #itop-comunica .itop-comunica-cover {
+   flex: 0 0 clamp(64px, 12%, 96px);
+   min-width: 0 !important;
+   margin: 0 !important;
+   padding: 0 !important;
+   border: 0 !important;
+   background: transparent !important;
+   box-shadow: none !important;
+   cursor: zoom-in;
+  }
+  #itop-comunica .itop-comunica-cover img { display: block; width: 100%; height: 96px; object-fit: contain; }
+  #itop-comunica .itop-comunica-copy { flex: 1; min-width: 0; }
+  #itop-comunica .itop-comunica-copy h3 { margin: 0; }
+  #itop-comunica .itop-comunica-copy details { margin-top: 4px; }
+  #itop-comunica .itop-comunica-copy summary { cursor: pointer; }
+  #itop-comunica .itop-comunica-excerpt {
+   display: -webkit-box;
+   -webkit-box-orient: vertical;
+   -webkit-line-clamp: 2;
+   overflow: hidden;
+  }
+  #itop-comunica .itop-comunica-copy details[open] .itop-comunica-excerpt { display: none; }
+  #itop-comunica .itop-comunica-copy details p { margin-top: 4px; }
+  #itop-comunica .itop-comunica-read { align-self: flex-start; padding: 4px 8px !important; }
+  @media (max-width: 600px) {
+   #itop-comunica .itop-comunica-compact { gap: 8px; }
+   #itop-comunica .itop-comunica-read { font-size: 11px !important; max-width: 84px; }
+  }
+  #itop-comunica-zoom { width: max-content; max-width: 94vw; max-height: 92dvh; padding: 12px; }
+  #itop-comunica-zoom::backdrop { background: #000b; }
+  #itop-comunica-zoom img { display: block; max-width: 100%; max-height: 73dvh; object-fit: contain; margin: auto; }
+  #itop-comunica-zoom .actions { margin-top: 8px; }
+ `;
+ document.head.append(style);
+
+ const zoom = document.createElement('dialog');
+ zoom.id = 'itop-comunica-zoom';
+ zoom.setAttribute('aria-label', 'Capa do comunicado ampliada');
+ zoom.innerHTML = `<img alt=""><div class="actions"><button type="button">Copiar imagem</button><form method="dialog"><button>Fechar</button></form></div><p role="status"></p>`;
+ document.body.append(zoom);
+ const fullImage = zoom.querySelector('img');
+ const copyStatus = zoom.querySelector('[role=status]');
+ zoom.querySelector('button').addEventListener('click', async () => {
+  try {
+   if (!fullImage.naturalWidth || !navigator.clipboard?.write || !window.ClipboardItem) {
+    throw new Error('Cópia indisponível');
+   }
+   const canvas = document.createElement('canvas');
+   canvas.width = fullImage.naturalWidth;
+   canvas.height = fullImage.naturalHeight;
+   canvas.getContext('2d').drawImage(fullImage, 0, 0);
+   const png = new Promise((resolve, reject) => canvas.toBlob(blob => {
+    if (blob) resolve(blob);
+    else reject(new Error('Imagem indisponível'));
+   }, 'image/png'));
+   await navigator.clipboard.write([new ClipboardItem({'image/png': png})]);
+   copyStatus.textContent = 'Imagem copiada.';
+  } catch {
+   copyStatus.textContent = 'Use o clique direito ou pressione e segure sobre a imagem para copiá-la.';
+  }
+ });
+
+ function compactCards() {
+  for (const card of list.querySelectorAll('.comunica-item:not(.itop-comunica-compact)')) {
+   const body = card.querySelector('p');
+   const image = card.querySelector('.comunica-capa');
+   const read = card.querySelector('button');
+   const title = card.querySelector('h3');
+   const date = card.querySelector('small');
+   if (!body || !read || !title || !date) continue;
+   card.classList.add('itop-comunica-compact');
+   read.classList.add('itop-comunica-read');
+   const copy = document.createElement('div');
+   copy.className = 'itop-comunica-copy';
+   const details = document.createElement('details');
+   const summary = document.createElement('summary');
+   const excerpt = document.createElement('span');
+   excerpt.className = 'itop-comunica-excerpt';
+   excerpt.textContent = body.textContent;
+   summary.setAttribute('aria-label', 'Ver descrição completa');
+   summary.append(excerpt);
+   details.append(summary, body);
+   copy.append(title, date, details);
+
+   if (image) {
+    const opener = document.createElement('button');
+    opener.type = 'button';
+    opener.className = 'itop-comunica-cover';
+    opener.setAttribute('aria-label', 'Ampliar capa do comunicado');
+    image.removeAttribute('style');
+    opener.append(image);
+    opener.addEventListener('click', () => {
+     fullImage.src = image.src;
+     fullImage.alt = image.alt;
+     copyStatus.textContent = '';
+     zoom.showModal();
+    });
+    card.prepend(opener);
+   }
+   card.append(copy, read);
+  }
+ }
+ new MutationObserver(compactCards).observe(list, {childList: true});
+ compactCards();
+})();
