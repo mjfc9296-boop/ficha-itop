@@ -297,7 +297,7 @@
       <div class="section-heading"><div><span class="eyebrow">U.V.I. · MÓDULO 16</span>
       <h2>Orçamento Comercial</h2></div><span class="section-tag">VENDA EM ESPERA</span></div>
       <form id="uvi-budget-form">
-        <fieldset><legend>1. Dados do cliente</legend><div class="grid">${customerFields.map(field).join('')}${field(['retencao_operador', 'Nome do operador', 'text', 'readonly'])}${field(['codigo_workspace', 'Código Workspace', 'text'])}</div></fieldset>
+        <fieldset><legend>1. Dados do cliente</legend><div class="grid">${customerFields.map(field).join('')}${field(['retencao_operador', 'Nome do operador', 'text'])}${field(['codigo_workspace', 'Código Workspace', 'text'])}</div></fieldset>
         <fieldset id="uvi-budget-issue-fieldset"><legend>2. Data e horário</legend><div class="grid">${issueFields.map(field).join('')}</div></fieldset>
         <fieldset id="uvi-budget-unit-fieldset"><legend>3. Unidade ITOP emissora</legend>
           <div class="field"><label for="uvi-budget-unidade">Cidade da unidade</label>
@@ -427,7 +427,7 @@
       for (const control of [retentionOperator, input('codigo_workspace')]) {
         control.closest('.field').hidden = control.disabled = !retention;
       }
-      form.querySelector('label[for="uvi-budget-cliente_documento"]').textContent = retention ? 'CPF' : 'CPF ou CNPJ';
+      form.querySelector('label[for="uvi-budget-cliente_documento"]').textContent = retention ? 'CPF / CNPJ' : 'CPF ou CNPJ';
       input('retorno_em').closest('.field').hidden = retention;
       panel.querySelector('.section-tag').hidden = retention;
       simulationBanner.hidden = !retention;
@@ -482,8 +482,7 @@
         if (token !== visit) return;
         operator = value;
         renderRole();
-        if (retention) retentionOperator.value = value.profile.nome || '';
-        else refresh();
+        if (!retention) refresh();
       }).catch(error => { if (token === visit) status(error.message); });
     }
 
@@ -504,7 +503,7 @@
       return {
         ...data,
         ...(returnModule === 'retencao' ? {codigo_workspace: input('codigo_workspace').value.trim(), plano_atual: currentItems.map(item => ({...item}))} : {}),
-        consultor_nome: operator?.profile.nome || '',
+        consultor_nome: returnModule === 'retencao' ? retentionOperator.value.trim() : (operator?.profile.nome || ''),
         produtos: items,
         valor_mensal: Math.round(total * 100) / 100,
         retorno_em: data.retorno_em ? new Date(data.retorno_em).toISOString() : null,

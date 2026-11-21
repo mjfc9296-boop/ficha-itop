@@ -73,7 +73,7 @@
     if (retention) {
       section('Dados do cliente');
       paragraph(draft.cliente_nome, {size: 11, bold: true});
-      fields([['WhatsApp', draft.cliente_whatsapp], ['CPF', draft.cliente_documento], ['Nome do operador', draft.consultor_nome]]);
+      fields([['WhatsApp', draft.cliente_whatsapp], ['CPF / CNPJ', draft.cliente_documento], ['Nome do operador', draft.consultor_nome]]);
       if (draft.codigo_workspace) fields([['Código Workspace', draft.codigo_workspace]]);
     } else {
       font(7, true, MUTED); doc.text('NÚMERO DO ORÇAMENTO', left, y + 2);
