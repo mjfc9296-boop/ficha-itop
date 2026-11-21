@@ -60,6 +60,14 @@
     retentionModule.id = 'retencao';
     retentionModule.className = 'module';
     retentionModule.innerHTML = '<section><h2>Retenção</h2><button type="button">Simulação Retenção Cliente</button></section>';
+    const banner = document.createElement('img');
+    banner.src = 'capas/retencao-topo.webp';
+    banner.alt = 'Programa de fidelidade — Renove conosco';
+    banner.width = 1024;
+    banner.height = 214;
+    banner.loading = 'lazy';
+    banner.style.cssText = 'display:block;width:100%;height:auto;margin:0 0 12px;border-radius:12px';
+    retentionModule.prepend(banner);
     const inova = $('inova-blocos');
     (inova || packageModule).after(retentionModule);
 
