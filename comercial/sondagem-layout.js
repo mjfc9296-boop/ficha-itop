@@ -78,7 +78,8 @@
  for (const [moduleId, image, title, width, height] of [
   ['itop-movel', 'telefonia-movel-fixa-topo.webp', 'Telefonia Móvel e Fixa', 2048, 684],
   ['movel', 'suporte-telefonia-movel-topo.webp', 'Suporte à Telefonia Móvel', 2048, 684],
-  ['itop-comunica', 'itop-comunica-topo.webp', 'ITOP Comunica', 2048, 684]
+  ['itop-comunica', 'itop-comunica-topo.webp', 'ITOP Comunica', 2048, 684],
+  ['procedimentos', 'uvi-universidade-de-vendas-topo.webp', 'UVI — Universidade de Vendas ITOP', 2048, 684]
  ]) {
   const module = $(moduleId);
   if (!module) continue;
