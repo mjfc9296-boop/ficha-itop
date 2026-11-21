@@ -65,6 +65,16 @@
    if (label?.tagName === 'LABEL') label.htmlFor = id;
   }
  }
+ const energy = $('energia');
+ if (energy) {
+  const banner = document.createElement('img');
+  banner.src = 'comercial/energia-netz-topo.webp';
+  banner.alt = 'NETZ. Sua energia planta o futuro. 20% de desconto no kWh excedente.';
+  banner.width = 2048;
+  banner.height = 684;
+  banner.style.cssText = 'display:block;width:100%;height:auto;margin:0 0 12px';
+  energy.prepend(banner);
+ }
  const closingPreview = $('closingPreview');
  if (closingPreview) {
   const panel = document.createElement('section');
