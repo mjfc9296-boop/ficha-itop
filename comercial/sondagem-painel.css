@@ -270,3 +270,13 @@ html.itop-authorized body main #fechamento #itop-closing-energy-simulation {
   #fechamento > :is(.itop-closing-banner, .itop-closing-energy-footer) { display: none !important; }
   #fechamento .itop-closing-custom-summary .closing-report > .report-meta { display: grid; }
 }
+
+#energia > .customer-panel > .itop-energy-roof {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4.4 / 1;
+  object-fit: fill;
+  clip-path: inset(0 round 5% / 15%);
+  margin: 0 0 12px;
+}

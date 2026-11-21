@@ -12,7 +12,7 @@
    if (customer) {
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
-    stylesheet.href = 'comercial/sondagem-painel.css?v=20261121-fechamento';
+    stylesheet.href = 'comercial/sondagem-painel.css?v=20261121-teto-energia';
     document.head.append(stylesheet);
     const panel = document.createElement('section');
     panel.className = 'itop-sondagem-panel';
@@ -65,14 +65,14 @@
    if (label?.tagName === 'LABEL') label.htmlFor = id;
   }
  }
- const energy = $('energia');
+ const energy = document.querySelector('#energia > .customer-panel');
  if (energy) {
   const banner = document.createElement('img');
   banner.src = 'comercial/energia-netz-topo.webp';
   banner.alt = 'NETZ. Sua energia planta o futuro. 20% de desconto no kWh excedente.';
   banner.width = 2048;
   banner.height = 684;
-  banner.style.cssText = 'display:block;width:100%;height:auto;margin:0 0 12px';
+  banner.className = 'itop-energy-roof';
   energy.prepend(banner);
  }
  const closingPreview = $('closingPreview');
