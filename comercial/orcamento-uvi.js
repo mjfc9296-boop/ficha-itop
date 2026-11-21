@@ -83,7 +83,6 @@
     partyModule.id = 'confraternizacao';
     partyModule.className = 'module';
     partyModule.innerHTML = `
-      <img src="capas/confraternizacao-itop-2026.webp" alt="Confraternização ITOP 2026" loading="lazy" style="display:block;width:100%;height:auto;margin-bottom:12px;border-radius:12px">
       <section><h2>Confraternização de 10 anos da ITOP</h2>
       <p data-party-status role="status"></p>
       <div id="confraternizacaoLista" class="comunica-lista"></div></section>`;
