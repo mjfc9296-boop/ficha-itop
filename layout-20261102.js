@@ -266,16 +266,18 @@
   const dialog = inovaPanel.querySelector('#inova-solicitacoes');
   if (dialog) {
    selectInovaView(dialog.id);
+   dialog.dispatchEvent(new Event('inova:solicitacoes-abriu'));
    return;
   }
   selectInovaView('inova-solicitacoes');
   requestsButton.disabled = true;
   const script = document.createElement('script');
-  script.src = 'inova-fachada/solicitacoes.js?v=2';
+  script.src = 'inova-fachada/solicitacoes.js?v=3';
   script.addEventListener('load', () => {
    requestsButton.disabled = false;
    if (!inovaTab.hidden && inovaPanel.classList.contains('active') && selectedInovaView === 'inova-solicitacoes') {
     selectInovaView('inova-solicitacoes');
+    inovaPanel.querySelector('#inova-solicitacoes')?.dispatchEvent(new Event('inova:solicitacoes-abriu'));
    }
   });
   script.addEventListener('error', () => {
