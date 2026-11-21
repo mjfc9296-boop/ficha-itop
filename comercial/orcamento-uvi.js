@@ -366,7 +366,7 @@
     footer.id = 'uvi-budget-actions';
     footer.hidden = true;
     footer.innerHTML = `
-      <h3>Emitir orçamento</h3><p>Baixe o PDF diretamente no computador. Salvar no sistema é opcional e permite recuperar o orçamento ou agendar um retorno.</p>
+      <h3 id="itop-budget-action-title">Emitir orçamento</h3><p id="itop-budget-action-description"></p>
       ${field(['retorno_em', 'Data e horário do retorno', 'datetime-local'])}
       <div class="actions">
         <button id="itop-budget-pdf" type="button">Baixar PDF</button>
@@ -375,9 +375,9 @@
         <button id="itop-budget-exit" class="secondary" type="button">Voltar à U.V.I.</button>
       </div>
       <p id="itop-budget-status" role="status"></p>
-      <h3>Recuperar e acompanhar orçamentos</h3>
+      <div id="itop-budget-history-section"><h3>Recuperar e acompanhar orçamentos</h3>
       <button class="secondary" id="itop-budget-refresh" type="button">Atualizar orçamentos</button>
-      <div class="itop-budget-history" id="itop-budget-history"></div>`;
+      <div class="itop-budget-history" id="itop-budget-history"></div></div>`;
     catalogSection.after(footer);
     const energyBox = document.createElement('details');
     energyBox.id = 'uvi-budget-energy';
@@ -471,6 +471,11 @@
       $('uvi-budget-unit-fieldset').hidden = retention;
       input('unidade').required = !retention;
       currentPanel.hidden = !retention;
+      for (const id of ['itop-budget-save', 'itop-budget-schedule', 'itop-budget-history-section']) $(id).hidden = retention;
+      $('itop-budget-action-title').textContent = retention ? 'Emitir proposta de retenção' : 'Emitir orçamento';
+      $('itop-budget-action-description').textContent = retention
+        ? 'Baixe o PDF para guardar uma cópia no seu dispositivo.'
+        : 'Baixe o PDF diretamente no computador. Salvar no sistema é opcional e permite recuperar o orçamento ou agendar um retorno.';
       catalogTitle.textContent = retention ? 'Novo plano' : originalCatalogTitle;
       currentItems = [];
       renderCurrentPlan();
@@ -517,7 +522,7 @@
         if (token !== visit) return;
         operator = value;
         renderRole();
-        refresh();
+        if (!retention) refresh();
       }).catch(error => { if (token === visit) status(error.message); });
     }
 
@@ -558,7 +563,7 @@
     }
 
     async function save(schedule = false) {
-      if (saving) return;
+      if (saving || returnModule === 'retencao') return;
       const token = visit;
       try {
         if (!operator) throw Error('Aguarde a validação do seu acesso.');
@@ -596,7 +601,7 @@
     }
 
     async function refresh() {
-      if (!operator || !active()) return;
+      if (!operator || !active() || returnModule === 'retencao') return;
       const token = ++historyRequest;
       const opened = visit;
       const box = $('itop-budget-history');
@@ -693,7 +698,7 @@
     }
 
     async function loadRetentionLogo() {
-      const response = await fetch('capas/logo-retencao-pdf.png');
+      const response = await fetch('logo-resultados-mascote.png');
       if (!response.ok) throw Error('Não foi possível carregar a marca ITOP.');
       const blob = await response.blob();
       return new Promise((resolve, reject) => {
@@ -717,7 +722,7 @@
         if (token !== visit) return;
         const result = window.ITOPBudgetPDF.create(draft, units[draft.unidade], {...energy}, retention ? {retention, logo} : {});
         await result.doc.save(result.name, {returnPromise: true});
-        status('PDF gerado para download no computador. Não é necessário salvar o orçamento no sistema.');
+        status(retention ? 'PDF de retenção gerado para download.' : 'PDF gerado para download no computador. Não é necessário salvar o orçamento no sistema.');
       } catch (error) { status('Não foi possível gerar o PDF. ' + error.message); }
       finally { button.disabled = false; }
     }
