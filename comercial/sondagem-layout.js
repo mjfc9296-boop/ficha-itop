@@ -105,6 +105,9 @@
    module.prepend(frame);
    continue;
   }
+  if (moduleId === 'portaria-seguranca') {
+   banner.style.clipPath = 'inset(0 round 5% / 15%)';
+  }
   if (moduleId === 'procedimentos') {
    banner.style.clipPath = 'inset(0 round 5.4% / 16.2%)';
   }
