@@ -93,6 +93,9 @@
    banner.style.width = 'calc(100% - 24px)';
    banner.style.margin = '8px auto 12px';
   }
+  if (moduleId === 'procedimentos') {
+   banner.style.clipPath = 'inset(0 round 5.4% / 16.2%)';
+  }
   module.prepend(banner);
  }
  const comunicaBadge = $('comunicaBadge');
