@@ -194,7 +194,7 @@
  if (comunicaBadge) {
   const badgeStyle = document.createElement('style');
   badgeStyle.textContent = `
-   html body main .nav-tab #comunicaBadge:not([hidden]) {
+   html body main .nav-tab :is(#comunicaBadge, #confraternizacaoBadge):not([hidden]) {
     display: grid !important;
     place-items: center;
     width: 24px !important;
@@ -280,14 +280,14 @@
 
  const style = document.createElement('style');
  style.textContent = `
-  #itop-comunica #comunicaLista .comunica-item.itop-comunica-compact {
+  :is(#comunicaLista, #confraternizacaoLista) .comunica-item.itop-comunica-compact {
    display: flex;
    flex-wrap: nowrap;
    align-items: center;
    gap: 12px;
    padding: 10px 12px;
   }
-  #itop-comunica .itop-comunica-cover {
+  :is(#itop-comunica, #confraternizacao) .itop-comunica-cover {
    flex: 0 0 clamp(64px, 12%, 96px);
    min-width: 0 !important;
    margin: 0 !important;
@@ -297,20 +297,20 @@
    box-shadow: none !important;
    cursor: zoom-in;
   }
-  #itop-comunica .itop-comunica-cover img { display: block; width: 100%; height: 96px; object-fit: contain; }
-  #itop-comunica .itop-comunica-copy { flex: 1; min-width: 0; }
-  #itop-comunica .itop-comunica-copy h3 { margin: 0; }
-  #itop-comunica .itop-comunica-copy details { margin-top: 4px; }
-  #itop-comunica .itop-comunica-copy summary { cursor: pointer; }
-  #itop-comunica .itop-comunica-excerpt {
+  :is(#itop-comunica, #confraternizacao) .itop-comunica-cover img { display: block; width: 100%; height: 96px; object-fit: contain; }
+  :is(#itop-comunica, #confraternizacao) .itop-comunica-copy { flex: 1; min-width: 0; }
+  :is(#itop-comunica, #confraternizacao) .itop-comunica-copy h3 { margin: 0; }
+  :is(#itop-comunica, #confraternizacao) .itop-comunica-copy details { margin-top: 4px; }
+  :is(#itop-comunica, #confraternizacao) .itop-comunica-copy summary { cursor: pointer; }
+  :is(#itop-comunica, #confraternizacao) .itop-comunica-excerpt {
    display: -webkit-box;
    -webkit-box-orient: vertical;
    -webkit-line-clamp: 2;
    overflow: hidden;
   }
-  #itop-comunica .itop-comunica-copy details[open] .itop-comunica-excerpt { display: none; }
-  #itop-comunica .itop-comunica-copy details p { margin-top: 4px; }
-  #itop-comunica a.itop-comunica-confirm {
+  :is(#itop-comunica, #confraternizacao) .itop-comunica-copy details[open] .itop-comunica-excerpt { display: none; }
+  :is(#itop-comunica, #confraternizacao) .itop-comunica-copy details p { margin-top: 4px; }
+  :is(#itop-comunica, #confraternizacao) a.itop-comunica-confirm {
    display: inline-block;
    margin-top: 7px;
    padding: 4px 9px;
@@ -320,10 +320,10 @@
    font-weight: 700;
    text-decoration: underline;
   }
-  #itop-comunica .itop-comunica-read { align-self: flex-start; padding: 4px 8px !important; }
+  :is(#itop-comunica, #confraternizacao) .itop-comunica-read { align-self: flex-start; padding: 4px 8px !important; }
   @media (max-width: 600px) {
-   #itop-comunica .itop-comunica-compact { gap: 8px; }
-   #itop-comunica .itop-comunica-read { font-size: 11px !important; max-width: 84px; }
+   :is(#itop-comunica, #confraternizacao) .itop-comunica-compact { gap: 8px; }
+   :is(#itop-comunica, #confraternizacao) .itop-comunica-read { font-size: 11px !important; max-width: 84px; }
   }
   #itop-comunica-zoom { width: max-content; max-width: 94vw; max-height: 92dvh; padding: 12px; }
   #itop-comunica-zoom::backdrop { background: #000b; }

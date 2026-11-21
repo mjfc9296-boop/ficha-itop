@@ -71,6 +71,50 @@
     const inova = $('inova-blocos');
     (inova || packageModule).after(retentionModule);
 
+    const partyTab = document.createElement('button');
+    partyTab.type = 'button';
+    partyTab.className = 'nav-tab';
+    partyTab.dataset.module = 'confraternizacao';
+    partyTab.setAttribute('aria-label', '16 Confraternização');
+    partyTab.setAttribute('aria-controls', 'confraternizacao');
+    partyTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/confraternizacao-itop-2026.webp"><span class="step-ball" aria-hidden="true">16</span><span class="itop-nav-label">Confraternização</span><span class="comunica-badge" id="confraternizacaoBadge" hidden></span>';
+    retentionTab.after(partyTab);
+    const partyModule = document.createElement('div');
+    partyModule.id = 'confraternizacao';
+    partyModule.className = 'module';
+    partyModule.innerHTML = `
+      <img src="capas/confraternizacao-itop-2026.webp" alt="Confraternização ITOP 2026" loading="lazy" style="display:block;width:100%;height:auto;margin-bottom:12px;border-radius:12px">
+      <section><h2>Confraternização de 10 anos da ITOP</h2>
+      <p data-party-status role="status"></p>
+      <div id="confraternizacaoLista" class="comunica-lista"></div></section>`;
+    retentionModule.after(partyModule);
+    partyTab.addEventListener('click', () => switchModule('confraternizacao'));
+    const partyList = partyModule.querySelector('#confraternizacaoLista');
+    const partyStatus = partyModule.querySelector('[data-party-status]');
+    const partyBadge = partyTab.querySelector('#confraternizacaoBadge');
+    const announceList = $('comunicaLista');
+    if (announceList) {
+      function syncPartyNews() {
+        const notices = [...announceList.querySelectorAll('.comunica-item.itop-comunica-compact')].filter(card =>
+          /confraterniza[cç][aã]o/i.test(card.querySelector('h3')?.textContent || '')
+        );
+        const unread = notices.filter(card => card.classList.contains('nao-lido')).length;
+        partyBadge.hidden = unread === 0;
+        partyBadge.textContent = unread > 99 ? '99+' : String(unread);
+        partyTab.setAttribute('aria-label', '16 Confraternização' + (unread ? ' · ' + unread + ' aviso(s) não lido(s)' : ''));
+        partyStatus.textContent = unread ? unread + ' aviso(s) não lido(s).' : notices.length ? '' : 'Nenhum aviso de confraternização disponível.';
+        partyList.replaceChildren(...notices.map(notice => {
+          const copy = notice.cloneNode(true);
+          const buttons = notice.querySelectorAll('button');
+          copy.querySelectorAll('button').forEach((button, index) => button.addEventListener('click', () => buttons[index].click()));
+          return copy;
+        }));
+      }
+      new MutationObserver(syncPartyNews).observe(announceList, {childList: true, subtree: true});
+      syncPartyNews();
+    }
+
+
     const catalogSection = $('catalog').closest('section');
     catalogSection.id = 'uvi-budget-catalog';
     const catalogTitle = catalogSection.querySelector('h2');
