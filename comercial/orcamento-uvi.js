@@ -48,6 +48,21 @@
     const panel = legacy.cloneNode(false);
     legacy.replaceWith(panel);
     const packageModule = $('pacote');
+    const retentionTab = document.createElement('button');
+    retentionTab.type = 'button';
+    retentionTab.className = 'nav-tab';
+    retentionTab.dataset.module = 'retencao';
+    retentionTab.setAttribute('aria-label', '15 Retenção');
+    retentionTab.setAttribute('aria-controls', 'retencao');
+    retentionTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/menu-bronze-retencao.webp"><span class="step-ball" aria-hidden="true">15</span><span class="itop-nav-label">Retenção</span>';
+    document.querySelector('.itop-module-menu .nav-tabs').append(retentionTab);
+    const retentionModule = document.createElement('div');
+    retentionModule.id = 'retencao';
+    retentionModule.className = 'module';
+    retentionModule.innerHTML = '<section><h2>Retenção</h2><button type="button">Simulação Retenção Cliente</button></section>';
+    const inova = $('inova-blocos');
+    (inova || packageModule).after(retentionModule);
+
     const catalogSection = $('catalog').closest('section');
     catalogSection.id = 'uvi-budget-catalog';
     const energySection = document.querySelector('#energia .energy-entry');
@@ -111,6 +126,7 @@
     let budgetTest = false;
     let saving = false;
     let existingId = null;
+    let returnModule = 'procedimentos';
 
     function setRow(row, values = {}) {
       row.sel.value = values.name || '';
@@ -169,8 +185,13 @@
       input('emissao_data').readOnly = input('emissao_hora').readOnly = !canEdit;
     }
 
-    function open() {
+    function open(source = 'procedimentos') {
       if (active()) return;
+      returnModule = source;
+      const retention = source === 'retencao';
+      panel.querySelector('h2').textContent = retention ? 'Cliente Especial, Oferta Especial' : 'Orçamento Comercial';
+      panel.querySelector('.eyebrow').textContent = retention ? 'RETENÇÃO · MÓDULO 15' : 'U.V.I. · MÓDULO 16';
+      $('itop-budget-exit').textContent = retention ? 'Voltar à Retenção' : 'Voltar à U.V.I.';
       const token = ++visit;
       sales = {
         rows: new Map(compactRows.map(row => [row, {
@@ -190,7 +211,7 @@
       footer.before(promotions, energyBox);
       document.body.classList.add('itop-budget-mode');
       document.querySelectorAll('.module').forEach(module => module.classList.toggle('active', module === packageModule));
-      document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.toggle('active', retention && tab === retentionTab));
       panel.hidden = footer.hidden = false;
       form.reset();
       const now = new Date();
@@ -388,7 +409,9 @@
     form.addEventListener('change', event => event.stopPropagation());
     input('unidade').addEventListener('change', unitInfo);
     input('emissao_data').addEventListener('change', () => { input('validade').min = input('emissao_data').value; });
-    openButton.addEventListener('click', open);
+    openButton.addEventListener('click', () => open());
+    retentionTab.addEventListener('click', () => switchModule('retencao'));
+    retentionModule.querySelector('button').addEventListener('click', () => open('retencao'));
     $('itop-budget-save').onclick = () => save();
     $('itop-budget-schedule').onclick = () => save(true);
     $('itop-budget-refresh').onclick = refresh;
@@ -396,7 +419,7 @@
     const navigate = switchModule;
     function exit() {
       restoreSales();
-      navigate('procedimentos');
+      navigate(returnModule);
     }
     $('itop-budget-exit').onclick = exit;
     switchModule = id => {
