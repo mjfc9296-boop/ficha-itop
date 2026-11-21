@@ -6,7 +6,7 @@
   const date = value => value ? value.split('-').reverse().join('/') : 'Não informada';
   function create(draft, unit, energy = {}, {retention = false, logo = null} = {}) {
     if (!window.jspdf?.jsPDF) throw Error('Biblioteca de PDF indisponível. Recarregue a página e tente novamente.');
-    if (!unit) throw Error('Selecione a unidade ITOP emissora.');
+    if (!unit && !retention) throw Error('Selecione a unidade ITOP emissora.');
     const doc = new window.jspdf.jsPDF({unit: 'mm', format: 'a4', compress: true, putOnlyUsedFonts: true});
     const left = 14, right = 196, width = 182, bottom = 276;
     let y = 0;
@@ -22,7 +22,7 @@
       font(first ? (retention ? 14 : 19) : 12, true, BLUE); doc.text(documentTitle.toUpperCase(), right, first ? 20 : 15, {align: 'right'});
       font(8, false, MUTED); doc.text(first ? 'Uma proposta para conectar o seu negócio.' : 'ITOP TELECOM · Continuação da proposta', right, first ? 27 : 21, {align: 'right'});
       y = first ? 40 : 31;
-      if (first) {
+      if (first && unit) {
         font(9, true); const lines = wrap(unit[1], width); doc.text(lines, left, y); y += lines.length * 4.2 + 1;
         font(8, false, MUTED); const address = wrap('CNPJ ' + unit[2] + '  |  ' + unit[3] + ' · ' + unit[0], width);
         doc.text(address, left, y); y += address.length * 4 + 5;
@@ -53,7 +53,7 @@
     font(7, true, MUTED); doc.text('NÚMERO DO ORÇAMENTO', left, y + 2);
     font(8); doc.text(wrap(draft.id || '—', width), left, y + 7); y += 11;
     pair('Emissão · horário de Brasília', date(draft.emissao_data) + ' às ' + draft.emissao_hora, 'Validade da proposta', date(draft.validade));
-    pair('Consultor responsável', draft.consultor_nome, 'Unidade ITOP', unit[0]);
+    pair('Consultor responsável', draft.consultor_nome, unit ? 'Unidade ITOP' : 'Cidade do cliente', unit?.[0] || draft.cliente_cidade);
     section('Dados do cliente');
     paragraph(draft.cliente_nome, {size: 12, bold: true});
     pair('CPF / CNPJ', draft.cliente_documento, 'E-mail', draft.cliente_email);
@@ -130,7 +130,7 @@
       doc.setPage(page); doc.setDrawColor(220, 227, 236); doc.line(left, 283, right, 283);
       font(7, false, MUTED); doc.text('ITOP TELECOM  |  ' + documentTitle, left, 288); doc.text(page + ' / ' + doc.getNumberOfPages(), right, 288, {align: 'right'});
     }
-    doc.setProperties({title: documentTitle + ' ITOP - ' + draft.cliente_nome, subject: 'Proposta de serviços ITOP', author: unit[1], creator: 'ITOP · U.V.I.'});
+    doc.setProperties({title: documentTitle + ' ITOP - ' + draft.cliente_nome, subject: 'Proposta de serviços ITOP', author: unit?.[1] || 'ITOP Telecom', creator: 'ITOP · U.V.I.'});
     const name = String(draft.cliente_nome).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').slice(0, 70) || 'Cliente';
     return {doc, name: (retention ? 'Retencao-ITOP-' : 'Orcamento-ITOP-') + name + '-' + draft.emissao_data + '.pdf'};
   }
