@@ -297,8 +297,8 @@
       <div class="section-heading"><div><span class="eyebrow">U.V.I. · MÓDULO 16</span>
       <h2>Orçamento Comercial</h2></div><span class="section-tag">VENDA EM ESPERA</span></div>
       <form id="uvi-budget-form">
-        <fieldset><legend>1. Dados do cliente</legend><div class="grid">${customerFields.map(field).join('')}</div></fieldset>
-        <fieldset><legend>2. Data e horário</legend><div class="grid">${issueFields.map(field).join('')}</div></fieldset>
+        <fieldset><legend>1. Dados do cliente</legend><div class="grid">${customerFields.map(field).join('')}${field(['retencao_operador', 'Nome do operador', 'text', 'readonly'])}</div></fieldset>
+        <fieldset id="uvi-budget-issue-fieldset"><legend>2. Data e horário</legend><div class="grid">${issueFields.map(field).join('')}</div></fieldset>
         <fieldset id="uvi-budget-unit-fieldset"><legend>3. Unidade ITOP emissora</legend>
           <div class="field"><label for="uvi-budget-unidade">Cidade da unidade</label>
             <select id="uvi-budget-unidade" required><option value="">Selecione a unidade</option>
@@ -312,59 +312,10 @@
     panel.prepend(simulationBanner);
     const form = $('uvi-budget-form');
     const input = key => $('uvi-budget-' + key);
-    const cepField = document.createElement('div');
-    cepField.className = 'field';
-    cepField.hidden = true;
-    cepField.innerHTML = '<label for="uvi-budget-cliente_cep">CEP</label><input id="uvi-budget-cliente_cep" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="9" aria-describedby="uvi-budget-cep-status"><small id="uvi-budget-cep-status" role="status"></small>';
-    input('cliente_endereco').closest('.field').before(cepField);
-    const cepInput = input('cliente_cep');
-    const cepStatus = $('uvi-budget-cep-status');
-    const addressKeys = {'cliente_endereco': 'logradouro', 'cliente_bairro': 'bairro', 'cliente_cidade': 'localidade'};
-    const autoAddress = new Map();
-    let cepRequest;
-
-    function resetCep() {
-      cepRequest?.abort();
-      cepRequest = null;
-      autoAddress.clear();
-      cepStatus.textContent = '';
-    }
-
-    cepInput.addEventListener('input', async () => {
-      resetAddressLookup();
-      const cep = cepInput.value.replace(/\D/g, '').slice(0, 8);
-      cepInput.value = cep.length > 5 ? cep.slice(0, 5) + '-' + cep.slice(5) : cep;
-      if (cep.length !== 8) return;
-      const request = new AbortController();
-      cepRequest = request;
-      const previous = Object.fromEntries(Object.keys(addressKeys).map(key => [key, input(key).value]));
-      const timer = setTimeout(() => request.abort(), 7000);
-      cepStatus.textContent = 'Consultando CEP…';
-      try {
-        const response = await fetch('https://viacep.com.br/ws/' + cep + '/json/', {signal: request.signal});
-        if (!response.ok) throw Error();
-        const data = await response.json();
-        if (data.erro) throw Error();
-        if (request !== cepRequest || request.signal.aborted) return;
-        for (const [key, property] of Object.entries(addressKeys)) {
-          if (!data[property] || input(key).value !== previous[key]) continue;
-          input(key).value = data[property];
-          autoAddress.set(key, data[property]);
-        }
-        cepStatus.textContent = data.logradouro ? 'Confira o endereço e informe o número.' : 'CEP geral da cidade. Digite o endereço livremente.';
-      } catch {
-        if (request === cepRequest) cepStatus.textContent = 'Consulta indisponível ou CEP não encontrado. Digite o endereço manualmente.';
-      } finally {
-        clearTimeout(timer);
-      }
-    });
-
-    function resetAddressLookup() {
-      for (const [key, value] of autoAddress) {
-        if (input(key).value === value) input(key).value = '';
-      }
-      resetCep();
-    }
+    const retentionOperator = input('retencao_operador');
+    const retentionExtraFields = customerFields.map(([key]) => key)
+      .filter(key => !['cliente_nome', 'cliente_whatsapp', 'cliente_documento'].includes(key));
+    const validityFields = ['uvi-budget-issue-fieldset', 'uvi-budget-unit-fieldset'].map(id => $(id));
 
     const footer = document.createElement('section');
     footer.id = 'uvi-budget-actions';
@@ -423,7 +374,6 @@
       panel.hidden = footer.hidden = currentPanel.hidden = true;
       if (currentDialog.open) currentDialog.close();
       catalogTitle.textContent = originalCatalogTitle;
-      resetCep();
       form.reset();
       input('retorno_em').value = '';
       status('');
@@ -470,10 +420,16 @@
       if (active()) return;
       returnModule = source;
       const retention = source === 'retencao';
-      cepField.hidden = !retention;
+      for (const key of retentionExtraFields) {
+        input(key).closest('.field').hidden = input(key).disabled = retention;
+      }
+      for (const fieldset of validityFields) fieldset.hidden = fieldset.disabled = retention;
+      retentionOperator.closest('.field').hidden = !retention;
+      retentionOperator.disabled = !retention;
+      form.querySelector('label[for="uvi-budget-cliente_documento"]').textContent = retention ? 'CPF' : 'CPF ou CNPJ';
+      input('retorno_em').closest('.field').hidden = retention;
+      panel.querySelector('.section-tag').hidden = retention;
       simulationBanner.hidden = !retention;
-      $('uvi-budget-unit-fieldset').hidden = retention;
-      input('unidade').required = !retention;
       currentPanel.hidden = !retention;
       for (const id of ['itop-budget-save', 'itop-budget-schedule', 'itop-budget-history-section']) $(id).hidden = retention;
       $('itop-budget-action-title').textContent = retention ? 'Emitir proposta de retenção' : 'Emitir orçamento';
@@ -507,7 +463,6 @@
       document.querySelectorAll('.module').forEach(module => module.classList.toggle('active', module === packageModule));
       document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.toggle('active', retention && tab === retentionTab));
       panel.hidden = footer.hidden = false;
-      resetCep();
       form.reset();
       const now = new Date();
       input('emissao_data').value = issueDate.format(now);
@@ -526,15 +481,9 @@
         if (token !== visit) return;
         operator = value;
         renderRole();
-        if (!retention) refresh();
+        if (retention) retentionOperator.value = value.profile.nome || '';
+        else refresh();
       }).catch(error => { if (token === visit) status(error.message); });
-    }
-
-    function unitFromCity(city) {
-      const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase().replace(/\s*(?:[/-]\s*|\s+)(?:mg|sp)\s*$/, '').trim();
-      const cityName = normalize(city);
-      return Object.keys(units).find(key => normalize(units[key][0]) === cityName) || null;
     }
 
     function readDraft() {
@@ -551,10 +500,9 @@
       }
       if (!items.length && !energy.valid) throw Error('Selecione ao menos um produto ou preencha a simulação de energia.');
       const data = Object.fromEntries(fields.map(([key]) => [key, input(key).value.trim() || null]));
-      if (returnModule === 'retencao') data.unidade = unitFromCity(data.cliente_cidade);
       return {
         ...data,
-        ...(returnModule === 'retencao' ? {cliente_cep: cepInput.value.length === 9 ? cepInput.value : null, plano_atual: currentItems.map(item => ({...item}))} : {}),
+        ...(returnModule === 'retencao' ? {plano_atual: currentItems.map(item => ({...item}))} : {}),
         consultor_nome: operator?.profile.nome || '',
         produtos: items,
         valor_mensal: Math.round(total * 100) / 100,
@@ -663,8 +611,6 @@
         const {data: row, error} = await operator.client.from('itop_orcamentos_uvi').select('*').eq('id', id).single();
         if (error) throw error;
         if (opened !== visit || token !== recoveryRequest || saving) return;
-        resetCep();
-        cepInput.value = row.cliente_cep || '';
         for (const [key] of fields) input(key).value = row[key] ?? '';
         existingId = row.id;
         budgetTest = !!row.is_test;
