@@ -1085,21 +1085,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const blackFriday = plans.cloneNode(true);
     setMaterial(plans, {
       title: 'Novos planos e combos',
-      cover: 'capa-uvi-novos-planos-2026.webp',
+      cover: 'capas/uvi-novos-planos-capa.webp',
       pdf: 'Itop-Apresentacao-Comercial-11-11-2026-v2-versao-clara.pdf',
       pages: 10,
       description: 'Tabela comercial atualizada em 11/11/2026.'
     });
     setMaterial(blackFriday, {
       title: 'Black Friday 2026',
-      cover: 'capa-uvi-black-friday.webp',
+      cover: 'capas/uvi-black-friday-2026-capa.webp',
       pdf: 'Itop-Black-Friday-2026-v2.pdf',
       pages: 4,
       description: 'Material da campanha Black Friday 2026.'
     });
+    blackFriday.dataset.category = 'black-friday';
+    blackFriday.querySelector('.training-meta').textContent = 'Black Friday';
     plans.after(blackFriday);
     const count = document.querySelector('[data-filter="planos-combos"] b');
-    if (count) count.textContent = '2';
+    if (count) count.textContent = String(document.querySelectorAll('#procedimentos .training-grid [data-category="planos-combos"]').length);
     const allCount = document.querySelector('[data-filter="all"] b');
     if (allCount && /^\d+$/.test(allCount.textContent.trim())) allCount.textContent = Number(allCount.textContent) + 1;
     document.querySelector('#trainingSearch')?.dispatchEvent(new Event('input'));
