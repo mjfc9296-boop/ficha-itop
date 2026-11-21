@@ -73,6 +73,84 @@
 
     const catalogSection = $('catalog').closest('section');
     catalogSection.id = 'uvi-budget-catalog';
+    const catalogTitle = catalogSection.querySelector('h2');
+    const originalCatalogTitle = catalogTitle.textContent;
+    const currentPanel = document.createElement('section');
+    currentPanel.hidden = true;
+    currentPanel.innerHTML = `
+      <h2>Plano atual</h2>
+      <div class="field">
+        <label for="itop-retencao-atual-produto">Plano de fibra ou serviço contratado</label>
+        <select id="itop-retencao-atual-produto"><option value="">Selecione no catálogo</option></select>
+      </div>
+      <button type="button" disabled>Adicionar ao plano atual</button>
+      <ul aria-label="Serviços do plano atual"></ul>`;
+    catalogSection.before(currentPanel);
+    const currentSelect = currentPanel.querySelector('select');
+    const currentAdd = currentPanel.querySelector('button');
+    const currentList = currentPanel.querySelector('ul');
+    const currentOptions = [];
+    let currentItems = [];
+    const categories = Object.keys(catalogData);
+    const orderedCategories = [
+      'Fibra',
+      ...categories.filter(category => category !== 'Fibra' && !category.startsWith('Combos')),
+      ...categories.filter(category => category.startsWith('Combos'))
+    ];
+    for (const category of orderedCategories) {
+      const group = document.createElement('optgroup');
+      group.label = category;
+      for (const [name] of catalogData[category]) {
+        const option = new Option(name, String(currentOptions.length));
+        group.append(option);
+        currentOptions.push({category, name});
+      }
+      currentSelect.append(group);
+    }
+
+    function renderCurrentPlan() {
+      currentList.replaceChildren();
+      for (const [index, item] of currentItems.entries()) {
+        const row = document.createElement('li');
+        const name = document.createElement('span');
+        name.textContent = item.name + ' · ' + item.category + ' · Qtd. ';
+        const quantity = document.createElement('input');
+        quantity.type = 'number';
+        quantity.min = '1';
+        quantity.step = '1';
+        quantity.value = item.q;
+        quantity.style.width = '70px';
+        quantity.setAttribute('aria-label', 'Quantidade de ' + item.name);
+        quantity.addEventListener('change', () => {
+          item.q = Math.max(1, Math.trunc(Number(quantity.value) || 1));
+          quantity.value = item.q;
+        });
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = 'Remover';
+        remove.setAttribute('aria-label', 'Remover ' + item.name);
+        remove.addEventListener('click', () => {
+          currentItems.splice(index, 1);
+          renderCurrentPlan();
+          currentSelect.focus();
+        });
+        row.append(name, quantity, ' ', remove);
+        currentList.append(row);
+      }
+    }
+    currentSelect.addEventListener('change', () => { currentAdd.disabled = !currentSelect.value; });
+    currentAdd.addEventListener('click', () => {
+      if (currentSelect.value === '') return;
+      const option = currentOptions[Number(currentSelect.value)];
+      const match = currentItems.find(item => item.name === option.name && item.category === option.category);
+      if (match) match.q += 1;
+      else currentItems.push({...option, q: 1});
+      currentSelect.value = '';
+      currentAdd.disabled = true;
+      renderCurrentPlan();
+      currentSelect.focus();
+    });
+
     const energySection = document.querySelector('#energia .energy-entry');
     const promotions = $('packagePromotion');
     const promotionSlot = document.createComment('Posição original das promoções');
@@ -204,7 +282,8 @@
       visit++;
       operator = null;
       document.body.classList.remove('itop-budget-mode');
-      panel.hidden = footer.hidden = true;
+      panel.hidden = footer.hidden = currentPanel.hidden = true;
+      catalogTitle.textContent = originalCatalogTitle;
       resetCep();
       form.reset();
       input('retorno_em').value = '';
@@ -253,6 +332,12 @@
       returnModule = source;
       const retention = source === 'retencao';
       cepField.hidden = !retention;
+      currentPanel.hidden = !retention;
+      catalogTitle.textContent = retention ? 'Novo plano' : originalCatalogTitle;
+      currentItems = [];
+      currentSelect.value = '';
+      currentAdd.disabled = true;
+      renderCurrentPlan();
       panel.querySelector('h2').textContent = retention ? 'Cliente Especial, Oferta Especial' : 'Orçamento Comercial';
       panel.querySelector('.eyebrow').textContent = retention ? 'RETENÇÃO · MÓDULO 15' : 'U.V.I. · MÓDULO 16';
       $('itop-budget-exit').textContent = retention ? 'Voltar à Retenção' : 'Voltar à U.V.I.';
@@ -316,7 +401,7 @@
       const data = Object.fromEntries(fields.map(([key]) => [key, input(key).value.trim() || null]));
       return {
         ...data,
-        ...(returnModule === 'retencao' ? {cliente_cep: cepInput.value.length === 9 ? cepInput.value : null} : {}),
+        ...(returnModule === 'retencao' ? {cliente_cep: cepInput.value.length === 9 ? cepInput.value : null, plano_atual: currentItems.map(item => ({...item}))} : {}),
         consultor_nome: operator?.profile.nome || '',
         produtos: items,
         valor_mensal: Math.round(total * 100) / 100,
@@ -430,6 +515,8 @@
         for (const [key] of fields) input(key).value = row[key] ?? '';
         existingId = row.id;
         budgetTest = !!row.is_test;
+        currentItems = Array.isArray(row.plano_atual) ? row.plano_atual : [];
+        renderCurrentPlan();
         if (!row.unidade && !row.cliente_whatsapp) input('cliente_whatsapp').value = row.cliente_telefone || '';
         const created = new Date(row.created_at);
         input('emissao_data').value ||= issueDate.format(created);
@@ -458,6 +545,18 @@
       }
     }
 
+    async function loadRetentionLogo() {
+      const response = await fetch('capas/logo-retencao-pdf.png');
+      if (!response.ok) throw Error('Não foi possível carregar a marca ITOP.');
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
+      });
+    }
+
     async function pdf() {
       const button = $('itop-budget-pdf');
       try {
@@ -465,7 +564,11 @@
         const draft = readDraft();
         if (!window.ITOPBudgetPDF) throw Error('Gerador de PDF indisponível. Recarregue a página.');
         button.disabled = true;
-        const result = window.ITOPBudgetPDF.create(draft, units[draft.unidade], {...energy});
+        const retention = returnModule === 'retencao';
+        const token = visit;
+        const logo = retention ? await loadRetentionLogo() : null;
+        if (token !== visit) return;
+        const result = window.ITOPBudgetPDF.create(draft, units[draft.unidade], {...energy}, retention ? {retention, logo} : {});
         await result.doc.save(result.name, {returnPromise: true});
         status('PDF gerado para download no computador. Não é necessário salvar o orçamento no sistema.');
       } catch (error) { status('Não foi possível gerar o PDF. ' + error.message); }
