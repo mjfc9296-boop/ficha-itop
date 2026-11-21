@@ -18,7 +18,7 @@
     panel.className = 'itop-sondagem-panel';
     const banner = document.createElement('img');
     banner.className = 'itop-sondagem-banner';
-    banner.src = 'comercial/sondagem-cabecalho-20261117.jpg';
+    banner.src = 'comercial/sondagem-topo.webp';
     banner.alt = 'Sondagem';
     row.before(panel);
     panel.append(banner, row);
