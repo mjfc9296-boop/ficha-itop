@@ -113,6 +113,30 @@
   }
   module.prepend(banner);
  }
+ const businessCards = [...document.querySelectorAll('#procedimentos .training-card[data-category="planos-empresariais"]')];
+ if (businessCards.length) {
+  const lines = new Set();
+  for (const card of businessCards) {
+   const title = card.querySelector('h3');
+   const line = title.textContent.split(' · ')[0];
+   if (lines.has(line)) {
+    card.remove();
+    continue;
+   }
+   lines.add(line);
+   title.textContent = line;
+   card.dataset.training = 'Planos Empresariais ' + line + ' 600 700 900 Mega';
+   const cover = card.querySelector('.training-cover img');
+   cover.src = 'capas/planos-empresariais/capa-' + line.toLowerCase() + '.webp';
+   cover.alt = 'Planos Empresariais — ' + line;
+  }
+  for (const category of ['planos-empresariais', 'all']) {
+   const counter = document.querySelector('#procedimentos [data-filter="' + category + '"] b');
+   const selector = category === 'all' ? '[data-training]' : '[data-training][data-category="' + category + '"]';
+   if (counter) counter.textContent = document.querySelectorAll('#procedimentos .training-grid ' + selector).length;
+  }
+  $('trainingSearch')?.dispatchEvent(new Event('input'));
+ }
  const comunicaBadge = $('comunicaBadge');
  if (comunicaBadge) {
   const badgeStyle = document.createElement('style');
