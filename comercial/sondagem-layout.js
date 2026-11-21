@@ -310,6 +310,16 @@
   }
   #itop-comunica .itop-comunica-copy details[open] .itop-comunica-excerpt { display: none; }
   #itop-comunica .itop-comunica-copy details p { margin-top: 4px; }
+  #itop-comunica a.itop-comunica-confirm {
+   display: inline-block;
+   margin-top: 7px;
+   padding: 4px 9px;
+   border-radius: 6px;
+   background: #00134c;
+   color: #fff;
+   font-weight: 700;
+   text-decoration: underline;
+  }
   #itop-comunica .itop-comunica-read { align-self: flex-start; padding: 4px 8px !important; }
   @media (max-width: 600px) {
    #itop-comunica .itop-comunica-compact { gap: 8px; }
@@ -365,11 +375,22 @@
    const summary = document.createElement('summary');
    const excerpt = document.createElement('span');
    excerpt.className = 'itop-comunica-excerpt';
+   const confirmation = body.textContent.match(/\n\s*Confirme aqui: (https:\/\/docs\.google\.com\/forms\/d\/e\/[A-Za-z0-9_-]+\/viewform)\s*$/);
+   if (confirmation) body.textContent = body.textContent.slice(0, confirmation.index).trimEnd();
    excerpt.textContent = body.textContent;
    summary.setAttribute('aria-label', 'Ver descrição completa');
    summary.append(excerpt);
    details.append(summary, body);
    copy.append(title, date, details);
+   if (confirmation) {
+    const confirm = document.createElement('a');
+    confirm.className = 'itop-comunica-confirm';
+    confirm.href = confirmation[1];
+    confirm.target = '_blank';
+    confirm.rel = 'noopener noreferrer';
+    confirm.textContent = 'Confirmar presença';
+    copy.append(confirm);
+   }
 
    if (image) {
     const opener = document.createElement('button');
