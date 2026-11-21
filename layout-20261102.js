@@ -145,7 +145,7 @@
  }
 
  const proposalScript = document.createElement('script');
- proposalScript.src = 'inova-fachada/proposta.js?v=7';
+ proposalScript.src = 'inova-fachada/proposta.js?v=8';
  document.head.append(proposalScript);
  function openInovaProposal() {
   if (inovaTab.hidden) return;
@@ -786,19 +786,19 @@
     ['tip.movidesk.com/kb/pt-br/article/526696/portabilidade-via-easy-servicos', 'capas/link-tip-manual.webp'],
     ['administrator.tipbrasil.com.br/zeus_admin/cp_zeus/login', 'capas/link-tip-zeus.webp'],
     ['site.dryconecta.com.br/ativar-chip/informacoes-basicas', 'capas/link-dry-ativar.webp'],
-    ['www.tim.com.br/para-voce/cobertura-e-roaming/mapa-de-cobertura', 'capas/link-dry-cobertura.webp'],
-    ['itop.drytelecom.tech/index.php', 'capas/link-dry-recargas.webp'],
-    ['vivo.com.br/para-voce/por-que-vivo/qualidade/cobertura', 'capas/link-braz-cobertura.webp'],
+    ['www.tim.com.br/para-voce/cobertura-e-roaming/mapa-de-cobertura', 'capas/link-dry-cobertura.webp?v=20261121'],
+    ['itop.drytelecom.tech/index.php', 'capas/link-dry-recargas.webp?v=20261121'],
+    ['vivo.com.br/para-voce/por-que-vivo/qualidade/cobertura', 'capas/link-braz-cobertura.webp?v=20261121'],
     ['parceiro.brazmovel.com.br/', 'capas/link-braz-recargas.webp'],
-    ['www.google.com/maps/d/u/0/viewer', 'capas/link-itop-fibra.webp'],
-    ['www.portaldoassinante.com/itoptelecom/login', 'capas/link-assinante.webp'],
-    ['tarefas.fluxoeficiente.com/sectors', 'capas/link-tarefas.webp'],
+    ['www.google.com/maps/d/u/0/viewer', 'capas/link-itop-fibra.webp?v=20261121'],
+    ['www.portaldoassinante.com/itoptelecom/login', 'capas/link-assinante.webp?v=20261121'],
+    ['tarefas.fluxoeficiente.com/sectors', 'capas/link-tarefas.webp?v=20261121'],
     ['www.netzenergia.com.br/', 'capas/link-netz.webp'],
-    ['remuneratop.itop.net.br/product/', 'capas/link-remunera.webp'],
-    ['www.playhub.com.br/APP/login', 'capas/link-playhub.webp'],
-    ['plataforma.celetihub.com.br/login', 'capas/link-celeti.webp'],
-    ['dashboard.aliviaapp.com.br/authentication/sign-in', 'capas/link-telemedicina.webp'],
-    ['consultanumero.abrtelecom.com.br/consultanumero/consulta/consultaHistoricoRecenteCtg', 'capas/link-consulta-numero.webp'],
+    ['remuneratop.itop.net.br/product/', 'capas/link-remunera.webp?v=20261121'],
+    ['www.playhub.com.br/APP/login', 'capas/link-playhub.webp?v=20261121'],
+    ['plataforma.celetihub.com.br/login', 'capas/link-celeti.webp?v=20261121'],
+    ['dashboard.aliviaapp.com.br/authentication/sign-in', 'capas/link-telemedicina.webp?v=20261121'],
+    ['consultanumero.abrtelecom.com.br/consultanumero/consulta/consultaHistoricoRecenteCtg', 'capas/link-consulta-numero.webp?v=20261121'],
   ]);
   const coverFor = link => {
     const url = new URL(link.href);
