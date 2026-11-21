@@ -164,7 +164,7 @@
       <form id="uvi-budget-form">
         <fieldset><legend>1. Dados do cliente</legend><div class="grid">${customerFields.map(field).join('')}</div></fieldset>
         <fieldset><legend>2. Data e horário</legend><div class="grid">${issueFields.map(field).join('')}</div></fieldset>
-        <fieldset><legend>3. Unidade ITOP emissora</legend>
+        <fieldset id="uvi-budget-unit-fieldset"><legend>3. Unidade ITOP emissora</legend>
           <div class="field"><label for="uvi-budget-unidade">Cidade da unidade</label>
             <select id="uvi-budget-unidade" required><option value="">Selecione a unidade</option>
             ${Object.entries(units).map(([key, unit]) => `<option value="${key}">${unit[0]}</option>`).join('')}</select>
@@ -332,6 +332,8 @@
       returnModule = source;
       const retention = source === 'retencao';
       cepField.hidden = !retention;
+      $('uvi-budget-unit-fieldset').hidden = retention;
+      input('unidade').required = !retention;
       currentPanel.hidden = !retention;
       catalogTitle.textContent = retention ? 'Novo plano' : originalCatalogTitle;
       currentItems = [];
@@ -385,6 +387,13 @@
       }).catch(error => { if (token === visit) status(error.message); });
     }
 
+    function unitFromCity(city) {
+      const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase().replace(/\s*(?:[/-]\s*|\s+)(?:mg|sp)\s*$/, '').trim();
+      const cityName = normalize(city);
+      return Object.keys(units).find(key => normalize(units[key][0]) === cityName) || null;
+    }
+
     function readDraft() {
       input('validade').min = input('emissao_data').value;
       input('cliente_nome').value = input('cliente_nome').value.trim();
@@ -399,6 +408,7 @@
       }
       if (!items.length && !energy.valid) throw Error('Selecione ao menos um produto ou preencha a simulação de energia.');
       const data = Object.fromEntries(fields.map(([key]) => [key, input(key).value.trim() || null]));
+      if (returnModule === 'retencao') data.unidade = unitFromCity(data.cliente_cidade);
       return {
         ...data,
         ...(returnModule === 'retencao' ? {cliente_cep: cepInput.value.length === 9 ? cepInput.value : null, plano_atual: currentItems.map(item => ({...item}))} : {}),
