@@ -96,6 +96,60 @@
       </form>`;
     const form = $('uvi-budget-form');
     const input = key => $('uvi-budget-' + key);
+    const cepField = document.createElement('div');
+    cepField.className = 'field';
+    cepField.hidden = true;
+    cepField.innerHTML = '<label for="uvi-budget-cliente_cep">CEP</label><input id="uvi-budget-cliente_cep" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="9" aria-describedby="uvi-budget-cep-status"><small id="uvi-budget-cep-status" role="status"></small>';
+    input('cliente_endereco').closest('.field').before(cepField);
+    const cepInput = input('cliente_cep');
+    const cepStatus = $('uvi-budget-cep-status');
+    const addressKeys = {'cliente_endereco': 'logradouro', 'cliente_bairro': 'bairro', 'cliente_cidade': 'localidade'};
+    const autoAddress = new Map();
+    let cepRequest;
+
+    function resetCep() {
+      cepRequest?.abort();
+      cepRequest = null;
+      autoAddress.clear();
+      cepStatus.textContent = '';
+    }
+
+    cepInput.addEventListener('input', async () => {
+      resetAddressLookup();
+      const cep = cepInput.value.replace(/\D/g, '').slice(0, 8);
+      cepInput.value = cep.length > 5 ? cep.slice(0, 5) + '-' + cep.slice(5) : cep;
+      if (cep.length !== 8) return;
+      const request = new AbortController();
+      cepRequest = request;
+      const previous = Object.fromEntries(Object.keys(addressKeys).map(key => [key, input(key).value]));
+      const timer = setTimeout(() => request.abort(), 7000);
+      cepStatus.textContent = 'Consultando CEP…';
+      try {
+        const response = await fetch('https://viacep.com.br/ws/' + cep + '/json/', {signal: request.signal});
+        if (!response.ok) throw Error();
+        const data = await response.json();
+        if (data.erro) throw Error();
+        if (request !== cepRequest || request.signal.aborted) return;
+        for (const [key, property] of Object.entries(addressKeys)) {
+          if (!data[property] || input(key).value !== previous[key]) continue;
+          input(key).value = data[property];
+          autoAddress.set(key, data[property]);
+        }
+        cepStatus.textContent = data.logradouro ? 'Confira o endereço e informe o número.' : 'CEP geral da cidade. Digite o endereço livremente.';
+      } catch {
+        if (request === cepRequest) cepStatus.textContent = 'Consulta indisponível ou CEP não encontrado. Digite o endereço manualmente.';
+      } finally {
+        clearTimeout(timer);
+      }
+    });
+
+    function resetAddressLookup() {
+      for (const [key, value] of autoAddress) {
+        if (input(key).value === value) input(key).value = '';
+      }
+      resetCep();
+    }
+
     const footer = document.createElement('section');
     footer.id = 'uvi-budget-actions';
     footer.hidden = true;
@@ -151,6 +205,7 @@
       operator = null;
       document.body.classList.remove('itop-budget-mode');
       panel.hidden = footer.hidden = true;
+      resetCep();
       form.reset();
       input('retorno_em').value = '';
       status('');
@@ -197,6 +252,7 @@
       if (active()) return;
       returnModule = source;
       const retention = source === 'retencao';
+      cepField.hidden = !retention;
       panel.querySelector('h2').textContent = retention ? 'Cliente Especial, Oferta Especial' : 'Orçamento Comercial';
       panel.querySelector('.eyebrow').textContent = retention ? 'RETENÇÃO · MÓDULO 15' : 'U.V.I. · MÓDULO 16';
       $('itop-budget-exit').textContent = retention ? 'Voltar à Retenção' : 'Voltar à U.V.I.';
@@ -221,6 +277,7 @@
       document.querySelectorAll('.module').forEach(module => module.classList.toggle('active', module === packageModule));
       document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.toggle('active', retention && tab === retentionTab));
       panel.hidden = footer.hidden = false;
+      resetCep();
       form.reset();
       const now = new Date();
       input('emissao_data').value = issueDate.format(now);
@@ -259,6 +316,7 @@
       const data = Object.fromEntries(fields.map(([key]) => [key, input(key).value.trim() || null]));
       return {
         ...data,
+        ...(returnModule === 'retencao' ? {cliente_cep: cepInput.value.length === 9 ? cepInput.value : null} : {}),
         consultor_nome: operator?.profile.nome || '',
         produtos: items,
         valor_mensal: Math.round(total * 100) / 100,
@@ -367,6 +425,8 @@
         const {data: row, error} = await operator.client.from('itop_orcamentos_uvi').select('*').eq('id', id).single();
         if (error) throw error;
         if (opened !== visit || token !== recoveryRequest || saving) return;
+        resetCep();
+        cepInput.value = row.cliente_cep || '';
         for (const [key] of fields) input(key).value = row[key] ?? '';
         existingId = row.id;
         budgetTest = !!row.is_test;
