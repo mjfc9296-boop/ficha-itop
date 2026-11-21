@@ -141,10 +141,23 @@
     currentPanel.innerHTML = `
       <h2>Plano atual do cliente</h2>
       <button type="button" aria-haspopup="dialog">Abrir planos e produtos</button>
-      <ul aria-label="Serviços do plano atual"></ul>`;
+      <div style="overflow-x:auto;margin-top:12px">
+       <table aria-label="Serviços do plano atual" style="width:100%;min-width:520px;border-collapse:collapse">
+        <thead><tr>
+         <th scope="col" style="text-align:left;padding:8px">Produto</th>
+         <th scope="col" style="width:18%;text-align:center">Quantidade</th>
+         <th scope="col" style="width:18%;text-align:center">Valor unitário (R$)</th>
+         <th scope="col" style="width:18%;text-align:center">Subtotal</th>
+         <th scope="col" style="width:18%;text-align:center">Ação</th>
+        </tr></thead>
+        <tbody></tbody>
+        <tfoot><tr><th scope="row" colspan="3" style="text-align:right;padding:8px">Total mensal do plano atual</th><td colspan="2" style="text-align:center;padding:8px"><strong data-current-total aria-live="polite"></strong></td></tr></tfoot>
+       </table>
+      </div>`;
     catalogTitle.before(currentPanel);
     const currentOpen = currentPanel.querySelector('button');
-    const currentList = currentPanel.querySelector('ul');
+    const currentList = currentPanel.querySelector('tbody');
+    const currentTotal = currentPanel.querySelector('[data-current-total]');
     const currentDialog = document.createElement('dialog');
     currentDialog.setAttribute('aria-label', 'Planos e produtos do cliente');
     currentDialog.style.cssText = 'box-sizing:border-box;width:min(680px,94vw);max-height:85dvh;padding:16px;border:2px solid #d27a2f;border-radius:12px;background:#fff';
@@ -176,15 +189,15 @@
       label.textContent = category;
       group.append(label);
       const options = [];
-      for (const [name] of catalogData[category]) {
+      for (const [name, price] of catalogData[category]) {
         const button = document.createElement('button');
         button.type = 'button';
-        button.textContent = '+ ' + name;
+        button.textContent = '+ ' + name + ' · ' + money(price);
         button.style.cssText = 'display:block;width:100%;text-align:left;margin:4px 0';
         button.addEventListener('click', () => {
           const match = currentItems.find(item => item.name === name && item.category === category);
           if (match) match.q += 1;
-          else currentItems.push({name, category, q: 1});
+          else currentItems.push({name, category, q: 1, price});
           renderCurrentPlan();
           currentStatus.textContent = name + ' · ' + (match?.q || 1) + ' no plano atual.';
         });
@@ -211,23 +224,49 @@
       search.focus();
     });
 
+    const lineCents = item => Math.round(item.price * 100) * item.q;
+    function updateCurrentTotal() {
+      currentTotal.textContent = money(currentItems.reduce((sum, item) => sum + lineCents(item), 0) / 100);
+    }
+
     function renderCurrentPlan() {
       currentList.replaceChildren();
       for (const [index, item] of currentItems.entries()) {
-        const row = document.createElement('li');
-        const name = document.createElement('span');
-        name.textContent = item.name + ' · ' + item.category + ' · Qtd. ';
-        const quantity = document.createElement('input');
-        quantity.type = 'number';
-        quantity.min = '1';
-        quantity.step = '1';
-        quantity.value = item.q;
-        quantity.style.width = '70px';
-        quantity.setAttribute('aria-label', 'Quantidade de ' + item.name);
-        quantity.addEventListener('change', () => {
-          item.q = Math.max(1, Math.trunc(Number(quantity.value) || 1));
-          quantity.value = item.q;
-        });
+        const row = currentList.insertRow();
+        const product = row.insertCell();
+        product.textContent = item.name + ' · ' + item.category;
+        const quantityCell = row.insertCell();
+        const priceCell = row.insertCell();
+        const subtotal = row.insertCell();
+        const action = row.insertCell();
+        for (const cell of row.cells) {
+          cell.style.cssText = 'padding:8px 5px;border-top:1px solid #e5e7eb;text-align:center;vertical-align:middle';
+        }
+        product.style.textAlign = 'left';
+        function updateSubtotal() {
+          subtotal.textContent = money(lineCents(item) / 100);
+          updateCurrentTotal();
+        }
+        for (const [key, cell, minimum, step, label] of [
+          ['q', quantityCell, 1, 1, 'Quantidade de '],
+          ['price', priceCell, 0, 0.01, 'Valor unitário de ']
+        ]) {
+          const field = document.createElement('input');
+          field.type = 'number';
+          field.min = minimum;
+          field.step = step;
+          field.value = item[key];
+          field.style.cssText = 'box-sizing:border-box;width:100%;max-width:96px;text-align:center';
+          field.setAttribute('aria-label', label + item.name);
+          field.addEventListener('input', () => {
+            const next = field.valueAsNumber;
+            if (!Number.isFinite(next) || next < minimum) return;
+            item[key] = key === 'q' ? Math.trunc(next) : Math.round(next * 100) / 100;
+            updateSubtotal();
+          });
+          field.addEventListener('change', () => { field.value = item[key]; });
+          cell.append(field);
+        }
         const remove = document.createElement('button');
         remove.type = 'button';
         remove.textContent = 'Remover';
@@ -237,9 +276,10 @@
           renderCurrentPlan();
           currentOpen.focus();
         });
-        row.append(name, quantity, ' ', remove);
-        currentList.append(row);
+        action.append(remove);
+        subtotal.textContent = money(lineCents(item) / 100);
       }
+      updateCurrentTotal();
     }
 
     const energySection = document.querySelector('#energia .energy-entry');
@@ -263,6 +303,9 @@
           <p id="uvi-budget-unit-info" aria-live="polite"></p>
         </fieldset>
       </form>`;
+    const simulationBanner = banner.cloneNode();
+    simulationBanner.hidden = true;
+    panel.prepend(simulationBanner);
     const form = $('uvi-budget-form');
     const input = key => $('uvi-budget-' + key);
     const cepField = document.createElement('div');
@@ -424,6 +467,7 @@
       returnModule = source;
       const retention = source === 'retencao';
       cepField.hidden = !retention;
+      simulationBanner.hidden = !retention;
       $('uvi-budget-unit-fieldset').hidden = retention;
       input('unidade').required = !retention;
       currentPanel.hidden = !retention;
@@ -615,7 +659,10 @@
         for (const [key] of fields) input(key).value = row[key] ?? '';
         existingId = row.id;
         budgetTest = !!row.is_test;
-        currentItems = Array.isArray(row.plano_atual) ? row.plano_atual : [];
+        currentItems = Array.isArray(row.plano_atual) ? row.plano_atual.map(item => ({
+          ...item,
+          price: item.price ?? catalogData[item.category]?.find(([name]) => name === item.name)?.[1] ?? 0
+        })) : [];
         renderCurrentPlan();
         if (!row.unidade && !row.cliente_whatsapp) input('cliente_whatsapp').value = row.cliente_telefone || '';
         const created = new Date(row.created_at);

@@ -63,7 +63,15 @@
     if (retention) {
       section('Plano atual');
       if (draft.plano_atual?.length) {
-        for (const item of draft.plano_atual) paragraph(item.q + ' × ' + item.name + ' · ' + item.category);
+        for (const item of draft.plano_atual) {
+          const label = item.q + ' × ' + item.name + ' · ' + item.category;
+          if (Number.isFinite(item.price)) amount(label + ' · ' + money(item.price) + ' por unidade', money(Math.round(item.price * 100) * item.q / 100));
+          else paragraph(label);
+        }
+        if (draft.plano_atual.every(item => Number.isFinite(item.price))) {
+          const total = draft.plano_atual.reduce((sum, item) => sum + Math.round(item.price * 100) * item.q, 0);
+          amount('Total mensal do plano atual', money(total / 100));
+        }
       } else {
         paragraph('Não informado.');
       }
