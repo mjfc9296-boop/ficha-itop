@@ -75,6 +75,16 @@
   banner.className = 'itop-energy-roof';
   energy.prepend(banner);
  }
+ const telephony = $('itop-movel');
+ if (telephony) {
+  const banner = document.createElement('img');
+  banner.src = 'comercial/telefonia-movel-fixa-topo.webp';
+  banner.alt = 'Telefonia Móvel e Fixa';
+  banner.width = 2048;
+  banner.height = 684;
+  banner.style.cssText = 'display:block;width:100%;height:auto;margin:0 0 12px';
+  telephony.prepend(banner);
+ }
  const closingPreview = $('closingPreview');
  if (closingPreview) {
   const panel = document.createElement('section');
