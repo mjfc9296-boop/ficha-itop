@@ -97,8 +97,13 @@
   banner.height = height;
   banner.style.cssText = 'display:block;width:100%;height:auto;margin:0 0 12px';
   if (moduleId === 'movel') {
-   banner.style.width = 'calc(100% - 24px)';
-   banner.style.margin = '8px auto 12px';
+   const frame = document.createElement('div');
+   frame.className = 'itop-support-banner-frame';
+   frame.style.cssText = 'box-sizing:border-box;width:100%;padding:16px clamp(18px, 4%, 40px) 14px';
+   banner.style.margin = '0';
+   frame.append(banner);
+   module.prepend(frame);
+   continue;
   }
   if (moduleId === 'procedimentos') {
    banner.style.clipPath = 'inset(0 round 5.4% / 16.2%)';
