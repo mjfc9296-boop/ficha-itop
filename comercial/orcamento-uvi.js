@@ -27,6 +27,7 @@
     ['id', 'Número do orçamento', 'text', 'readonly']
   ];
   const energyIds = ['conta', 'tarifa', 'categoria', 'consumo'];
+  const officialLogo = 'logo-itop-oficial.png';
   const fields = [...customerFields, ...issueFields, ['unidade', 'Unidade ITOP emissora'], ['retorno_em', 'Data e horário do retorno']];
   const field = ([key, label, type, attributes = '']) => {
     const id = 'uvi-budget-' + key;
@@ -100,6 +101,11 @@
     partyModule.id = 'confraternizacao';
     partyModule.className = 'module';
     partyModule.innerHTML = `
+      <header style="display:grid;align-content:center;justify-items:start;gap:clamp(6px,1.2vw,14px);min-height:clamp(152px,22vw,244px);box-sizing:border-box;padding:clamp(14px,3vw,34px);margin:0 0 12px;border-radius:14px;background:#0b111c url('capas/confraternizacao-topo.webp') right center / cover no-repeat;color:#fff">
+        <img src="${officialLogo}" alt="ITOP Telecom" width="581" height="226" style="display:block;width:clamp(84px,14vw,134px);max-width:38%;height:auto;padding:4px 8px;box-sizing:border-box;background:#fff;border-radius:8px">
+        <h2 style="max-width:68%;margin:0;color:#ffde98;font-size:clamp(.82rem,2.15vw,1.42rem);line-height:1.15">Confraternização 2026</h2>
+        <p style="max-width:68%;margin:0;color:#fff;font-size:clamp(1.05rem,3.2vw,2.25rem);font-weight:800;line-height:1.12">O melhor da festa é esperar por ela</p>
+      </header>
       <section><h2>Confraternização de 10 anos da ITOP</h2>
       <p data-party-status role="status"></p>
       <div id="confraternizacaoLista" class="comunica-lista"></div></section>`;
@@ -697,8 +703,8 @@
       }
     }
 
-    async function loadRetentionLogo() {
-      const response = await fetch('logo-resultados-mascote.png');
+    async function loadOfficialLogo() {
+      const response = await fetch(officialLogo);
       if (!response.ok) throw Error('Não foi possível carregar a marca ITOP.');
       const blob = await response.blob();
       return new Promise((resolve, reject) => {
@@ -718,7 +724,7 @@
         button.disabled = true;
         const retention = returnModule === 'retencao';
         const token = visit;
-        const logo = retention ? await loadRetentionLogo() : null;
+        const logo = retention ? await loadOfficialLogo() : null;
         if (token !== visit) return;
         const result = window.ITOPBudgetPDF.create(draft, units[draft.unidade], {...energy}, retention ? {retention, logo} : {});
         await result.doc.save(result.name, {returnPromise: true});
