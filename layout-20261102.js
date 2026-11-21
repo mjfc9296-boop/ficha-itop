@@ -1217,7 +1217,7 @@ for (const moduleId of ["sondagem","pacote","fechamento","energia","itop-movel",
           hasColor(style['border' + side + 'Color'], orange)
         );
         if (orangeBorder) element.style.setProperty('background-color', '#fff1e3', 'important');
-      } else if (!style.backgroundImage.includes('url(') &&
+      } else if (element.id !== 'itop-closing-energy-simulation' && !style.backgroundImage.includes('url(') &&
         (hasColor(style.backgroundColor, blue) || hasColor(style.backgroundImage, blue))) {
         element.style.setProperty('background', '#000', 'important');
         element.style.setProperty('color', '#fff', 'important');

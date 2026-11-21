@@ -12,7 +12,7 @@
    if (customer) {
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
-    stylesheet.href = 'comercial/sondagem-painel.css?v=20261120-campos';
+    stylesheet.href = 'comercial/sondagem-painel.css?v=20261121-fechamento';
     document.head.append(stylesheet);
     const panel = document.createElement('section');
     panel.className = 'itop-sondagem-panel';
@@ -84,6 +84,7 @@
   banner.alt = 'Fechamento de Venda';
   const simulate = document.createElement('button');
   simulate.type = 'button';
+  simulate.id = 'itop-closing-energy-simulation';
   simulate.textContent = 'Simular Energia e Confrontar nesta Simulação';
   simulate.addEventListener('click', () => goToEnergy());
   const heading = document.createElement('h2');
@@ -102,12 +103,27 @@
    fields.append(field);
    return [key, value];
   });
-  const update = () => {
+  let enteredClient = '';
+  function update() {
    const data = reportData();
-   for (const [key, value] of values) value.textContent = data[key] || '—';
-  };
-  panel.append(banner, simulate, heading, fields);
+   const client = ($('nome').value || $('pacoteNome').value).trim();
+   if (client !== enteredClient) enteredClient = '';
+   for (const [key, value] of values) value.textContent = enteredClient ? data[key] || '' : '';
+  }
+  const customerInputs = ['nome', 'telefone', 'cidade', 'pacoteNome', 'pacoteTelefone', 'pacoteCidade'];
+  for (const id of customerInputs) {
+   $(id)?.addEventListener('input', (event) => {
+    if (!event.isTrusted) return;
+    enteredClient = ($('nome').value || $('pacoteNome').value).trim();
+    update();
+   });
+  }
+  panel.append(banner, heading, fields);
   closingPreview.parentElement.before(panel);
+  const footer = document.createElement('div');
+  footer.className = 'itop-closing-energy-footer';
+  footer.append(simulate);
+  $('fechamento').append(footer);
   closingPreview.classList.add('itop-closing-custom-summary');
   new MutationObserver(update).observe(closingPreview, {childList: true});
   update();

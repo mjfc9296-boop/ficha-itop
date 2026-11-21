@@ -225,19 +225,20 @@ html body #fechamento > .itop-closing-banner {
   height: auto;
   border-radius: 13px 13px 0 0;
 }
-html body main #fechamento .itop-closing-banner > button:not([hidden]) {
-  display: block;
-  width: fit-content;
-  max-width: calc(100% - 24px);
-  margin: 8px auto;
-  padding: 8px 12px !important;
-  background: linear-gradient(#7474d9, #343480) !important;
-  border: 2px solid #fff !important;
-  border-radius: 12px !important;
-  box-shadow: 0 2px 5px #0006;
-  color: #fff !important;
-  font-size: clamp(10px, 2.3vw, 18px) !important;
-  white-space: nowrap;
+#fechamento > .itop-closing-energy-footer {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0 4px;
+}
+html.itop-authorized body main #fechamento #itop-closing-energy-simulation {
+  max-width: 100%;
+  padding: 8px 14px !important;
+  background: #7474c1 !important;
+  border: 1px solid #7474c1 !important;
+  color: #101114 !important;
+  -webkit-text-fill-color: #101114 !important;
+  text-shadow: none;
+  white-space: normal;
 }
 #fechamento .itop-closing-banner > h2 {
   width: fit-content;
@@ -249,21 +250,23 @@ html body main #fechamento .itop-closing-banner > button:not([hidden]) {
 }
 #fechamento .itop-closing-banner > dl {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(145px, 100%), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin: 0 14px;
   text-align: center;
 }
+#fechamento .itop-closing-banner dl > div:first-child { grid-column: 1 / -1; }
 #fechamento .itop-closing-banner dt { font-weight: 700; }
 #fechamento .itop-closing-banner dd {
   margin: 4px 0 0;
   padding: 6px;
+  min-height: 42px;
   border: 2px solid #e66a0a;
   border-radius: 9px;
   overflow-wrap: anywhere;
 }
 #fechamento .itop-closing-custom-summary .closing-report > :is(.actions, .report-meta) { display: none; }
 @media print {
-  #fechamento > .itop-closing-banner { display: none !important; }
+  #fechamento > :is(.itop-closing-banner, .itop-closing-energy-footer) { display: none !important; }
   #fechamento .itop-closing-custom-summary .closing-report > .report-meta { display: grid; }
 }
