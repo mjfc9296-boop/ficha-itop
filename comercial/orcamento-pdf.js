@@ -71,17 +71,9 @@
     header(true);
     const address = [draft.cliente_endereco, draft.cliente_numero, draft.cliente_bairro, draft.cliente_cidade, draft.cliente_cep && 'CEP ' + draft.cliente_cep].filter(Boolean).join(' · ');
     if (retention) {
-      fields([
-        ['Emissão · Brasília', date(draft.emissao_data) + ' às ' + draft.emissao_hora],
-        ['Validade da proposta', date(draft.validade)],
-        ['Consultor responsável', draft.consultor_nome]
-      ]);
       section('Dados do cliente');
       paragraph(draft.cliente_nome, {size: 11, bold: true});
-      fields([['CPF / CNPJ', draft.cliente_documento], ['WhatsApp', draft.cliente_whatsapp], ['Telefone', draft.cliente_telefone]]);
-      if (draft.cliente_email || address) {
-        paragraph([draft.cliente_email, address].filter(Boolean).join('  |  '), {size: 8.5});
-      }
+      fields([['WhatsApp', draft.cliente_whatsapp], ['CPF', draft.cliente_documento], ['Nome do operador', draft.consultor_nome]]);
     } else {
       font(7, true, MUTED); doc.text('NÚMERO DO ORÇAMENTO', left, y + 2);
       font(8); doc.text(wrap(draft.id || '—', width), left, y + 7); y += 11;
