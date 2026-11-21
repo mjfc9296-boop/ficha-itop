@@ -13,7 +13,7 @@
 })();
 
 // Keep the module separate from the useful-link controls on this entry point.
-import('./comercial/orcamento-uvi.js?v=20261121-procedimentos-retencao').catch(error => {
+import('./comercial/orcamento-uvi.js?v=20261121-janela-plano-atual').catch(error => {
  console.error('Falha ao carregar o Orçamento Comercial da U.V.I.', error);
 });
 
