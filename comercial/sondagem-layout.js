@@ -77,7 +77,8 @@
  }
  for (const [moduleId, image, title, width, height] of [
   ['itop-movel', 'telefonia-movel-fixa-topo.webp', 'Telefonia Móvel e Fixa', 2048, 684],
-  ['movel', 'suporte-telefonia-movel-topo.webp', 'Suporte à Telefonia Móvel', 2048, 684]
+  ['movel', 'suporte-telefonia-movel-topo.webp', 'Suporte à Telefonia Móvel', 2048, 684],
+  ['itop-comunica', 'itop-comunica-topo.webp', 'ITOP Comunica', 2048, 684]
  ]) {
   const module = $(moduleId);
   if (!module) continue;
@@ -92,6 +93,25 @@
    banner.style.margin = '8px auto 12px';
   }
   module.prepend(banner);
+ }
+ const comunicaBadge = $('comunicaBadge');
+ if (comunicaBadge) {
+  const badgeStyle = document.createElement('style');
+  badgeStyle.textContent = `
+   html body main .nav-tab #comunicaBadge:not([hidden]) {
+    display: grid !important;
+    place-items: center;
+    width: 24px !important;
+    height: 24px !important;
+    inset: 6px 6px auto auto !important;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: #d71920;
+    color: #fff;
+    z-index: 40 !important;
+   }
+  `;
+  document.head.append(badgeStyle);
  }
  const closingPreview = $('closingPreview');
  if (closingPreview) {
