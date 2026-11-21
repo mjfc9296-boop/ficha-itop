@@ -87,6 +87,10 @@
   banner.width = width;
   banner.height = height;
   banner.style.cssText = 'display:block;width:100%;height:auto;margin:0 0 12px';
+  if (moduleId === 'movel') {
+   banner.style.width = 'calc(100% - 24px)';
+   banner.style.margin = '8px auto 12px';
+  }
   module.prepend(banner);
  }
  const closingPreview = $('closingPreview');
