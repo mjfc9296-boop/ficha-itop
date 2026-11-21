@@ -94,7 +94,7 @@
     partyTab.dataset.module = 'confraternizacao';
     partyTab.setAttribute('aria-label', '16 Confraternização');
     partyTab.setAttribute('aria-controls', 'confraternizacao');
-    partyTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/confraternizacao-itop-2026.webp"><span class="step-ball" aria-hidden="true">16</span><span class="itop-nav-label">Confraternização</span><span class="comunica-badge" id="confraternizacaoBadge" hidden></span>';
+    partyTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/menu-bronze-confraternizacao.webp"><span class="step-ball" aria-hidden="true">16</span><span class="itop-nav-label">Confraternização</span><span class="comunica-badge" id="confraternizacaoBadge" hidden></span>';
     retentionTab.after(partyTab);
     const partyModule = document.createElement('div');
     partyModule.id = 'confraternizacao';
