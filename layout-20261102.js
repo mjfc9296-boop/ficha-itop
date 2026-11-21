@@ -1139,6 +1139,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const talos = document.querySelector('#procedimentos [data-training^="TALOS"]');
+  const talosCover = talos?.querySelector('.training-cover img');
+  if (talosCover) talosCover.src = 'capa-talos-uvi.webp';
   const moduleHeading = document.querySelector('#portaria-seguranca section > h3');
   const moduleActions = moduleHeading?.nextElementSibling;
   if (talos && moduleActions?.matches('.training-actions')) {
