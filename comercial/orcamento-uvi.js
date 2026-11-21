@@ -37,6 +37,35 @@
     return '<div class="field"><label for="' + id + '">' + label + '</label>' + control + '</div>';
   };
 
+  const documentCharacters = value => value.toUpperCase().replace(/[^0-9A-Z]/g, '');
+  function formatRetentionDocument(value) {
+    const chars = documentCharacters(value);
+    if (chars.length > 14) return value;
+    if (chars.length > 11 || /[A-Z]/.test(chars)) {
+      return chars.replace(/^(.{2})(?=.)/, '$1.').replace(/^(..\....)(?=.)/, '$1.')
+        .replace(/^(..\....\....)(?=.)/, '$1/').replace(/^(..\....\....\/....)(?=.)/, '$1-');
+    }
+    return chars.replace(/^(\d{3})(?=\d)/, '$1.').replace(/^(\d{3}\.\d{3})(?=\d)/, '$1.')
+      .replace(/^(\d{3}\.\d{3}\.\d{3})(?=\d)/, '$1-');
+  }
+
+  function validRetentionDocument(value) {
+    const chars = documentCharacters(value);
+    if (!chars) return !value.trim();
+    if (/^(\d)\1+$/.test(chars)) return false;
+    const check = (body, weights) => {
+      const sum = weights.reduce((total, weight, index) => total + (body.charCodeAt(index) - 48) * weight, 0);
+      return (11 - sum % 11) % 11 % 10;
+    };
+    if (/^\d{11}$/.test(chars)) {
+      return check(chars, [10, 9, 8, 7, 6, 5, 4, 3, 2]) === Number(chars[9])
+        && check(chars, [11, 10, 9, 8, 7, 6, 5, 4, 3, 2]) === Number(chars[10]);
+    }
+    return /^[A-Z0-9]{12}\d{2}$/.test(chars)
+      && check(chars, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]) === Number(chars[12])
+      && check(chars, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]) === Number(chars[13]);
+  }
+
   function init() {
     if ($('uvi-budget-form')) return;
     const legacy = $('itop-budget-panel');
@@ -312,6 +341,28 @@
     panel.prepend(simulationBanner);
     const form = $('uvi-budget-form');
     const input = key => $('uvi-budget-' + key);
+    const retentionDocument = input('cliente_documento');
+    function validateRetentionDocument() {
+      const valid = validRetentionDocument(retentionDocument.value);
+      retentionDocument.setCustomValidity(valid ? '' : 'Informe um CPF ou CNPJ válido.');
+      return valid;
+    }
+    retentionDocument.addEventListener('input', () => {
+      if (returnModule !== 'retencao') return;
+      const start = retentionDocument.selectionStart;
+      const digitCount = documentCharacters(retentionDocument.value.slice(0, start)).length;
+      const formatted = formatRetentionDocument(retentionDocument.value);
+      if (formatted !== retentionDocument.value) {
+        retentionDocument.value = formatted;
+        let cursor = 0;
+        while (cursor < formatted.length && documentCharacters(formatted.slice(0, cursor)).length < digitCount) cursor++;
+        retentionDocument.setSelectionRange(cursor, cursor);
+      }
+      retentionDocument.setCustomValidity('');
+    });
+    retentionDocument.addEventListener('blur', () => {
+      if (returnModule === 'retencao' && !validateRetentionDocument()) retentionDocument.reportValidity();
+    });
     const retentionOperator = input('retencao_operador');
     const retentionExtraFields = customerFields.map(([key]) => key)
       .filter(key => !['cliente_nome', 'cliente_whatsapp', 'cliente_documento'].includes(key));
@@ -419,6 +470,7 @@
     function open(source = 'procedimentos') {
       if (active()) return;
       returnModule = source;
+      retentionDocument.setCustomValidity('');
       const retention = source === 'retencao';
       for (const key of retentionExtraFields) {
         input(key).closest('.field').hidden = input(key).disabled = retention;
@@ -489,6 +541,10 @@
     function readDraft() {
       input('validade').min = input('emissao_data').value;
       input('cliente_nome').value = input('cliente_nome').value.trim();
+      if (returnModule === 'retencao' && !validateRetentionDocument()) {
+        retentionDocument.reportValidity();
+        throw Error('Informe um CPF ou CNPJ válido.');
+      }
       if (!form.reportValidity()) throw Error('Confira os campos obrigatórios do orçamento.');
       if (!input('emissao_data').value || !input('emissao_hora').value) throw Error('Informe a data e o horário de emissão.');
       const {items, total} = window.ITOPBudgetCalculator();
