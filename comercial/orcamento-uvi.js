@@ -135,21 +135,32 @@
     catalogSection.id = 'uvi-budget-catalog';
     const catalogTitle = catalogSection.querySelector('h2');
     const originalCatalogTitle = catalogTitle.textContent;
-    const currentPanel = document.createElement('section');
+    const currentPanel = document.createElement('div');
     currentPanel.hidden = true;
+    currentPanel.style.cssText = 'margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #d27a2f';
     currentPanel.innerHTML = `
-      <h2>Plano atual</h2>
-      <div class="field">
-        <label for="itop-retencao-atual-produto">Plano de fibra ou serviço contratado</label>
-        <select id="itop-retencao-atual-produto"><option value="">Selecione no catálogo</option></select>
-      </div>
-      <button type="button" disabled>Adicionar ao plano atual</button>
+      <h2>Plano atual do cliente</h2>
+      <button type="button" aria-haspopup="dialog">Abrir planos e produtos</button>
       <ul aria-label="Serviços do plano atual"></ul>`;
-    catalogSection.before(currentPanel);
-    const currentSelect = currentPanel.querySelector('select');
-    const currentAdd = currentPanel.querySelector('button');
+    catalogTitle.before(currentPanel);
+    const currentOpen = currentPanel.querySelector('button');
     const currentList = currentPanel.querySelector('ul');
-    const currentOptions = [];
+    const currentDialog = document.createElement('dialog');
+    currentDialog.setAttribute('aria-label', 'Planos e produtos do cliente');
+    currentDialog.style.cssText = 'box-sizing:border-box;width:min(680px,94vw);max-height:85dvh;padding:16px;border:2px solid #d27a2f;border-radius:12px;background:#fff';
+    currentDialog.innerHTML = `
+      <h2>Planos e produtos do cliente</h2>
+      <div class="field">
+        <label for="itop-retencao-atual-busca">Buscar plano ou produto</label>
+        <input id="itop-retencao-atual-busca" type="search" autocomplete="off">
+      </div>
+      <div data-current-options style="max-height:45dvh;overflow-y:auto"></div>
+      <p role="status"></p>
+      <form method="dialog"><button type="submit">Concluir seleção</button></form>`;
+    document.body.append(currentDialog);
+    const search = currentDialog.querySelector('input');
+    const optionsList = currentDialog.querySelector('[data-current-options]');
+    const currentStatus = currentDialog.querySelector('[role=status]');
     let currentItems = [];
     const categories = Object.keys(catalogData);
     const orderedCategories = [
@@ -157,16 +168,48 @@
       ...categories.filter(category => category !== 'Fibra' && !category.startsWith('Combos')),
       ...categories.filter(category => category.startsWith('Combos'))
     ];
+    const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const groups = [];
     for (const category of orderedCategories) {
-      const group = document.createElement('optgroup');
-      group.label = category;
+      const group = document.createElement('div');
+      const label = document.createElement('h3');
+      label.textContent = category;
+      group.append(label);
+      const options = [];
       for (const [name] of catalogData[category]) {
-        const option = new Option(name, String(currentOptions.length));
-        group.append(option);
-        currentOptions.push({category, name});
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = '+ ' + name;
+        button.style.cssText = 'display:block;width:100%;text-align:left;margin:4px 0';
+        button.addEventListener('click', () => {
+          const match = currentItems.find(item => item.name === name && item.category === category);
+          if (match) match.q += 1;
+          else currentItems.push({name, category, q: 1});
+          renderCurrentPlan();
+          currentStatus.textContent = name + ' · ' + (match?.q || 1) + ' no plano atual.';
+        });
+        group.append(button);
+        options.push({button, searchText: normalize(name + ' ' + category)});
       }
-      currentSelect.append(group);
+      optionsList.append(group);
+      groups.push({group, options});
     }
+
+    function filterCurrentPlans() {
+      const term = normalize(search.value.trim());
+      for (const {group, options} of groups) {
+        for (const {button, searchText} of options) button.hidden = !searchText.includes(term);
+        group.hidden = options.every(({button}) => button.hidden);
+      }
+    }
+    search.addEventListener('input', filterCurrentPlans);
+    currentOpen.addEventListener('click', () => {
+      search.value = '';
+      currentStatus.textContent = '';
+      filterCurrentPlans();
+      currentDialog.showModal();
+      search.focus();
+    });
 
     function renderCurrentPlan() {
       currentList.replaceChildren();
@@ -192,24 +235,12 @@
         remove.addEventListener('click', () => {
           currentItems.splice(index, 1);
           renderCurrentPlan();
-          currentSelect.focus();
+          currentOpen.focus();
         });
         row.append(name, quantity, ' ', remove);
         currentList.append(row);
       }
     }
-    currentSelect.addEventListener('change', () => { currentAdd.disabled = !currentSelect.value; });
-    currentAdd.addEventListener('click', () => {
-      if (currentSelect.value === '') return;
-      const option = currentOptions[Number(currentSelect.value)];
-      const match = currentItems.find(item => item.name === option.name && item.category === option.category);
-      if (match) match.q += 1;
-      else currentItems.push({...option, q: 1});
-      currentSelect.value = '';
-      currentAdd.disabled = true;
-      renderCurrentPlan();
-      currentSelect.focus();
-    });
 
     const energySection = document.querySelector('#energia .energy-entry');
     const promotions = $('packagePromotion');
@@ -343,6 +374,7 @@
       operator = null;
       document.body.classList.remove('itop-budget-mode');
       panel.hidden = footer.hidden = currentPanel.hidden = true;
+      if (currentDialog.open) currentDialog.close();
       catalogTitle.textContent = originalCatalogTitle;
       resetCep();
       form.reset();
@@ -397,8 +429,6 @@
       currentPanel.hidden = !retention;
       catalogTitle.textContent = retention ? 'Novo plano' : originalCatalogTitle;
       currentItems = [];
-      currentSelect.value = '';
-      currentAdd.disabled = true;
       renderCurrentPlan();
       panel.querySelector('h2').textContent = retention ? 'Cliente Especial, Oferta Especial' : 'Orçamento Comercial';
       panel.querySelector('.eyebrow').textContent = retention ? 'RETENÇÃO · MÓDULO 15' : 'U.V.I. · MÓDULO 16';
