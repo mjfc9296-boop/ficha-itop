@@ -60,6 +60,23 @@
     retentionModule.id = 'retencao';
     retentionModule.className = 'module';
     retentionModule.innerHTML = '<section><h2>Retenção</h2><button type="button">Simulação Retenção Cliente</button></section>';
+    const procedures = document.createElement('details');
+    procedures.style.cssText = 'margin:12px 0;padding:14px;background:#fff;border:1px solid #d27a2f;border-radius:12px';
+    procedures.innerHTML = `
+      <summary style="cursor:pointer;font-weight:700">Procedimentos de Retenção</summary>
+      <div style="display:grid;gap:12px;margin-top:12px">
+       ${[
+         ['diretrizes-de-retencao', 'Diretrizes de Retenção'],
+         ['fluxo-de-retencao', 'Fluxo de Retenção']
+       ].map(([slug, title]) => `
+        <a href="materiais/retencao/${slug}.pdf" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;gap:12px;color:#00134c;text-decoration:none">
+         <img src="materiais/retencao/${slug}.webp" alt="" loading="lazy"
+          style="width:clamp(96px,24%,160px);height:auto;border-radius:8px">
+         <span><strong>${title}</strong><br>Abrir PDF</span>
+        </a>`).join('')}
+      </div>`;
+    retentionModule.append(procedures);
     const banner = document.createElement('img');
     banner.src = 'capas/retencao-topo.webp';
     banner.alt = 'Programa de fidelidade — Renove conosco';
