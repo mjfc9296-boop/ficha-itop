@@ -101,11 +101,9 @@
     partyModule.id = 'confraternizacao';
     partyModule.className = 'module';
     partyModule.innerHTML = `
-      <header style="display:grid;align-content:center;justify-items:start;gap:clamp(6px,1.2vw,14px);min-height:clamp(152px,22vw,244px);box-sizing:border-box;padding:clamp(14px,3vw,34px);margin:0 0 12px;border-radius:14px;background:#0b111c url('capas/confraternizacao-topo.webp') right center / cover no-repeat;color:#fff">
-        <img src="${officialLogo}" alt="ITOP Telecom" width="581" height="226" style="display:block;width:clamp(84px,14vw,134px);max-width:38%;height:auto;padding:4px 8px;box-sizing:border-box;background:#fff;border-radius:8px">
-        <h2 style="max-width:68%;margin:0;color:#ffde98;font-size:clamp(.82rem,2.15vw,1.42rem);line-height:1.15">Confraternização 2026</h2>
-        <p style="max-width:68%;margin:0;color:#fff;font-size:clamp(1.05rem,3.2vw,2.25rem);font-weight:800;line-height:1.12">O melhor da festa é esperar por ela</p>
-      </header>
+      <div style="position:relative;width:100%;aspect-ratio:2048 / 417;overflow:hidden;border-radius:2.5% / 12%;margin-bottom:12px">
+        <img src="capas/confraternizacao-topo.webp?v=20261121-banner-anexo" alt="Confraternização — O melhor da festa é esperar por ela" width="2048" height="684" style="position:absolute;top:-32.61%;left:0;width:100%;height:auto;max-width:none;display:block">
+      </div>
       <section><h2>Confraternização de 10 anos da ITOP</h2>
       <p data-party-status role="status"></p>
       <div id="confraternizacaoLista" class="comunica-lista"></div></section>`;
