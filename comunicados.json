@@ -1,5 +1,12 @@
 [
   {
+    "id": "black-friday-itop-2026",
+    "titulo": "Black Friday ITOP",
+    "data": "Campanha 2026",
+    "mensagem": "Vamos vender muito!",
+    "capa": "capas/uvi-black-friday-2026-capa.webp"
+  },
+  {
     "id": "confraternizacao-itop-10-anos-2026",
     "titulo": "Confraternização de 10 anos da Itop — confirme novamente até 24/11",
     "data": "Confirme novamente até 24/11/2026",
