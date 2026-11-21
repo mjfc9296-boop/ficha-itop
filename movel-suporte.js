@@ -83,6 +83,13 @@ function mountSupportBanner(){
 
  const style=document.createElement('style');
  style.textContent=`
+ html body main .itop-work-content:has(> #movel.active),
+ html body main #movel,
+ html body main #movel > section,
+ html body main #movel .support-layout-wide,
+ html body main #movel .support-layout-wide > div > section {
+  background: #fff !important;
+ }
  #movel .support-layout.support-layout-wide{display:block}
  #movel .support-banner{position:relative;container-type:inline-size}
  #movel .support-banner .support-context{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:10px;margin:0 0 12px}
