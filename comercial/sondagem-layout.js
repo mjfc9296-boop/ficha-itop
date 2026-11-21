@@ -130,6 +130,28 @@
    cover.src = 'capas/planos-empresariais/capa-' + line.toLowerCase() + '.webp';
    cover.alt = 'Planos Empresariais — ' + line;
   }
+  const businessPlans = [
+   ['line', 'Business Line', 500],
+   ['master', 'Business Master', 600],
+   ['exclusive', 'Business Exclusive', 800]
+  ];
+  let lastCard = businessCards.filter(card => card.isConnected).at(-1);
+  for (const [slug, title, speed] of businessPlans) {
+   const card = businessCards[0].cloneNode(true);
+   const asset = 'capas/planos-empresariais/';
+   const cover = card.querySelector('.training-cover img');
+   cover.src = asset + 'capa-business-' + slug + '.webp';
+   cover.alt = 'Planos Empresariais — ' + title;
+   card.querySelector('h3').textContent = title + ' · ' + speed + ' Mega';
+   card.dataset.training = 'Planos Empresariais ' + title + ' ' + speed + ' Mega Fixo';
+   for (const link of card.querySelectorAll('.training-cover, .training-open')) {
+    link.href = asset + 'oferta-business-' + slug + '.webp';
+    link.setAttribute('aria-label', 'Abrir oferta ' + title);
+   }
+   card.querySelector('.training-open').textContent = 'Visualizar oferta';
+   lastCard.after(card);
+   lastCard = card;
+  }
   for (const category of ['planos-empresariais', 'all']) {
    const counter = document.querySelector('#procedimentos [data-filter="' + category + '"] b');
    const selector = category === 'all' ? '[data-training]' : '[data-training][data-category="' + category + '"]';
