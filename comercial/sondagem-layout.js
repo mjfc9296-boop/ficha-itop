@@ -167,7 +167,7 @@
   category.className = 'training-filter';
   category.dataset.filter = 'black-friday';
   category.setAttribute('aria-pressed', 'false');
-  category.innerHTML = 'BLACK FRIDAY <b>1</b>';
+  category.innerHTML = 'BLACK FRIDAY <b></b>';
   trainingFilters.querySelector('[data-filter="planos-empresariais"]').after(category);
 
   const blackBraz = document.createElement('article');
@@ -183,6 +183,9 @@
    <div class="training-meta"><span>Black Friday</span></div>
    <div class="training-actions"><a class="training-open" href="capas/black-braz-2026.webp" target="_blank" rel="noopener">Visualizar oferta</a></div>`;
   trainingGrid.prepend(blackBraz);
+  const campaignCards = [...trainingGrid.querySelectorAll('[data-category="black-friday"]')];
+  blackBraz.after(...campaignCards.filter(card => card !== blackBraz));
+  category.querySelector('b').textContent = campaignCards.length;
   const count = trainingFilters.querySelector('[data-filter="all"] b');
   if (count) count.textContent = trainingGrid.querySelectorAll('[data-training]').length;
   $('trainingSearch')?.dispatchEvent(new Event('input'));
