@@ -159,6 +159,34 @@
   }
   $('trainingSearch')?.dispatchEvent(new Event('input'));
  }
+ const trainingGrid = document.querySelector('#procedimentos .training-grid');
+ const trainingFilters = document.querySelector('#procedimentos .training-filters');
+ if (trainingGrid && trainingFilters) {
+  const category = document.createElement('button');
+  category.type = 'button';
+  category.className = 'training-filter';
+  category.dataset.filter = 'black-friday';
+  category.setAttribute('aria-pressed', 'false');
+  category.innerHTML = 'BLACK FRIDAY <b>1</b>';
+  trainingFilters.querySelector('[data-filter="planos-empresariais"]').after(category);
+
+  const blackBraz = document.createElement('article');
+  blackBraz.className = 'training-card';
+  blackBraz.dataset.category = 'black-friday';
+  blackBraz.dataset.training = 'Black Braz Black Friday Braz Móvel 10GB 30GB 40GB';
+  blackBraz.innerHTML = `
+   <a class="training-cover" href="capas/black-braz-2026.webp" target="_blank" rel="noopener" aria-label="Abrir oferta Black Braz">
+    <img src="capas/black-braz-2026.webp" loading="lazy" alt="Black Braz — 10 GB de bônus">
+   </a>
+   <h3>Black Braz</h3>
+   <p class="training-description">10 GB de bônus nos planos de 30 GB e 40 GB para novos clientes. Vigência de 23 a 30 de novembro de 2026.</p>
+   <div class="training-meta"><span>Black Friday</span></div>
+   <div class="training-actions"><a class="training-open" href="capas/black-braz-2026.webp" target="_blank" rel="noopener">Visualizar oferta</a></div>`;
+  trainingGrid.prepend(blackBraz);
+  const count = trainingFilters.querySelector('[data-filter="all"] b');
+  if (count) count.textContent = trainingGrid.querySelectorAll('[data-training]').length;
+  $('trainingSearch')?.dispatchEvent(new Event('input'));
+ }
  const comunicaBadge = $('comunicaBadge');
  if (comunicaBadge) {
   const badgeStyle = document.createElement('style');
