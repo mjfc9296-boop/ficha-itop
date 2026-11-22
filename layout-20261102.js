@@ -769,6 +769,17 @@
     sidebar.splice(sidebar.indexOf(mkMovidesk) + 1, 0, netz);
   }
 
+  const dryRecharge = sidebar.find(link => link.hostname === 'itop.drytelecom.tech');
+  const brazRecharge = sidebar.find(link => link.href === 'https://parceiro.brazmovel.com.br/');
+  if (dryRecharge && brazRecharge) {
+    dryRecharge.after(brazRecharge);
+    sidebar.splice(sidebar.indexOf(brazRecharge), 1);
+    sidebar.splice(sidebar.indexOf(dryRecharge) + 1, 0, brazRecharge);
+    brazRecharge.title = 'Recarga Braz';
+    brazRecharge.setAttribute('aria-label', 'Recarga Braz (abre em nova aba)');
+    brazRecharge.querySelector('img').alt = 'Recarga Braz';
+  }
+
   const links = [...grid.querySelectorAll('.useful-link-item')];
   const sidebarOrder = new Map(sidebar.map((link, position) => [link.href, position]));
   const primaryLink = item => item.querySelector('a.useful-link');
@@ -779,26 +790,26 @@
 
   const zeusUrl = 'https://administrator.tipbrasil.com.br/zeus_admin/cp_zeus/login';
   const covers = new Map([
-    ['mkbot.itop.net.br/mk/mkcore/Login/', 'capas/link-portal-mk.webp?v=20261121-mk-tip'],
-    ['mksolutions.movidesk.com/Account/Login', 'capas/link-mk-movidesk.webp?v=20261121-mk-tip'],
-    ['tip.movidesk.com/Ticket/Create', 'capas/link-tip-movidesk.webp?v=20261121-mk-tip'],
-    ['easy2use.com.br/mvno/wp-login.php', 'capas/link-tip-easy.webp?v=20261121-mk-tip'],
-    ['tip.movidesk.com/kb/pt-br/article/526696/portabilidade-via-easy-servicos', 'capas/link-tip-manual.webp?v=20261121-mk-tip'],
-    ['administrator.tipbrasil.com.br/zeus_admin/cp_zeus/login', 'capas/link-tip-zeus.webp?v=20261121-mk-tip'],
-    ['site.dryconecta.com.br/ativar-chip/informacoes-basicas', 'capas/link-dry-ativar.webp?v=20261121-mk-tip'],
-    ['www.tim.com.br/para-voce/cobertura-e-roaming/mapa-de-cobertura', 'capas/link-dry-cobertura.webp?v=20261121'],
-    ['itop.drytelecom.tech/index.php', 'capas/link-dry-recargas.webp?v=20261121'],
-    ['vivo.com.br/para-voce/por-que-vivo/qualidade/cobertura', 'capas/link-braz-cobertura.webp?v=20261121'],
-    ['parceiro.brazmovel.com.br/', 'capas/link-braz-recargas.webp?v=20261121-mk-tip'],
-    ['www.google.com/maps/d/u/0/viewer', 'capas/link-itop-fibra.webp?v=20261121'],
-    ['www.portaldoassinante.com/itoptelecom/login', 'capas/link-assinante.webp?v=20261121'],
-    ['tarefas.fluxoeficiente.com/sectors', 'capas/link-tarefas.webp?v=20261121'],
-    ['www.netzenergia.com.br/', 'capas/link-netz.webp?v=20261121-mk-tip'],
-    ['remuneratop.itop.net.br/product/', 'capas/link-remunera.webp?v=20261121'],
-    ['www.playhub.com.br/APP/login', 'capas/link-playhub.webp?v=20261121'],
-    ['plataforma.celetihub.com.br/login', 'capas/link-celeti.webp?v=20261121'],
-    ['dashboard.aliviaapp.com.br/authentication/sign-in', 'capas/link-telemedicina.webp?v=20261121'],
-    ['consultanumero.abrtelecom.com.br/consultanumero/consulta/consultaHistoricoRecenteCtg', 'capas/link-consulta-numero.webp?v=20261121'],
+    ['mkbot.itop.net.br/mk/mkcore/Login/', 'capas/link-portal-mk.webp?v=20261122-artes'],
+    ['mksolutions.movidesk.com/Account/Login', 'capas/link-mk-movidesk.webp?v=20261122-artes'],
+    ['tip.movidesk.com/Ticket/Create', 'capas/link-tip-movidesk.webp?v=20261122-artes'],
+    ['easy2use.com.br/mvno/wp-login.php', 'capas/link-tip-easy.webp?v=20261122-artes'],
+    ['tip.movidesk.com/kb/pt-br/article/526696/portabilidade-via-easy-servicos', 'capas/link-tip-manual.webp?v=20261122-artes'],
+    ['administrator.tipbrasil.com.br/zeus_admin/cp_zeus/login', 'capas/link-tip-zeus.webp?v=20261122-artes'],
+    ['site.dryconecta.com.br/ativar-chip/informacoes-basicas', 'capas/link-dry-ativar.webp?v=20261122-artes'],
+    ['www.tim.com.br/para-voce/cobertura-e-roaming/mapa-de-cobertura', 'capas/link-dry-cobertura.webp?v=20261122-artes'],
+    ['itop.drytelecom.tech/index.php', 'capas/link-dry-recargas.webp?v=20261122-artes'],
+    ['vivo.com.br/para-voce/por-que-vivo/qualidade/cobertura', 'capas/link-braz-cobertura.webp?v=20261122-artes'],
+    ['parceiro.brazmovel.com.br/', 'capas/link-braz-recargas.webp?v=20261122-artes'],
+    ['www.google.com/maps/d/u/0/viewer', 'capas/link-itop-fibra.webp?v=20261122-artes'],
+    ['www.portaldoassinante.com/itoptelecom/login', 'capas/link-assinante.webp?v=20261122-artes'],
+    ['tarefas.fluxoeficiente.com/sectors', 'capas/link-tarefas.webp?v=20261122-artes'],
+    ['www.netzenergia.com.br/', 'capas/link-netz.webp?v=20261122-artes'],
+    ['remuneratop.itop.net.br/product/', 'capas/link-remunera.webp?v=20261122-artes'],
+    ['www.playhub.com.br/APP/login', 'capas/link-playhub.webp?v=20261122-artes'],
+    ['plataforma.celetihub.com.br/login', 'capas/link-celeti.webp?v=20261122-artes'],
+    ['dashboard.aliviaapp.com.br/authentication/sign-in', 'capas/link-telemedicina.webp?v=20261122-artes'],
+    ['consultanumero.abrtelecom.com.br/consultanumero/consulta/consultaHistoricoRecenteCtg', 'capas/link-consulta-numero.webp?v=20261122-artes'],
   ]);
   const coverFor = link => {
     const url = new URL(link.href);
@@ -812,6 +823,10 @@
   for (const item of links) {
     const link = primaryLink(item);
     const cover = link && coverFor(link);
+    if (link && link.href === brazRecharge?.href) {
+      item.querySelector('.useful-link-copy strong').textContent = 'Recarga Braz';
+      item.querySelector('.itop-useful-cover').alt = 'Recarga Braz';
+    }
     if (cover) item.querySelector('.itop-useful-cover').src = cover;
   }
   const shortcut = sidebar.find(link => link.href === zeusUrl);
