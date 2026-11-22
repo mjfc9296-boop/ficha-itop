@@ -109,9 +109,9 @@
     retentionModule.append(procedures);
     const banner = document.createElement('img');
     banner.src = 'capas/retencao-topo.webp';
-    banner.alt = 'Programa de fidelidade — Renove conosco';
-    banner.width = 1024;
-    banner.height = 214;
+    banner.alt = 'Retenção & Upgrade';
+    banner.width = 2048;
+    banner.height = 684;
     banner.loading = 'lazy';
     banner.style.cssText = 'display:block;width:100%;height:auto;margin:0 0 12px;border-radius:12px';
     retentionModule.prepend(banner);
@@ -130,9 +130,7 @@
     partyModule.id = 'confraternizacao';
     partyModule.className = 'module';
     partyModule.innerHTML = `
-      <div style="position:relative;width:100%;aspect-ratio:2048 / 417;overflow:hidden;border-radius:2.5% / 12%;margin-bottom:12px">
-        <img src="capas/confraternizacao-topo.webp?v=20261121-banner-anexo" alt="Confraternização — O melhor da festa é esperar por ela" width="2048" height="684" style="position:absolute;top:-32.61%;left:0;width:100%;height:auto;max-width:none;display:block">
-      </div>
+      <img src="capas/confraternizacao-topo.webp?v=20261122" alt="Confraternização 2026" width="2048" height="684" style="display:block;width:100%;height:auto;margin:0 0 12px">
       <section><h2>Confraternização de 10 anos da ITOP</h2>
       <p data-party-status role="status"></p>
       <div id="confraternizacaoLista" class="comunica-lista"></div></section>`;
