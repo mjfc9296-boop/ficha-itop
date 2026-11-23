@@ -1749,6 +1749,12 @@ html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
   background: var(--itop-header-art) center var(--itop-header-position) / 100% calc(100% * 684 / var(--itop-header-height) / .82) no-repeat;
   clip-path: inset(0 calc((1 - var(--art-end)) * 100%) 0 calc(var(--art-start) * 100%));
  }
+ html:has(#energia.active:not([hidden])) body > header > .itop-module-header-center::before {
+  --netz-art-width: calc(var(--art-size) * .76);
+  left: calc(62.5% - (var(--art-start) + var(--art-end)) / 2 * var(--netz-art-width));
+  width: var(--netz-art-width);
+  background-size: 100% calc(100% * 684 / var(--itop-header-height) / .82 * .76);
+ }
  html:has(.module.active:not([hidden]):not(#procedimentos):not(#inova-blocos)) body > header::after {
   display: none;
  }
