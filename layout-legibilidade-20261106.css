@@ -315,13 +315,20 @@ html body #energia .energy-final .actions button:not(#energy-create-pdf) {
 
 @media screen {
   html:has(#portaria-seguranca.active:not([hidden])) body > header > .itop-module-header-center {
-    background: #000 url("comercial/security-topo.webp") center / contain no-repeat !important;
+    background: transparent !important;
+    top: 0;
     left: 50%;
+    width: min(64%, calc(100vw * 246 / 2048 * 3.25));
+    height: auto;
+    aspect-ratio: 1024 / 342;
     transform: translateX(-50%);
     mix-blend-mode: normal;
   }
 
   html:has(#portaria-seguranca.active:not([hidden])) body > header > .itop-module-header-center::before {
-    content: none;
+    inset: 0;
+    width: 100%;
+    background: url("comercial/security-topo.webp") center / 100% 100% no-repeat;
+    clip-path: polygon(0% 27%, 1% 23%, 3% 21.8%, 9% 21.8%, 9.8% 18%, 11.9% 13%, 14% 10.7%, 16% 9.8%, 18% 10.3%, 20% 12.5%, 22% 16.5%, 23.5% 21.8%, 98% 21.8%, 99.5% 24%, 100% 27%, 100% 78.5%, 99% 82%, 97.7% 84%, 2% 84%, 0.6% 81%, 0% 77%);
   }
 }

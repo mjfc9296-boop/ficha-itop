@@ -1281,12 +1281,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (talosCover) talosCover.src = 'capa-talos-uvi.webp';
   const moduleHeading = document.querySelector('#portaria-seguranca section > h3');
   const moduleActions = moduleHeading?.nextElementSibling;
-  if (talos && moduleActions?.matches('.training-actions')) {
-    const card = talos.cloneNode(true);
-    card.removeAttribute('data-training');
-    const image = card.querySelector('.training-cover img');
-    image.src = 'capa-talos-modulo-11.webp';
-    card.querySelector('h3').textContent = 'TALOS · Portaria e Segurança';
+  if (moduleActions?.matches('.training-actions')) {
+    const portfolio = 'Itop-Apresentacao-Comercial-11-11-2026-v2-versao-clara.pdf';
+    const card = document.createElement('article');
+    card.className = 'training-card';
+    card.innerHTML = `
+      <a class="training-cover" href="${portfolio}" target="_blank" rel="noopener" aria-label="Visualizar portfólio Security">
+        <img src="capas/security-portfolio.webp" alt="ITOP Security — Portfólio de planos" loading="lazy" style="object-fit:contain">
+      </a>
+      <h3>Security · Portfólio de planos</h3>
+      <div class="training-actions">
+        <a class="training-open" href="${portfolio}" target="_blank" rel="noopener">Visualizar PDF</a>
+        <a class="training-download" href="${portfolio}" download>Baixar</a>
+      </div>`;
     moduleHeading.replaceWith(card);
     moduleActions.remove();
   }
