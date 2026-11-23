@@ -81,7 +81,7 @@
   ['itop-comunica', 'itop-comunica-topo.webp', 'ITOP Comunica', 2048, 684],
   ['procedimentos', 'uvi-universidade-de-vendas-topo.webp', 'UVI — Universidade de Vendas ITOP', 2048, 684],
   ['svas-area', 'sva-topo.webp', 'SVA — Serviços de Valor Agregado', 2048, 684],
-  ['comissionamento-area', 'comissao-topo.webp', 'Comissão', 2048, 682],
+  ['comissionamento-area', 'topo-comissao.webp', 'Comissão', 2048, 684],
   ['portaria-seguranca', 'portaria-seguranca-topo.webp', 'Talos — Portaria e Segurança', 2048, 684],
   ['gestao-usuarios', 'gestao-usuarios-topo.webp', 'Gestão de Usuários', 2048, 684],
   ['comercial', 'gestao-plataforma-topo.webp', 'Gestão da Plataforma', 2048, 684],
@@ -90,7 +90,7 @@
   const module = $(moduleId);
   if (!module) continue;
   const banner = document.createElement('img');
-  banner.src = 'comercial/' + image;
+  banner.src = moduleId === 'comissionamento-area' ? image : 'comercial/' + image;
   banner.alt = title;
   banner.loading = 'lazy';
   banner.width = width;
