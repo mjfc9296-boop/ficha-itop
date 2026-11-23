@@ -1689,6 +1689,36 @@ html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
  }
 }
 </style>
+<style id="itop-banners-espaco-superior">
+@media screen {
+ /* Recua apenas a margem branca acima da arte, em unidades da imagem original. */
+ img.itop-sondagem-banner { --itop-top-trim: 130; --itop-banner-gap: 0px; }
+ img[src*="/uvi-universidade-de-vendas-topo.webp"] { --itop-top-trim: 110; }
+ img[src*="/confraternizacao-topo.webp"] { --itop-top-trim: 138; }
+ img[src*="/sva-topo.webp"] { --itop-top-trim: 48; --itop-banner-height: 682; }
+ img[src*="/suporte-telefonia-movel-topo.webp"] { --itop-top-trim: 31; --itop-banner-gap: 0px; }
+ img[src*="/portaria-seguranca-topo.webp"] { --itop-top-trim: 24; --itop-banner-height: 682; }
+ img[src*="/itop-comunica-topo.webp"] { --itop-top-trim: 18; }
+ img[src*="/telefonia-movel-fixa-topo.webp"] { --itop-top-trim: 15; }
+
+ html body main .module :is(
+  img.itop-sondagem-banner,
+  img[src*="/uvi-universidade-de-vendas-topo.webp"],
+  img[src*="/confraternizacao-topo.webp"],
+  img[src*="/sva-topo.webp"],
+  img[src*="/suporte-telefonia-movel-topo.webp"],
+  img[src*="/portaria-seguranca-topo.webp"],
+  img[src*="/itop-comunica-topo.webp"],
+  img[src*="/telefonia-movel-fixa-topo.webp"]
+ ) {
+  --itop-trim-height: calc(var(--itop-top-trim) * 100% / var(--itop-banner-height, 684));
+  clip-path: inset(var(--itop-trim-height) 0 0) !important;
+  transform: translateY(calc(-1 * var(--itop-trim-height))) !important;
+  margin-bottom: calc(var(--itop-banner-gap, 12px) - var(--itop-top-trim) * 100% / 2048) !important;
+ }
+ html body #movel > .itop-support-banner-frame { padding-top: 8px !important; }
+}
+</style>
 </head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">Celular com DDD ou e-mail</label><input autocomplete="username" id="itop-email" placeholder="Celular com DDD ou e-mail" required="" type="text"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><button id="itop-resend-email" type="button" hidden>Reenviar confirmação por e-mail</button><div class="itop-auth-links"><button data-register-role="vendedor" type="button">Criar conta de vendedor</button><button data-register-role="supervisor" type="button">Criar conta de supervisor</button><button data-register-role="convidado" type="button">Criar conta de convidado</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
