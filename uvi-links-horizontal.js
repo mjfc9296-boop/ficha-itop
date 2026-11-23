@@ -13,7 +13,9 @@
 })();
 
 // Keep the module separate from the useful-link controls on this entry point.
-import('./comercial/orcamento-uvi.js?v=20261123-retencao-acesso').catch(error => {
+import('./comercial/catalogo-security.js?v=1')
+ .then(() => import('./comercial/orcamento-uvi.js?v=20261123-security'))
+ .catch(error => {
  console.error('Falha ao carregar o Orçamento Comercial da U.V.I.', error);
 });
 

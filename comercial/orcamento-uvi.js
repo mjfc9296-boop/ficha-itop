@@ -1,3 +1,5 @@
+import {isCombo, isPortaria, minimumQuantity, quoteNotes} from './catalogo-security.js?v=1';
+
 (() => {
   'use strict';
 
@@ -78,6 +80,13 @@
     const panel = legacy.cloneNode(false);
     legacy.replaceWith(panel);
     const packageModule = $('pacote');
+    const securityModule = $('portaria-seguranca');
+    const securityButton = document.createElement('button');
+    securityButton.type = 'button';
+    securityButton.textContent = 'Montar orçamento Security';
+    securityModule.querySelector('section').append(securityButton);
+    const securityTab = document.querySelector('[data-module="portaria-seguranca"]');
+    const pdfOnly = () => ['retencao', 'portaria-seguranca'].includes(returnModule);
     const retentionTab = document.createElement('button');
     retentionTab.type = 'button';
     retentionTab.hidden = true;
@@ -232,9 +241,9 @@
         button.addEventListener('click', () => {
           const match = currentItems.find(item => item.name === name && item.category === category);
           if (match) match.q += 1;
-          else currentItems.push({name, category, q: 1, price});
+          else currentItems.push({name, category, q: minimumQuantity(name), price});
           renderCurrentPlan();
-          currentStatus.textContent = name + ' · ' + (match?.q || 1) + ' no plano atual.';
+          currentStatus.textContent = name + ' · ' + (match?.q || minimumQuantity(name)) + ' no plano atual.';
         });
         group.append(button);
         options.push({button, searchText: normalize(name + ' ' + category)});
@@ -283,7 +292,7 @@
           updateCurrentTotal();
         }
         for (const [key, cell, minimum, step, label] of [
-          ['q', quantityCell, 1, 1, 'Quantidade de '],
+          ['q', quantityCell, minimumQuantity(item.name), 1, 'Quantidade de '],
           ['price', priceCell, 0, 0.01, 'Valor unitário de ']
         ]) {
           const field = document.createElement('input');
@@ -474,6 +483,7 @@
       returnModule = source;
       retentionDocument.setCustomValidity('');
       const retention = source === 'retencao';
+      const security = source === 'portaria-seguranca';
       for (const key of retentionExtraFields) {
         input(key).closest('.field').hidden = input(key).disabled = retention;
       }
@@ -486,17 +496,17 @@
       panel.querySelector('.section-tag').hidden = retention;
       simulationBanner.hidden = !retention;
       currentPanel.hidden = !retention;
-      for (const id of ['itop-budget-save', 'itop-budget-schedule', 'itop-budget-history-section']) $(id).hidden = retention;
-      $('itop-budget-action-title').textContent = retention ? 'Emitir proposta de retenção' : 'Emitir orçamento';
-      $('itop-budget-action-description').textContent = retention
+      for (const id of ['itop-budget-save', 'itop-budget-schedule', 'itop-budget-history-section']) $(id).hidden = pdfOnly();
+      $('itop-budget-action-title').textContent = retention ? 'Emitir proposta de retenção' : security ? 'Emitir orçamento Security' : 'Emitir orçamento';
+      $('itop-budget-action-description').textContent = pdfOnly()
         ? 'Baixe o PDF para guardar uma cópia no seu dispositivo.'
         : 'Baixe o PDF diretamente no computador. Salvar no sistema é opcional e permite recuperar o orçamento ou agendar um retorno.';
       catalogTitle.textContent = retention ? 'Novo plano' : originalCatalogTitle;
       currentItems = [];
       renderCurrentPlan();
-      panel.querySelector('h2').textContent = retention ? 'Cliente Especial, Oferta Especial' : 'Orçamento Comercial';
-      panel.querySelector('.eyebrow').textContent = retention ? 'RETENÇÃO · MÓDULO 15' : 'U.V.I. · MÓDULO 16';
-      $('itop-budget-exit').textContent = retention ? 'Voltar à Retenção' : 'Voltar à U.V.I.';
+      panel.querySelector('h2').textContent = retention ? 'Cliente Especial, Oferta Especial' : security ? 'Orçamento Security' : 'Orçamento Comercial';
+      panel.querySelector('.eyebrow').textContent = retention ? 'RETENÇÃO · MÓDULO 15' : security ? 'ITOP SECURITY' : 'U.V.I. · MÓDULO 16';
+      $('itop-budget-exit').textContent = retention ? 'Voltar à Retenção' : security ? 'Voltar à Security' : 'Voltar à U.V.I.';
       const token = ++visit;
       sales = {
         rows: new Map(compactRows.map(row => [row, {
@@ -516,7 +526,7 @@
       footer.before(promotions, energyBox);
       document.body.classList.add('itop-budget-mode');
       document.querySelectorAll('.module').forEach(module => module.classList.toggle('active', module === packageModule));
-      document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.toggle('active', retention && tab === retentionTab));
+      document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.toggle('active', (retention && tab === retentionTab) || (security && tab === securityTab)));
       panel.hidden = footer.hidden = false;
       form.reset();
       const now = new Date();
@@ -536,7 +546,7 @@
         if (token !== visit) return;
         operator = value;
         renderRole();
-        if (!retention) refresh();
+        if (!pdfOnly()) refresh();
       }).catch(error => { if (token === visit) status(error.message); });
     }
 
@@ -550,6 +560,9 @@
       if (!form.reportValidity()) throw Error('Confira os campos obrigatórios do orçamento.');
       if (!input('emissao_data').value || !input('emissao_hora').value) throw Error('Informe a data e o horário de emissão.');
       const {items, total} = window.ITOPBudgetCalculator();
+      if (items.some(item => isPortaria(item.name)) && items.some(item => isCombo(item.name))) {
+        throw Error('Emita a Portaria Virtual em um orçamento separado do combo com internet.');
+      }
       const energyEntered = energyIds.some(id => id !== 'categoria' && $(id).value !== '');
       if (energyEntered && !energy.valid) {
         energyBox.open = true;
@@ -573,7 +586,7 @@
     }
 
     async function save(schedule = false) {
-      if (saving || returnModule === 'retencao') return;
+      if (saving || pdfOnly()) return;
       const token = visit;
       try {
         if (!operator) throw Error('Aguarde a validação do seu acesso.');
@@ -611,7 +624,7 @@
     }
 
     async function refresh() {
-      if (!operator || !active() || returnModule === 'retencao') return;
+      if (!operator || !active() || pdfOnly()) return;
       const token = ++historyRequest;
       const opened = visit;
       const box = $('itop-budget-history');
@@ -722,6 +735,8 @@
       try {
         if (!operator) throw Error('Aguarde a validação do seu acesso.');
         const draft = readDraft();
+        const conditions = quoteNotes(draft.produtos);
+        if (conditions) draft.observacoes = [draft.observacoes, conditions].filter(Boolean).join('\n');
         if (!window.ITOPBudgetPDF) throw Error('Gerador de PDF indisponível. Recarregue a página.');
         button.disabled = true;
         const retention = returnModule === 'retencao';
@@ -736,9 +751,10 @@
         }
         const logo = retention ? await loadOfficialLogo() : null;
         if (token !== visit) return;
-        const result = window.ITOPBudgetPDF.create(draft, units[draft.unidade], {...energy}, retention ? {retention, logo} : {});
+        const security = returnModule === 'portaria-seguranca';
+        const result = window.ITOPBudgetPDF.create(draft, units[draft.unidade], {...energy}, {retention, security, logo});
         await result.doc.save(result.name, {returnPromise: true});
-        status(retention ? 'PDF de retenção gerado para download.' : 'PDF gerado para download no computador. Não é necessário salvar o orçamento no sistema.');
+        status(pdfOnly() ? 'PDF gerado para download.' : 'PDF gerado para download no computador. Não é necessário salvar o orçamento no sistema.');
       } catch (error) { status('Não foi possível gerar o PDF. ' + error.message); }
       finally { button.disabled = false; }
     }
@@ -749,6 +765,7 @@
     input('unidade').addEventListener('change', unitInfo);
     input('emissao_data').addEventListener('change', () => { input('validade').min = input('emissao_data').value; });
     openButton.addEventListener('click', () => open());
+    securityButton.addEventListener('click', () => open('portaria-seguranca'));
     retentionTab.addEventListener('click', () => switchModule('retencao'));
     retentionModule.querySelector('button').addEventListener('click', () => open('retencao'));
     $('itop-budget-save').onclick = () => save();
