@@ -82,9 +82,9 @@
     retentionTab.type = 'button';
     retentionTab.className = 'nav-tab';
     retentionTab.dataset.module = 'retencao';
-    retentionTab.setAttribute('aria-label', '15 Retenção');
+    retentionTab.setAttribute('aria-label', '14 Retenção');
     retentionTab.setAttribute('aria-controls', 'retencao');
-    retentionTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/menu-bronze-retencao.webp"><span class="step-ball" aria-hidden="true">15</span><span class="itop-nav-label">Retenção</span>';
+    retentionTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/menu-bronze-retencao.webp"><span class="step-ball" aria-hidden="true">14</span><span class="itop-nav-label">Retenção</span>';
     const moduleNav = document.querySelector('.itop-module-menu .nav-tabs');
     const inovaTab = moduleNav.querySelector('[data-module="inova-blocos"]');
     moduleNav.insertBefore(retentionTab, inovaTab);
@@ -124,9 +124,9 @@
     partyTab.type = 'button';
     partyTab.className = 'nav-tab';
     partyTab.dataset.module = 'confraternizacao';
-    partyTab.setAttribute('aria-label', '16 Confraternização');
+    partyTab.setAttribute('aria-label', '15 Confraternização');
     partyTab.setAttribute('aria-controls', 'confraternizacao');
-    partyTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/menu-bronze-confraternizacao.webp"><span class="step-ball" aria-hidden="true">16</span><span class="itop-nav-label">Confraternização</span><span class="comunica-badge" id="confraternizacaoBadge" hidden></span>';
+    partyTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/menu-bronze-confraternizacao.webp"><span class="step-ball" aria-hidden="true">15</span><span class="itop-nav-label">Confraternização</span><span class="comunica-badge" id="confraternizacaoBadge" hidden></span>';
     retentionTab.after(partyTab);
     const partyModule = document.createElement('div');
     partyModule.id = 'confraternizacao';
@@ -150,7 +150,7 @@
         const unread = notices.filter(card => card.classList.contains('nao-lido')).length;
         partyBadge.hidden = unread === 0;
         partyBadge.textContent = unread > 99 ? '99+' : String(unread);
-        partyTab.setAttribute('aria-label', '16 Confraternização' + (unread ? ' · ' + unread + ' aviso(s) não lido(s)' : ''));
+        partyTab.setAttribute('aria-label', '15 Confraternização' + (unread ? ' · ' + unread + ' aviso(s) não lido(s)' : ''));
         partyStatus.textContent = unread ? unread + ' aviso(s) não lido(s).' : notices.length ? '' : 'Nenhum aviso de confraternização disponível.';
         partyList.replaceChildren(...notices.map(notice => {
           const copy = notice.cloneNode(true);
