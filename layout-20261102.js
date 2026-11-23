@@ -707,11 +707,29 @@
   archiveStatus.textContent = '';
  }
 
- window.addEventListener('itop:authorized', event => setInovaAccess(event.detail?.papel === 'administrador'));
- window.addEventListener('itop:logged-out', () => setInovaAccess(false));
- // A validação pode terminar antes de o módulo registrar o evento.
+ let inovaAccessCheck = 0;
+ async function verifyInovaAccess(profile) {
+  const check = ++inovaAccessCheck;
+  if (profile?.papel !== 'administrador') {
+   setInovaAccess(false);
+   return;
+  }
+  let isOwner = false;
+  try {
+   const {data, error} = await window.itopAuthClient.auth.getUser();
+   isOwner = !error && data?.user?.email?.toLowerCase() === 'mjfc9296@gmail.com';
+  } catch {
+   // Keep the module hidden when the session cannot be verified.
+  }
+  if (check === inovaAccessCheck) setInovaAccess(isOwner);
+ }
+ window.addEventListener('itop:authorized', event => void verifyInovaAccess(event.detail));
+ window.addEventListener('itop:logged-out', () => {
+  inovaAccessCheck += 1;
+  setInovaAccess(false);
+ });
  if (document.documentElement.classList.contains('itop-authorized')) {
-  setInovaAccess(window.itopAuthorizedProfile?.papel === 'administrador');
+  void verifyInovaAccess(window.itopAuthorizedProfile);
  }
 
  inovaTab.addEventListener('click', () => {

@@ -85,7 +85,9 @@
     retentionTab.setAttribute('aria-label', '15 Retenção');
     retentionTab.setAttribute('aria-controls', 'retencao');
     retentionTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/menu-bronze-retencao.webp"><span class="step-ball" aria-hidden="true">15</span><span class="itop-nav-label">Retenção</span>';
-    document.querySelector('.itop-module-menu .nav-tabs').append(retentionTab);
+    const moduleNav = document.querySelector('.itop-module-menu .nav-tabs');
+    const inovaTab = moduleNav.querySelector('[data-module="inova-blocos"]');
+    moduleNav.insertBefore(retentionTab, inovaTab);
     const retentionModule = document.createElement('div');
     retentionModule.id = 'retencao';
     retentionModule.className = 'module';
