@@ -1601,6 +1601,40 @@ html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
  html:not(:has(#inova-blocos.active:not([hidden]))) body > header #itop-logout { top: auto !important; bottom: 2px !important; }
 }
 </style>
+<style id="itop-topo-comissao">
+@media screen {
+ html:has(#comissionamento-area.active:not([hidden])) {
+  --comissao-banner-height: min(33.4vw, 250px);
+ }
+ html:has(#comissionamento-area.active:not([hidden])) body > header {
+  height: var(--comissao-banner-height) !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  background: #fcfcfc !important;
+ }
+ html:has(#comissionamento-area.active:not([hidden])) body > header::after {
+  height: var(--comissao-banner-height);
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: url("topo-comissao.webp") center / contain no-repeat;
+ }
+ html:has(#comissionamento-area.active:not([hidden])) body > header #itop-logout {
+  color: #222 !important;
+ }
+}
+@media screen and (min-width: 901px) {
+ html:has(#comissionamento-area.active:not([hidden])) body > main {
+  height: calc(100dvh - var(--comissao-banner-height)) !important;
+  max-height: calc(100dvh - var(--comissao-banner-height)) !important;
+ }
+}
+@media screen and (max-width: 900px) {
+ html:has(#comissionamento-area.active:not([hidden])) body > header {
+  height: calc(var(--comissao-banner-height) + 32px) !important;
+ }
+}
+</style>
 </head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">Celular com DDD ou e-mail</label><input autocomplete="username" id="itop-email" placeholder="Celular com DDD ou e-mail" required="" type="text"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><button id="itop-resend-email" type="button" hidden>Reenviar confirmação por e-mail</button><div class="itop-auth-links"><button data-register-role="vendedor" type="button">Criar conta de vendedor</button><button data-register-role="supervisor" type="button">Criar conta de supervisor</button><button data-register-role="convidado" type="button">Criar conta de convidado</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
