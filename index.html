@@ -1527,6 +1527,43 @@ html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
  border-radius:8px!important;
 }
 </style>
+<style id="itop-energy-distribution-and-brand">
+.itop-energy-chart .energy-distribution-bar {
+ display: flex;
+ border-radius: 8px;
+ overflow: hidden;
+}
+.itop-energy-chart .energy-distribution-bar > span {
+ flex-basis: 0;
+ min-width: min(31%, 104px);
+ padding: 7px 3px;
+ text-align: center;
+ font-size: clamp(11px, 1.2vw, 15px);
+}
+.itop-energy-chart .energy-distribution-bar > span :is(b,strong) {
+ display: block;
+ line-height: 1.35;
+ color: #fff !important;
+ -webkit-text-fill-color: #fff !important;
+}
+.itop-energy-chart .energy-distribution-bar > span:nth-child(2) :is(b,strong) {
+ color: #1d1231 !important;
+ -webkit-text-fill-color: #1d1231 !important;
+}
+@media screen and (min-width:901px) {
+ html:not(:has(#inova-blocos.active:not([hidden]))) body > header::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 3px 0;
+  width: 20.5%;
+  background: url("capas/logo-topo-itop-transparente.webp") center / 94% 95% no-repeat, linear-gradient(125deg,#121212,#414347);
+  pointer-events: none;
+ }
+}
+@media screen and (max-width:900px) {
+ html body > header .logo-screen { content: url("capas/logo-topo-itop-transparente.webp"); object-fit: contain; }
+}
+</style>
 </head><body><div id="itop-auth-screen"><div aria-label="Mascote original ITOP sobre fundo laranja" class="itop-login-art" role="img"></div><div class="itop-login-side"><div class="itop-login"><img alt="ITOP Telecom" class="itop-login-logo" src="logo-itop-oficial.png"/><h2>SUPORTE A VENDAS ITOP</h2><form id="itop-login-form"><label class="itop-sr" for="itop-email">Celular com DDD ou e-mail</label><input autocomplete="username" id="itop-email" placeholder="Celular com DDD ou e-mail" required="" type="text"/><label class="itop-sr" for="itop-password">Senha</label><div class="itop-pass-wrap"><input autocomplete="current-password" id="itop-password" placeholder="♙  Senha" required="" type="password"/><button aria-label="Mostrar senha" id="itop-show-password" type="button">◉</button></div><button id="itop-login-button" type="submit">Entrar</button></form><button id="itop-forgot-password" type="button">Esqueci a senha</button><button id="itop-resend-email" type="button" hidden>Reenviar confirmação por e-mail</button><div class="itop-auth-links"><button data-register-role="vendedor" type="button">Criar conta de vendedor</button><button data-register-role="supervisor" type="button">Criar conta de supervisor</button><button data-register-role="convidado" type="button">Criar conta de convidado</button></div>
 <div id="itop-register-panel">
 <h3 id="itop-register-title">Solicitar cadastro</h3>
@@ -1873,7 +1910,22 @@ function energyComparisonRows(){return [
  ['Demais valores preservados¹',money(energy.other),'—'],
  ['VALOR DE CADA CONTA',money(energy.residual),money(energy.newval)]
  ];}
-function energyChartHTML(){if(!energy.valid)return '';const base=Math.max(energy.bill,energy.combined,1);return `<div class="itop-energy-chart"><h3>Distribuição das duas contas</h3><p>Hoje · Cemig: <b>${money(energy.bill)}</b></p><div class="energy-bar"><span style="width:100%;background:#555">CEMIG</span></div><p>Com NETZ · Total: <b>${money(energy.combined)}</b></p><div class="energy-bar"><span style="width:${energy.residual/base*100}%;background:#666" aria-label="Cemig ${money(energy.residual)}"></span><span style="width:${energy.newval/base*100}%;background:#d27a2f" aria-label="NETZ ${money(energy.newval)}"></span></div><p>Cemig: <b>${money(energy.residual)}</b> + NETZ: <b>${money(energy.newval)}</b></p><p>Economia estimada: <b>${money(energy.saving)}/mês</b></p></div>`;}
+function energyChartHTML(){
+ if (!energy.valid) return '';
+ const segment = (name, value, color) => `<span style="background:${color};flex-grow:${Math.max(0,value)}"><b>${name}</b><strong>${money(value)}</strong></span>`;
+ const cemigGreen = '#007735';
+ return `<div class="itop-energy-chart">
+  <h3>Distribuição das duas contas</h3>
+  <p><b>Conta única Cemig</b></p>
+  <div class="energy-distribution-bar">${segment('Cemig',energy.bill,cemigGreen)}</div>
+  <p><b>Duas contas Cemig + NETZ</b></p>
+  <div class="energy-distribution-bar">
+   ${segment('Cemig',energy.residual,cemigGreen)}
+   ${segment('NETZ',energy.newval,'#b39ddb')}
+   ${segment('Economia',energy.saving,'#525252')}
+  </div>
+ </div>`;
+}
 function energyComparisonHTML(){return `<div class="energy-table-top"><span>CONSUMO TOTAL: <b>${energy.kwh} kWh</b></span><span>${$('categoria').selectedOptions[0].text.toUpperCase()}</span></div><table class="energy-comparison-table"><thead><tr><th>COMPOSIÇÃO</th><th>CEMIG</th><th>ITOP NETZ</th></tr></thead><tbody>${energyComparisonRows().map((r,i)=>`<tr class="${i===4?'account-total':''}">${r.map((v,j)=>j===0?`<th scope="row">${escapeHTML(v)}</th>`:`<td>${escapeHTML(v)}</td>`).join('')}</tr>`).join('')}</tbody></table><div class="energy-final-comparison"><div><span>HOJE · SOMENTE CEMIG</span><b>${money(energy.bill)}</b></div><div><span>COM CEMIG + ITOP NETZ</span><b>${money(energy.combined)}</b></div></div><div class="energy-final-savings"><span>ECONOMIA MENSAL <b>${money(energy.saving)}</b></span><span>ECONOMIA ANUAL <b>${money(energy.annual)}</b></span></div><p class="energy-note">¹ Saldo da fatura preservado após retirar o valor dos kWh excedentes; não identifica individualmente tributos, taxas ou créditos. Os demais itens permanecem estimados na CEMIG.</p>`;}
 function renderEnergyComparison(){
  const memory=$('energyMemoryComparison');
@@ -2364,11 +2416,7 @@ function pdf(){
  ['Consumo excedente',d.excess+' kWh'],
  ['Tarifa NETZ / diferença por kWh',rate(d.netz)+' / '+rate(d.tariff-d.netz)]
  ]);
- y=box(y,'DEMONSTRATIVO E MEMÓRIA DOS kWh EXCEDENTES',[
- ['Cemig: '+d.excess+' kWh x '+rate(d.tariff),brl(excessCents/100)],
- ['NETZ: '+d.excess+' kWh x '+rate(d.netz),brl(netzCents/100)],
- ['Economia mensal no excedente',brl(saving)]
- ]);
+
  // Composição com colunas independentes para cada fornecedora.
  const divisionRows=[
   ['Tarifa por kWh',rate(d.tariff),rate(d.netz)],
@@ -2404,14 +2452,33 @@ function pdf(){
   txt(row[1],195,rowY+3.8,8,true,black,'right');
   rowY+=5.5;
  });
- y=tableY+tableHeight+5;
- txt(brl(residual)+' (Cemig) + '+brl(netzCents/100)+' (NETZ) = '+brl(combined),105,y+2,10,true,[160,80,24],'center');
- y+=9;
+ y=tableY+tableHeight+4;
+ function comparisonBar(label, segments) {
+  txt(label,12,y+3,8,true);
+  const totalValue=segments.reduce((sum,segment)=>sum+Math.max(0,segment.value),0);
+  let x=12;
+  for(const {name,value,color,ink=[255,255,255]} of segments){
+   const width=segments.length===1?186:29+(186-29*segments.length)*Math.max(0,value)/(totalValue||1);
+   doc.setFillColor(...color);doc.rect(x,y+4.5,width,10,'F');
+   txt(name,x+width/2,y+8.5,7,true,ink,'center');
+   txt(brl(value),x+width/2,y+12.5,8,true,ink,'center');
+   x+=width;
+  }
+  y+=17;
+ }
+ const cemigGreen=[0,119,53];
+ comparisonBar('CONTA ÚNICA CEMIG',[{name:'Cemig',value:d.bill,color:cemigGreen}]);
+ comparisonBar('DUAS CONTAS CEMIG + NETZ',[
+  {name:'Cemig',value:residual,color:cemigGreen},
+  {name:'NETZ',value:netzCents/100,color:[179,157,219],ink:[29,18,49]},
+  {name:'Economia',value:saving,color:[82,82,82]}
+ ]);
  doc.setFillColor(...black);doc.roundedRect(11,y,188,21,3,3,'F');
  txt('ECONOMIA MENSAL',17,y+8,8,true,[255,195,140]);txt(brl(saving),17,y+17,14,true,[255,255,255]);
  txt('ECONOMIA EM 12 MESES',112,y+8,8,true,[255,195,140]);txt(brl(saving*12),112,y+17,14,true,[255,255,255]);
  y+=27;
 
+ if (y > 231) { doc.addPage(); y=15; }
  // Impacto econômico do pacote efetivamente escolhido, separado da fatura de energia.
  const chosenPackage=typeof total==='number'&&Number.isFinite(total)?Math.max(0,total):0;
  const hasChosenPackage=typeof selected!=='undefined'&&selected.length>0&&chosenPackage>0;
@@ -2431,13 +2498,13 @@ function pdf(){
  }
  y+=30;
 
- txt('DUAS CONTAS, UM TOTAL MENOR NESTA SIMULAÇÃO',13,y,9,true,[160,80,24]);y+=6;
+ txt(saving>0?'DUAS CONTAS, UM TOTAL MENOR NESTA SIMULAÇÃO':'COMPARAÇÃO ENTRE UMA E DUAS CONTAS',13,y,9,true,[160,80,24]);y+=5;
  const notes=[
  'A conta Cemig estimada mantém o consumo mínimo e os demais valores da fatura informada. A NETZ cobra o consumo excedente com desconto estimado de 20%.',
  'O impacto no pacote é apenas uma ilustração do cashback recebido com a energia. As contas serão cobradas integralmente, de acordo com o pacote escolhido; não há desconto automático na mensalidade.'
  ];
  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(75,75,75);
- notes.forEach(n=>{const lines=doc.splitTextToSize(n,182);doc.text(lines,14,y);y+=lines.length*4+2});
+ notes.forEach(n=>{const lines=doc.splitTextToSize(n,182);doc.text(lines,14,y);y+=lines.length*3.5+1});
  txt('ITOP TELECOM | SIMULAÇÃO CONSULTIVA DE ECONOMIA',105,289,7,true,[160,80,24],'center');
  doc.save('ITOP-NETZ-Simulacao-'+new Date().toISOString().slice(0,10)+'.pdf');
  $('itopEnergyActionStatus').textContent='PDF com comparação de uma conta e duas contas gerado.';
