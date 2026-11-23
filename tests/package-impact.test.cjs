@@ -1,0 +1,10 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
+const helper=source.slice(source.indexOf('function itopPackageImpact('),source.indexOf('function renderPackageSummary(){'));
+const context={money:n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})};vm.createContext(context);vm.runInContext(helper,context);
+const impact=(...a)=>context.itopPackageImpact(...a).replace(/\u00a0/g,' ');
+const regular=impact(200,35,true,1);assert.match(regular,/R\$ 165,00/);assert.match(regular,/17,5%/);assert.doesNotMatch(regular,/energy-chart/);
+assert.match(impact(20,35,true,1),/R\$ 0,00/);assert.match(impact(20,35,true,1),/Economia excedente:.*R\$ 15,00/);
+assert.match(impact(200,0,true,1),/R\$ 200,00/);assert.match(impact(200,-1,true,1),/simulação de energia válida/);
+assert.match(impact(0,35,true,1),/Selecione um pacote/);assert.match(impact(NaN,35,true,1),/Selecione um pacote/);assert.match(impact(200,NaN,true,1),/simulação de energia válida/);assert.match(impact(200,35,false,1),/simulação de energia válida/);assert.match(impact(200,35,true,0),/Selecione um pacote/);
+console.log('Package impact: 10 cases passed.');

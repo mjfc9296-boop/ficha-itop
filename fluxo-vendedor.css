@@ -1,0 +1,13 @@
+html body .itop-sales-flow{border:1px solid #d27a2f!important;border-radius:14px!important;background:#fff9f3!important;color:#111!important;padding:18px!important;margin:16px 0!important}
+html body .itop-sales-flow[hidden]{display:none!important}
+html body .itop-sales-flow h3{margin:0 0 12px;color:#111!important}
+html body .itop-sales-flow :is(p,label,span,strong){color:#111!important;-webkit-text-fill-color:#111!important}
+html body .itop-flow-progress{font-size:12px;font-weight:700;line-height:1.6;margin:0 0 12px}
+html body .itop-sales-flow label{display:flex!important;align-items:center;gap:10px;text-align:left!important;margin:14px 0!important;font-size:12px;line-height:1.6}
+html body .itop-sales-flow input[type=checkbox]{width:18px!important;height:18px!important;flex:0 0 18px;accent-color:#d27a2f;margin:0!important}
+html body .itop-sales-flow select{display:block;width:min(100%,420px);margin:12px auto!important;background:#fff!important;color:#111!important;border:1px solid #d27a2f;border-radius:9px;padding:10px;height:42px}
+html body .itop-sales-flow .itop-flow-message{font-size:12px;line-height:1.6;margin:12px 0}
+html body .itop-sales-flow .itop-flow-message:empty{display:none}
+html body .itop-sales-flow .actions{margin:16px 0 0!important}
+html body .itop-sales-flow button{background:#d27a2f!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border-radius:9px!important;border:1px solid #d27a2f!important;box-shadow:none!important;padding:11px 16px!important}
+html body .nav-tab[data-flow-locked=true]{opacity:.65;filter:saturate(.35)}
