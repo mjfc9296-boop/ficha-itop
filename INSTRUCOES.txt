@@ -1,1 +1,0 @@
-ITOP V5 - FIXO logo abaixo de FIBRA; tela de login com uma unica imagem de fundo. Envie index.html e itop-login-fundo-unico-v5.webp para a raiz do repositorio GitHub. Nao exclua arquivos existentes. Depois atualize com Ctrl+F5.

@@ -1,1 +1,0 @@
-Envie index.html e banner-uvi-chumbo.png para a raiz do GitHub. Backup antes. Esta versao preserva a regra de indicacao inteligente existente; nao altera o Supabase. Validar botoes e fluxo de cliente ITOP em ambiente de teste.
