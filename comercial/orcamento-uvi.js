@@ -80,6 +80,7 @@
     const packageModule = $('pacote');
     const retentionTab = document.createElement('button');
     retentionTab.type = 'button';
+    retentionTab.hidden = true;
     retentionTab.className = 'nav-tab';
     retentionTab.dataset.module = 'retencao';
     retentionTab.setAttribute('aria-label', '14 Retenção');
@@ -91,6 +92,7 @@
     const retentionModule = document.createElement('div');
     retentionModule.id = 'retencao';
     retentionModule.className = 'module';
+    retentionModule.hidden = true;
     retentionModule.innerHTML = '<section><h2>Retenção</h2><button type="button">Simulação Retenção Cliente</button></section>';
     const procedures = document.createElement('details');
     procedures.style.cssText = 'margin:12px 0;padding:14px;background:#fff;border:1px solid #d27a2f;border-radius:12px';
@@ -468,7 +470,7 @@
     }
 
     function open(source = 'procedimentos') {
-      if (active()) return;
+      if (active() || (source === 'retencao' && !retentionAllowed)) return;
       returnModule = source;
       retentionDocument.setCustomValidity('');
       const retention = source === 'retencao';
@@ -724,6 +726,14 @@
         button.disabled = true;
         const retention = returnModule === 'retencao';
         const token = visit;
+        if (retention) {
+          const allowed = await hasRetentionAccess();
+          if (token !== visit) return;
+          if (!allowed) {
+            setRetentionAccess(false);
+            return;
+          }
+        }
         const logo = retention ? await loadOfficialLogo() : null;
         if (token !== visit) return;
         const result = window.ITOPBudgetPDF.create(draft, units[draft.unidade], {...energy}, retention ? {retention, logo} : {});
@@ -746,16 +756,52 @@
     $('itop-budget-refresh').onclick = refresh;
     $('itop-budget-pdf').onclick = pdf;
     const navigate = switchModule;
+    let retentionAllowed = false;
+    let accessRequest = 0;
+
+    async function hasRetentionAccess() {
+      try {
+        const {data, error} = await window.itopAuthClient.rpc('itop_pode_acessar_retencao');
+        return !error && data === true;
+      } catch {
+        return false;
+      }
+    }
+
+    function setRetentionAccess(allowed) {
+      retentionAllowed = allowed;
+      retentionTab.hidden = retentionModule.hidden = !allowed;
+      if (!allowed && (retentionModule.classList.contains('active') || (active() && returnModule === 'retencao'))) {
+        if (active()) restoreSales();
+        retentionModule.classList.remove('active');
+        retentionTab.classList.remove('active');
+        navigate('procedimentos');
+      }
+    }
+
+    async function refreshRetentionAccess() {
+      const request = ++accessRequest;
+      const allowed = await hasRetentionAccess();
+      if (request === accessRequest) setRetentionAccess(allowed);
+    }
+
     function exit() {
       restoreSales();
       navigate(returnModule);
     }
     $('itop-budget-exit').onclick = exit;
     switchModule = id => {
+      if (id === 'retencao' && !retentionAllowed) return;
       if (active()) exit();
       return navigate(id);
     };
-    window.addEventListener('itop:logged-out', () => { if (active()) exit(); });
+    window.addEventListener('itop:authorized', refreshRetentionAccess);
+    window.addEventListener('itop:logged-out', () => {
+      accessRequest++;
+      setRetentionAccess(false);
+      if (active()) exit();
+    });
+    if (document.documentElement.classList.contains('itop-authorized')) void refreshRetentionAccess();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once: true});

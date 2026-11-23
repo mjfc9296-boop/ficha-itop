@@ -312,3 +312,16 @@ html body #energia .energy-final .actions button:not(#energy-create-pdf) {
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
 }
+
+@media screen {
+  html:has(#portaria-seguranca.active:not([hidden])) body > header > .itop-module-header-center {
+    background: #000 url("comercial/security-topo.webp") center / contain no-repeat !important;
+    left: 50%;
+    transform: translateX(-50%);
+    mix-blend-mode: normal;
+  }
+
+  html:has(#portaria-seguranca.active:not([hidden])) body > header > .itop-module-header-center::before {
+    content: none;
+  }
+}

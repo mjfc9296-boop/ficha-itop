@@ -1295,7 +1295,17 @@ document.addEventListener('DOMContentLoaded', () => {
 /* Capas da navegação lateral, associadas aos módulos pelo identificador. */
 for (const moduleId of ["sondagem","pacote","fechamento","energia","itop-movel","movel","itop-comunica","procedimentos","svas-area","comissionamento-area","portaria-seguranca","gestao-usuarios","comercial"]) {
   const cover = document.querySelector('.itop-module-menu .nav-tab[data-module="' + moduleId + '"] .itop-tab-art');
-  if (cover) cover.src = 'capas/menu-bronze-' + moduleId + '.webp';
+  if (!cover) continue;
+  if (moduleId === 'portaria-seguranca') {
+    cover.src = 'capas/menu-security.webp';
+    cover.alt = '';
+    const tab = cover.closest('button');
+    tab.setAttribute('aria-label', '13 Security');
+    tab.querySelector('.step-ball')?.remove();
+    tab.querySelector('.itop-nav-label').textContent = 'Security';
+  } else {
+    cover.src = 'capas/menu-bronze-' + moduleId + '.webp';
+  }
 }
 
 /* Barra de ações e campos de identificação da sondagem. */
