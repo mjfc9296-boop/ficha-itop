@@ -1757,8 +1757,9 @@ function updateProposalOnly(){
  next.textContent = existingCustomer ? 'CONTINUAR PARA ADICIONAR SERVIÇOS' : 'PRÓXIMO - ADD SERVIÇOS';
  const estimated=proposal.reduce((sum,x)=>sum+x.price*x.q,0);
  $('gastoAtual').textContent=money(actual);$('atualResumo').textContent=money(actual);
- $('economiaMensalSug').textContent=proposal.length?(actual>estimated?money(actual-estimated):'MAIS BENEFÍCIOS'):'—';
- $('economiaAnualSug').textContent=proposal.length?(actual>estimated?money(actual*12-firstYearCost(proposal)):'PACOTE PERSONALIZADO'):'—';
+ const monthlySavingCents = Math.round((actual - estimated) * 100);
+ $('economiaMensalSug').textContent=proposal.length?(monthlySavingCents>0?money(monthlySavingCents/100):'MAIS BENEFÍCIOS'):'—';
+ $('economiaAnualSug').textContent=proposal.length?(monthlySavingCents>0?money(monthlySavingCents*12/100):'PACOTE PERSONALIZADO'):'—';
  if(!choices.length){$('recommend').textContent=window.ITOPApprovedOperator.valid()?(warnings.join(' ')||'Preencha os valores da fibra, fixo ou linhas móveis para obter uma indicação.'):'Informe o primeiro nome do operador conforme seu cadastro aprovado para iniciar uma proposta.';return;}
  const alerts=[...warnings];
  if(estimated>actual)alerts.push('A proposta editada ficou acima do gasto atual do cliente.');
