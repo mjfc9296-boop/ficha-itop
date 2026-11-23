@@ -26,7 +26,7 @@
       const logoWidth = first ? (retention ? 40 : 66) : (retention ? 28 : 37);
       doc.addImage(logo || LOGO, 'PNG', left, first ? 9 : 8, logoWidth, logoWidth * logoRatio, 'itop-budget-logo', retention ? 'SLOW' : 'FAST');
       font(first ? (retention ? 14 : 19) : 12, true, BLUE); doc.text(documentTitle.toUpperCase(), right, first ? 20 : 15, {align: 'right'});
-      font(8, false, MUTED); doc.text(first ? 'Uma proposta para conectar o seu negócio.' : 'ITOP TELECOM · Continuação da proposta', right, first ? 27 : 21, {align: 'right'});
+      font(8, false, MUTED); doc.text(first ? (retention ? 'VOCÊ É TOP, VOCÊ É ITOP' : 'Uma proposta para conectar o seu negócio.') : 'ITOP TELECOM · Continuação da proposta', right, first ? 27 : 21, {align: 'right'});
       y = first ? (retention ? 31 : 40) : (retention ? 25 : 31);
       if (first && unit) {
         font(9, true); const lines = wrap(unit[1], width); doc.text(lines, left, y); y += lines.length * 4.2 + 1;
@@ -41,8 +41,8 @@
       for (const line of wrap(value, width)) { ensure(lineStep); font(size, bold, color); doc.text(line, left, y + lineStep - 1.2); y += lineStep; }
       y += 1;
     }
-    function section(title) {
-      ensure(sectionStep + 7); font(10, true, BLUE); doc.text(title.toUpperCase(), left, y + sectionStep - 6);
+    function section(title, followingHeight = 7) {
+      ensure(sectionStep + followingHeight); font(10, true, BLUE); doc.text(title.toUpperCase(), left, y + sectionStep - 6);
       doc.setDrawColor(220, 227, 236); doc.setLineWidth(.2); doc.line(left, y + sectionStep - 3, right, y + sectionStep - 3); y += sectionStep;
     }
     function pair(aLabel, aValue, bLabel, bValue) {
@@ -68,6 +68,41 @@
       font(9); const lines = wrap(label, 135), h = lines.length * (retention ? 3.5 : 4.5) + (retention ? 2 : 4); ensure(h);
       font(9); doc.text(lines, left + 2, y + 4); font(9, true); doc.text(value, right - 2, y + 4, {align: 'right'}); y += h;
     }
+    function servicesTable(items) {
+      const columns = [14, 94, 128, 142, 168, 196];
+      function tableHeader() {
+        doc.setFillColor(...BLUE); doc.rect(left, y, width, retention ? 6 : 9, 'F'); font(8, true, [255, 255, 255]);
+        doc.text('PRODUTO / SERVIÇO', 17, y + (retention ? 4.1 : 5.8)); doc.text('CATEGORIA', 97, y + (retention ? 4.1 : 5.8));
+        doc.text('QTD.', 135, y + (retention ? 4.1 : 5.8), {align: 'center'}); doc.text('UNITÁRIO', 165, y + (retention ? 4.1 : 5.8), {align: 'right'}); doc.text('MENSAL', 193, y + (retention ? 4.1 : 5.8), {align: 'right'}); y += retention ? 6 : 9;
+      }
+      tableHeader();
+      items.forEach((item, index) => {
+        font(8.2); const hasPrice = Number.isFinite(item.price);
+        const values = [item.name, item.category, String(item.q), hasPrice ? money(item.price) : '—', hasPrice ? money(item.price * item.q) : '—'];
+        const cells = values.map((v, i) => wrap(v, columns[i + 1] - columns[i] - 6));
+        // Very long descriptions continue on the next page without clipping a row.
+        let line = 0, count = Math.max(...cells.map(c => c.length));
+        while (line < count) {
+          if (y + (retention ? minRowHeight : 8) > bottom) { doc.addPage(); header(); tableHeader(); }
+          const fit = Math.max(1, Math.floor((bottom - y - tablePadding) / tableStep));
+          const take = Math.min(count - line, fit), h = Math.max(minRowHeight, take * tableStep + tablePadding);
+          if (index % 2 === 0) { doc.setFillColor(244, 247, 251); doc.rect(left, y, width, h, 'F'); }
+          cells.forEach((cell, i) => {
+            font(8.2, i === 4); const slice = cell.slice(line, line + take);
+            if (slice.length) doc.text(slice, i >= 3 ? columns[i + 1] - 3 : i === 2 ? 135 : columns[i] + 3, y + (retention ? 4 : 5), {lineHeightFactor: retention ? 1.2 : 1.15, align: i >= 3 ? 'right' : i === 2 ? 'center' : 'left'});
+          });
+          y += h; line += take;
+          doc.setDrawColor(223, 229, 238); doc.line(left, y, right, y);
+        }
+      });
+    }
+    function retentionTotal(label, value) {
+      ensure(13); y += 2;
+      doc.setFillColor(...BLUE); doc.roundedRect(left, y, width, 10, 2, 2, 'F');
+      font(9, true, [255, 255, 255]); doc.text(label, left + 4, y + 6.2);
+      font(13, true, [255, 255, 255]); doc.text(money(value), right - 4, y + 6.5, {align: 'right'});
+      y += 13;
+    }
     header(true);
     const address = [draft.cliente_endereco, draft.cliente_numero, draft.cliente_bairro, draft.cliente_cidade, draft.cliente_cep && 'CEP ' + draft.cliente_cep].filter(Boolean).join(' · ');
     if (retention) {
@@ -87,57 +122,28 @@
       if (address) paragraph('Endereço: ' + address, {size: 9});
     }
     if (retention) {
-      section('Plano atual');
-      if (draft.plano_atual?.length) {
-        for (const item of draft.plano_atual) {
-          const label = item.q + ' × ' + item.name + ' · ' + item.category;
-          if (Number.isFinite(item.price)) amount(label + ' · ' + money(item.price) + ' por unidade', money(Math.round(item.price * 100) * item.q / 100));
-          else paragraph(label);
-        }
-        if (draft.plano_atual.every(item => Number.isFinite(item.price))) {
-          const total = draft.plano_atual.reduce((sum, item) => sum + Math.round(item.price * 100) * item.q, 0);
-          amount('Total mensal do plano atual', money(total / 100));
+      y += 6;
+      const current = draft.plano_atual || [];
+      section('Plano atual', current.length ? 6 + minRowHeight : 7);
+      if (current.length) {
+        servicesTable(current);
+        if (current.every(item => Number.isFinite(item.price))) {
+          const total = current.reduce((sum, item) => sum + Math.round(item.price * 100) * item.q, 0);
+          retentionTotal('TOTAL MENSAL DO PLANO ATUAL', total / 100);
         }
       } else {
         paragraph('Não informado.');
       }
+      y += 8;
     }
     if (draft.produtos.length || retention) {
-      section(retention ? 'Novo plano' : 'Serviços propostos');
+      section(retention ? 'Novo plano' : 'Serviços propostos', retention && draft.produtos.length ? 6 + minRowHeight : 7);
     }
     if (retention && !draft.produtos.length) paragraph('Nenhum serviço selecionado.');
     if (draft.produtos.length) {
-      const columns = [14, 94, 128, 142, 168, 196];
-      function tableHeader() {
-        doc.setFillColor(...BLUE); doc.rect(left, y, width, retention ? 6 : 9, 'F'); font(8, true, [255, 255, 255]);
-        doc.text('PRODUTO / SERVIÇO', 17, y + (retention ? 4.1 : 5.8)); doc.text('CATEGORIA', 97, y + (retention ? 4.1 : 5.8));
-        doc.text('QTD.', 135, y + (retention ? 4.1 : 5.8), {align: 'center'}); doc.text('UNITÁRIO', 165, y + (retention ? 4.1 : 5.8), {align: 'right'}); doc.text('MENSAL', 193, y + (retention ? 4.1 : 5.8), {align: 'right'}); y += retention ? 6 : 9;
-      }
-      tableHeader();
-      draft.produtos.forEach((item, index) => {
-        font(8.2); const values = [item.name, item.category, String(item.q), money(item.price), money(item.price * item.q)];
-        const cells = values.map((v, i) => wrap(v, columns[i + 1] - columns[i] - 6));
-        // Very long descriptions continue on the next page without clipping a row.
-        let line = 0, count = Math.max(...cells.map(c => c.length));
-        while (line < count) {
-          if (y + (retention ? minRowHeight : 8) > bottom) { doc.addPage(); header(); tableHeader(); }
-          const fit = Math.max(1, Math.floor((bottom - y - tablePadding) / tableStep));
-          const take = Math.min(count - line, fit), h = Math.max(minRowHeight, take * tableStep + tablePadding);
-          if (index % 2 === 0) { doc.setFillColor(244, 247, 251); doc.rect(left, y, width, h, 'F'); }
-          cells.forEach((cell, i) => {
-            font(8.2, i === 4); const slice = cell.slice(line, line + take);
-            if (slice.length) doc.text(slice, i >= 3 ? columns[i + 1] - 3 : i === 2 ? 135 : columns[i] + 3, y + (retention ? 4 : 5), {lineHeightFactor: retention ? 1.2 : 1.15, align: i >= 3 ? 'right' : i === 2 ? 'center' : 'left'});
-          });
-          y += h; line += take;
-          doc.setDrawColor(223, 229, 238); doc.line(left, y, right, y);
-        }
-      });
+      servicesTable(draft.produtos);
       if (retention) {
-        ensure(13); y += 2;
-        doc.setFillColor(...BLUE); doc.roundedRect(left, y, width, 10, 2, 2, 'F');
-        font(9, true, [255, 255, 255]); doc.text('TOTAL MENSAL DO NOVO PLANO', left + 4, y + 6.2);
-        font(13, true, [255, 255, 255]); doc.text(money(draft.valor_mensal), right - 4, y + 6.5, {align: 'right'});
-        y += 13;
+        retentionTotal('TOTAL MENSAL DO NOVO PLANO', draft.valor_mensal);
       } else {
         ensure(24); y += 4; doc.setFillColor(...BLUE); doc.roundedRect(left, y, width, 19, 2, 2, 'F');
         font(9, true, [255, 255, 255]); doc.text('INVESTIMENTO MENSAL REGULAR', left + 5, y + 8);
