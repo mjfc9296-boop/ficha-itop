@@ -1728,7 +1728,7 @@ html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
   height: 84%;
   object-fit: contain;
   object-position: center;
-  filter: grayscale(1) contrast(6);
+  filter: grayscale(1) brightness(.84) contrast(2.8);
  }
 }
 @media screen and (min-width: 901px) {
@@ -1752,29 +1752,15 @@ html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
   --itop-header-rail: calc(clamp(151.776px, (100vw - 16px) * .12852, 229.27968px) + 11px);
   --itop-tarja-height: calc(100vw * 246 / 2048);
  }
- html:has(.module.active:not([hidden]):not(#procedimentos):not(#inova-blocos)) body > header:has(> .itop-module-header-logo) {
-  --itop-orange-border: clamp(2px, .46vw, 8px);
- }
- html:has(.module.active:not([hidden]):not(#procedimentos):not(#inova-blocos)) body > header::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: var(--itop-tarja-height);
-  box-sizing: border-box;
-  border: var(--itop-orange-border) solid #f87900;
-  border-radius: clamp(8px, 1.5vw, 24px);
-  box-shadow: inset 0 0 4px 1px #ffd465, inset 0 0 14px #ee6300, 0 0 3px #ef6c00;
-  pointer-events: none;
- }
  html:has(.module.active:not([hidden]):not(#procedimentos):not(#inova-blocos)) body > header::after {
-  clip-path: inset(7% 15% 7% calc((var(--itop-logo-right, .18) + .009) * 100%));
+  clip-path: inset(11% 16% 11% calc((var(--itop-logo-right, .18) + .014) * 100%));
   border-radius: 0;
-  left: calc(50% + var(--itop-art-width) * (.5 - (var(--itop-logo-right, .18) + .859) / 2));
+  left: calc(50% + var(--itop-art-width) * (.5 - (var(--itop-logo-right, .18) + .854) / 2));
  }
  html body > header > .itop-module-header-logo,
  html body > header > .itop-module-uvi-brand {
-  top: calc(var(--itop-tarja-height) * .135);
-  height: calc(var(--itop-tarja-height) * .73);
+  top: calc(var(--itop-tarja-height) * .095);
+  height: calc(var(--itop-tarja-height) * .81);
   box-sizing: border-box;
   background: transparent;
   border-radius: 0;
@@ -1782,27 +1768,33 @@ html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
  html body > header > .itop-module-header-logo {
   left: 0;
   width: var(--itop-header-rail);
-  border-right: clamp(2px, .32vw, 5px) solid #ff7900;
+  border-right: clamp(3px, .5vw, 9px) solid #ff8500;
  }
  html body > header > .itop-module-header-logo > img {
   mix-blend-mode: screen;
   width: 84%;
   max-height: 100%;
+  transform: translate(4%, 7%);
  }
  html body > header > .itop-module-uvi-brand {
   display: var(--itop-header-logo, none);
   position: absolute;
   right: 0;
   width: var(--itop-header-rail);
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 3%;
-  padding: 0 1%;
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+  gap: 4%;
+  padding: 0 8px;
+  container-type: inline-size;
   align-items: center;
-  border-left: clamp(2px, .32vw, 5px) solid #ff7900;
+  border-left: clamp(3px, .5vw, 9px) solid #ff8500;
   color: #525252;
   text-align: center;
-  font: 800 clamp(5px, 1.02vw, 17px)/1.08 Arial, sans-serif;
+  font: 800 clamp(5px, .8vw, 15px)/1.15 Arial, sans-serif;
   text-transform: uppercase;
+ }
+ .itop-module-uvi-brand > span:last-child {
+  font-size: 8.2cqi;
+  overflow-wrap: normal;
  }
  .itop-module-uvi-brand > span:first-child {
   display: block;
@@ -1813,7 +1805,7 @@ html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
  }
 }
 @media screen and (max-width: 900px) {
- html body > header:has(> .itop-module-header-logo) { --itop-header-rail: 18%; }
+ html body > header:has(> .itop-module-header-logo) { --itop-header-rail: 22%; }
 }
 </style>
 <style id="itop-rolagem-capas">
