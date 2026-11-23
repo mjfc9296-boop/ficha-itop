@@ -88,7 +88,31 @@
     <h2 id="inova-estoque-titulo">Estoque</h2>
    </div>
    <p role="status"></p>
-   <div class="inova-estoque-grupos"></div>
+   <style>
+    #inova-estoque [data-pedido-estoque] { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px; margin-bottom: 16px; }
+    #inova-estoque [data-pedido-estoque] label { display: grid; align-content: end; gap: 4px; }
+    html body #inova-blocos #inova-estoque :is(input:not([type="checkbox"]), output, button) {
+     box-sizing: border-box;
+     background: #f2faed !important;
+     color: #162610 !important;
+     border: 1px solid #45872a !important;
+     border-radius: 8px;
+     padding: 6px;
+    }
+    #inova-estoque input:not([type="checkbox"]) { width: 100%; min-width: 0; }
+    #inova-estoque td output { display: inline-block; }
+   </style>
+   <h3>Pedido</h3>
+   <div data-pedido-estoque>
+    <label>Item<input name="item" maxlength="150"></label>
+    <label>Quantidade<input name="quantidade" type="number" min="0" max="999999" step="1"></label>
+    <label>Valor unitário (R$)<input name="valor" type="number" min="0" max="999999.99" step="0.01"></label>
+    <label>Total<output>R$ 0,00</output></label>
+   </div>
+   <form data-editar-estoque>
+    <div class="inova-estoque-grupos"></div>
+    <button type="submit" disabled>Salvar estoque</button>
+   </form>
   </section>
   <section hidden id="inova-fornecedores" aria-labelledby="inova-fornecedores-titulo">
    <div class="inova-view-heading">
@@ -297,48 +321,124 @@
  stockButton.setAttribute('aria-controls', stockDialog.id);
  stockButton.innerHTML = '<img src="inova-fachada/estoque.webp" alt="Estoque">';
 
+ const stockForm = stockDialog.querySelector('[data-editar-estoque]');
+ const stockSave = stockForm.querySelector('button');
+ let stockRevision = null;
+ let stockRequest = 0;
+
  function stockTable(title, prefix, rows) {
-  const section = document.createElement('section');
+  const section = document.createElement('div');
   section.innerHTML = `
    <h3 id="inova-estoque-${prefix}">${title}</h3>
    <table aria-labelledby="inova-estoque-${prefix}">
-    <thead><tr><th scope="col">Item</th><th scope="col">Contagem</th><th scope="col">Total</th></tr></thead>
+    <thead><tr><th>Medida (cm)</th><th>Base</th><th>Adicional</th><th>Novos</th><th>Total</th></tr></thead>
     <tbody></tbody>
    </table>`;
   const body = section.querySelector('tbody');
+  body.dataset.stockGroup = prefix;
   for (const [size, base, extra, isNew] of rows) {
    const row = body.insertRow();
-   const label = document.createElement('th');
-   label.scope = 'row';
-   label.textContent = `${prefix === 'isopor' ? 'Isopor de ' : ''}${size} cm`;
-   row.append(label);
-   const count = row.insertCell();
-   count.textContent = stockNumber.format(base);
-   if (extra) count.textContent += ` + ${stockNumber.format(extra)}${isNew ? ' (novos)' : ''}`;
-   row.insertCell().textContent = stockNumber.format(base + extra);
+   for (const [label, value] of [['Medida', size], ['Base', base], ['Adicional', extra]]) {
+    const number = document.createElement('input');
+    number.type = 'number';
+    number.min = label === 'Medida' ? 1 : 0;
+    number.max = 999999999;
+    number.step = 1;
+    number.required = true;
+    number.value = value ?? 0;
+    number.setAttribute('aria-label', `${title} ${size} cm — ${label}`);
+    row.insertCell().append(number);
+   }
+   const newItems = document.createElement('input');
+   newItems.type = 'checkbox';
+   newItems.checked = Boolean(isNew);
+   newItems.setAttribute('aria-label', `${title} ${size} cm — adicional de itens novos`);
+   row.insertCell().append(newItems);
+   const total = document.createElement('output');
+   row.insertCell().append(total);
+   const refresh = () => {
+    const [, baseInput, extraInput] = row.querySelectorAll('input');
+    total.value = stockNumber.format((baseInput.valueAsNumber || 0) + (extraInput.valueAsNumber || 0));
+   };
+   row.addEventListener('input', refresh);
+   refresh();
   }
   return section;
  }
 
+ stockForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (stockSave.disabled || stockDialog.hidden) return;
+  const session = archiveSession;
+  const request = stockRequest;
+  const saldos = Object.fromEntries([...stockGroups.querySelectorAll('[data-stock-group]')].map(group => [
+   group.dataset.stockGroup,
+   [...group.rows].map(row => {
+    const [size, base, extra, isNew] = row.querySelectorAll('input');
+    return [size.valueAsNumber, base.valueAsNumber, extra.valueAsNumber, isNew.checked];
+   })
+  ]));
+  const revisao = crypto.randomUUID();
+  stockSave.disabled = true;
+  stockStatus.textContent = 'Salvando estoque…';
+  try {
+   const table = window.itopAuthClient.from('inova_blocos_estoque');
+   const query = stockRevision
+    ? table.update({saldos, revisao}).eq('id', 1).eq('revisao', stockRevision)
+    : table.insert({id: 1, saldos, revisao});
+   const {data, error} = await query.select('revisao').maybeSingle();
+   if (session !== archiveSession || request !== stockRequest) return;
+   if (error && error.code !== '23505') throw error;
+   if (!data) {
+    stockStatus.textContent = 'O estoque foi alterado em outra sessão. Abra Estoque novamente antes de salvar.';
+    return;
+   }
+   stockRevision = data.revisao;
+   stockStatus.textContent = 'Estoque salvo.';
+  } catch {
+   if (session === archiveSession && request === stockRequest) stockStatus.textContent = 'Não foi possível salvar o estoque.';
+  } finally {
+   if (session === archiveSession && request === stockRequest) stockSave.disabled = false;
+  }
+ });
+
+ const stockOrder = stockDialog.querySelector('[data-pedido-estoque]');
+ const orderQuantity = stockOrder.querySelector('[name="quantidade"]');
+ const orderPrice = stockOrder.querySelector('[name="valor"]');
+ const orderTotal = stockOrder.querySelector('output');
+ const orderMoney = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'});
+ stockOrder.addEventListener('input', () => {
+  const quantity = orderQuantity.validity.valid ? orderQuantity.valueAsNumber || 0 : 0;
+  const cents = orderPrice.validity.valid ? Math.round((orderPrice.valueAsNumber || 0) * 100) : 0;
+  orderTotal.value = orderMoney.format(quantity * cents / 100);
+ });
+
  stockButton.addEventListener('click', async () => {
   if (inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
+  if (!stockDialog.hidden && stockSave.disabled && stockGroups.children.length) return;
+  const request = ++stockRequest;
+  stockSave.disabled = true;
   stockGroups.replaceChildren();
   stockStatus.textContent = 'Carregando estoque…';
   selectInovaView(stockDialog.id);
   const session = archiveSession;
   try {
-   const { data, error } = await window.itopAuthClient.from('inova_blocos_arquivos')
-    .select('pdf').eq('id', 'estoque-inicial').single();
-   if (error || !data) throw new Error('Estoque indisponível');
-   const stock = JSON.parse(await inovaFileBlob(data.pdf, 'application/json').text());
-   if (session !== archiveSession || stockDialog.hidden) return;
-   stockGroups.replaceChildren(
-    stockTable('Máscara', 'isopor', stock.mascara),
-    stockTable('Blocos', 'blocos', stock.blocos)
-   );
+   const client = window.itopAuthClient;
+   const {data, error} = await client.from('inova_blocos_estoque').select('saldos,revisao').eq('id', 1).maybeSingle();
+   if (error) throw error;
+   let stock = data?.saldos;
+   if (!stock) {
+    const initial = await client.from('inova_blocos_arquivos').select('pdf').eq('id', 'estoque-inicial').single();
+    if (initial.error) throw initial.error;
+    stock = JSON.parse(await inovaFileBlob(initial.data.pdf, 'application/json').text());
+   }
+   if (session !== archiveSession || request !== stockRequest || stockDialog.hidden) return;
+   stockRevision = data?.revisao ?? null;
+   stockGroups.replaceChildren(stockTable('Máscara', 'mascara', stock.mascara), stockTable('Blocos', 'blocos', stock.blocos));
+   stockSave.disabled = false;
    stockStatus.textContent = '';
   } catch {
-   if (session === archiveSession && !stockDialog.hidden) {
+   if (session === archiveSession && request === stockRequest && !stockDialog.hidden) {
     stockStatus.textContent = 'Não foi possível carregar o estoque. Selecione Estoque novamente para tentar.';
    }
   }
@@ -600,6 +700,9 @@
   supplierList.replaceChildren();
   supplierStatus.textContent = supplierListStatus.textContent = '';
   stockGroups.replaceChildren();
+  stockRevision = null;
+  for (const input of stockOrder.querySelectorAll('input')) input.value = '';
+  orderTotal.value = orderMoney.format(0);
   stockStatus.textContent = '';
   archiveStatus.textContent = '';
  }
