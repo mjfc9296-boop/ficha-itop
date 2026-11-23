@@ -1566,12 +1566,105 @@ html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
 </style>
 <style id="itop-topo-uvi-neon">
 @media screen {
+ :root {
+  --itop-header-height: 246;
+  --itop-header-art: url("topo-uvi-20261123.webp");
+  --itop-header-position: 47.95%;
+ }
+ html:has(#sondagem.active:not([hidden])) {
+  --itop-header-height: 317;
+  --itop-header-art: url("cabecalho-sondagem.webp");
+  --itop-header-position: 58.31063%;
+ }
+ html:has(#pacote.active:not([hidden])) {
+  --itop-header-height: 324;
+  --itop-header-art: url("cabecalho-pacote.webp");
+  --itop-header-position: 58.88889%;
+ }
+ html:has(#fechamento.active:not([hidden])) {
+  --itop-header-height: 335;
+  --itop-header-art: url("cabecalho-fechamento.webp");
+  --itop-header-position: 62.46418%;
+ }
+ html:has(#energia.active:not([hidden])) {
+  --itop-header-height: 288;
+  --itop-header-art: url("cabecalho-energia.webp");
+  --itop-header-position: 52.52525%;
+ }
+ html:has(#itop-movel.active:not([hidden])) {
+  --itop-header-height: 314;
+  --itop-header-art: url("cabecalho-itop-movel.webp");
+  --itop-header-position: 55.94595%;
+ }
+ html:has(#movel.active:not([hidden])) {
+  --itop-header-height: 320;
+  --itop-header-art: url("cabecalho-movel.webp");
+  --itop-header-position: 57.14286%;
+ }
+ html:has(#itop-comunica.active:not([hidden])) {
+  --itop-header-height: 361;
+  --itop-header-art: url("cabecalho-itop-comunica.webp");
+  --itop-header-position: 65.01548%;
+ }
+ html:has(#svas-area.active:not([hidden])) {
+  --itop-header-height: 316;
+  --itop-header-art: url("cabecalho-svas-area.webp");
+  --itop-header-position: 57.60870%;
+ }
+ html:has(#comissionamento-area.active:not([hidden])) {
+  --itop-header-height: 326;
+  --itop-header-art: url("cabecalho-comissionamento-area.webp");
+  --itop-header-position: 58.93855%;
+ }
+ html:has(#portaria-seguranca.active:not([hidden])) {
+  --itop-header-height: 329;
+  --itop-header-art: url("cabecalho-portaria-seguranca.webp");
+  --itop-header-position: 59.43662%;
+ }
+ html:has(#gestao-usuarios.active:not([hidden])) {
+  --itop-header-height: 327;
+  --itop-header-art: url("cabecalho-gestao-usuarios.webp");
+  --itop-header-position: 58.82353%;
+ }
+ html:has(#comercial.active:not([hidden])) {
+  --itop-header-height: 325;
+  --itop-header-art: url("cabecalho-comercial.webp");
+  --itop-header-position: 59.05292%;
+ }
+ html:has(#retencao.active:not([hidden])) {
+  --itop-header-height: 327;
+  --itop-header-art: url("cabecalho-retencao.webp");
+  --itop-header-position: 59.38375%;
+ }
+ html:has(#confraternizacao.active:not([hidden])) {
+  --itop-header-height: 325;
+  --itop-header-art: url("cabecalho-confraternizacao.webp");
+  --itop-header-position: 59.05292%;
+ }
+ html body #sondagem .itop-sondagem-banner,
+ html body #pacote .itop-package-banner,
+ html body #fechamento .itop-closing-banner>img,
+ html body #energia .itop-energy-roof,
+ html body #itop-movel img[src*="/telefonia-movel-fixa-topo.webp"],
+ html body #movel .itop-support-banner-frame,
+ html body #itop-comunica img[src*="/itop-comunica-topo.webp"],
+ html body #svas-area img[src*="/sva-topo.webp"],
+ html body #comissionamento-area img[src$="topo-comissao.webp"],
+ html body #portaria-seguranca img[src*="/portaria-seguranca-topo.webp"],
+ html body #gestao-usuarios img[src*="/gestao-usuarios-topo.webp"],
+ html body #comercial img[src*="/gestao-plataforma-topo.webp"],
+ html body #retencao img[src*="/retencao-topo.webp"],
+ html body #confraternizacao img[src*="/confraternizacao-topo.webp"],
+ html body #procedimentos img[src*="/uvi-universidade-de-vendas-topo.webp"] {
+  display: none !important;
+ }
+
  html:not(:has(#inova-blocos.active:not([hidden]))) body > header {
   position: relative !important;
   box-sizing: border-box !important;
   background: #050505 !important;
   border-bottom: 0 !important;
-  aspect-ratio: 2048 / 246 !important;
+  aspect-ratio: 2048 / var(--itop-header-height) !important;
   padding: 0 !important;
  }
  html:not(:has(#inova-blocos.active:not([hidden]))) body > header .head { display: none !important; }
@@ -1580,22 +1673,22 @@ html body #sondagem #itop-proposal-controlbar .commercial-test-toggle {
   position: absolute;
   inset: 0 0 auto;
   width: 100%;
-  aspect-ratio: 2048 / 246;
-  background: url("topo-uvi-20261123.webp") center 47.95% / 100% auto no-repeat;
+  aspect-ratio: 2048 / var(--itop-header-height);
+  background: var(--itop-header-art) center var(--itop-header-position) / 100% auto no-repeat;
   border-radius: 1.8% / 15%;
   pointer-events: none;
  }
 }
 @media screen and (min-width: 901px) {
  html:not(:has(#inova-blocos.active:not([hidden]))) body > main {
-  height: calc(100dvh - (100vw * 246 / 2048)) !important;
-  max-height: calc(100dvh - (100vw * 246 / 2048)) !important;
+  height: calc(100dvh - (100vw * var(--itop-header-height) / 2048)) !important;
+  max-height: calc(100dvh - (100vw * var(--itop-header-height) / 2048)) !important;
  }
 }
 @media screen and (max-width: 900px) {
  html:not(:has(#inova-blocos.active:not([hidden]))) body > header {
   aspect-ratio: auto !important;
-  height: calc(100vw * 246 / 2048 + 32px) !important;
+  height: calc(100vw * var(--itop-header-height) / 2048 + 32px) !important;
   min-height: 0 !important;
  }
  html:not(:has(#inova-blocos.active:not([hidden]))) body > header #itop-logout { top: auto !important; bottom: 2px !important; }
