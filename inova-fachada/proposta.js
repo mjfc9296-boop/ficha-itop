@@ -16,11 +16,11 @@
    <img src="${logoUrl}" alt="Inova Blocos">
    <h2>Controle de Venda e Entregas</h2>
   </div>
-  <button type="submit">Baixar PDF</button>
+  <button type="submit">Baixar PDF</button> <button type="button" data-salvar>Salvar venda</button>
   <p role="status" class="inova-pdf-status"></p>
-  <fieldset><legend>Dados do cliente</legend>
+  <fieldset><legend>1. Dados do pedido</legend>
    <div class="inova-proposta-grid inova-proposta-cliente">
-    <label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
+    <label>Data da venda<input type="date" name="dataVenda" required></label><label>Nome ou razão social<input name="cliente" maxlength="150" required></label>
     <label>CPF ou CNPJ<input name="documento" inputmode="numeric" maxlength="18" title="CPF: 000.000.000-00. CNPJ: 00.000.000/0000-00." required></label>
     <label>Telefone de contato<input name="telefone" type="tel" maxlength="15" required></label>
     <label>CEP<input name="cep" inputmode="numeric" maxlength="9" required></label>
@@ -45,6 +45,19 @@
    <div class="inova-proposta-itens"></div>
    <button type="button" data-inova-add>Adicionar linha</button>
    <p class="inova-proposta-total">Total da proposta <output>R$ 0,00</output></p>
+  </fieldset>
+  <fieldset><legend>2. Controle de entregas</legend>
+   <p data-pedido-atual>Selecione uma venda para consultar o histórico.</p>
+   <div data-historico></div>
+   <p data-retorno role="status"></p>
+  </fieldset>
+  <fieldset><legend>Vendas cadastradas</legend>
+   <label>Cliente ou número do pedido<input type="search" data-busca></label>
+   <button type="button" data-buscar>Buscar</button>
+   <ul data-vendas></ul>
+   <button type="button" data-anterior>Anterior</button>
+   <button type="button" data-proxima>Próxima</button>
+   <p data-status-lista role="status"></p>
   </fieldset>`;
  panel.firstElementChild.after(form);
  const fields = form.elements;
@@ -164,6 +177,7 @@
   cepRequest = null;
   request?.abort();
   form.reset();
+  fields.dataVenda.value = fields.dataVenda.max = hoje();
   automaticAddress.clear();
   for (const input of [fields.documento, fields.telefone, fields.cep]) input.setCustomValidity('');
   cepStatus.textContent = 'O endereço pode ser preenchido manualmente.';
@@ -201,9 +215,248 @@
  window.addEventListener('itop:open-inova-proposta', () => {
   if (panel.hidden || !panel.classList.contains('active')) return;
   form.hidden = false;
+  fields.dataVenda.max = hoje();
+  void listar();
   form.scrollIntoView({block: 'start'});
   fields.cliente.focus({preventScroll: true});
  });
+
+ const find = key => form.querySelector('[data-' + key + ']');
+ const history = find('historico');
+ const notice = find('retorno');
+ const heading = find('pedido-atual');
+ const client = () => window.itopAuthClient;
+ const salesTable = () => client().from('inova_vendas');
+ const deliveryTable = () => client().from('inova_entregas');
+ const files = () => client().storage.from('inova-comprovantes');
+ let page = 0;
+ let listRequest = 0;
+ let detailRequest = 0;
+ let selectedSale = null;
+ function hoje() {
+  return new Intl.DateTimeFormat('en-CA', {timeZone:'America/Sao_Paulo'}).format(new Date());
+ }
+ const brDate = value => value.split('-').reverse().join('/');
+ function node(tag, text) {
+  const el = document.createElement(tag);
+  el.textContent = text;
+  return el;
+ }
+ function button(text, fn) {
+  const el = node('button', text);
+  el.type = 'button';
+  el.onclick = fn;
+  return el;
+ }
+ function label(text, control) {
+  const el = node('label', text + ' ');
+  el.append(control);
+  return el;
+ }
+ function must(result) {
+  if (result.error) throw result.error;
+  return result.data;
+ }
+ function stats(sale) {
+  const rows = sale.inova_entregas;
+  const totals = sale.itens.map((item, i) => {
+   const sent = rows.filter(row => row.item === i).reduce((sum, row) => sum + row.quantidade, 0);
+   return {sent, balance:item.quantidade - sent};
+  });
+  const sent = totals.reduce((sum, item) => sum + item.sent, 0);
+  const balance = totals.reduce((sum, item) => sum + item.balance, 0);
+  const missing = rows.filter(row => !row.comprovante).length;
+  const alert = [balance ? 'Entrega pendente' : '', !sale.pesquisa_em ? 'Pesquisa de satisfação pendente' : '',
+   missing ? 'Comprovantes pendentes: ' + missing : ''].filter(Boolean).join(' · ');
+  return {totals,sent,balance,alert,status:balance ? (sent ? 'Entrega parcial' : 'A entregar') : (sale.pesquisa_em ? 'Avaliado' : 'Entregue')};
+ }
+ async function listar(target = page) {
+  const request = ++listRequest;
+  const prev = find('anterior');
+  const next = find('proxima');
+  prev.disabled = next.disabled = true;
+  const status = find('status-lista');
+  status.textContent = 'Carregando vendas…';
+  try {
+   const search = find('busca').value.trim();
+   let query = salesTable().select('id,numero,cliente,data_venda,itens,pesquisa_em,inova_entregas(item,quantidade,comprovante)')
+    .order('data_venda',{ascending:false}).order('numero',{ascending:false});
+   if (/^\d+$/.test(search)) query = query.eq('numero', search);
+   else if (search) query = query.ilike('cliente','%' + search.replace(/[\\%_]/g, '\\$&') + '%');
+   const rows = must(await query.range(target * 20, target * 20 + 20));
+   if (request !== listRequest) return;
+   page = target;
+   find('vendas').replaceChildren(...rows.slice(0,20).map(sale => {
+    const info = stats(sale);
+    const li = node('li','');
+    li.append(button((info.alert ? '🔴 ' : '') + 'Pedido ' + sale.numero + ' · ' + sale.cliente + ' · ' +
+     brDate(sale.data_venda) + ' · ' + info.status + ' · ' + info.sent + ' entregues · ' + info.balance + ' a entregar',
+     () => abrir(sale.id,true)));
+    if (info.alert) li.append(node('p',info.alert));
+    return li;
+   }));
+   prev.disabled = page === 0;
+   next.disabled = rows.length <= 20;
+   status.textContent = rows.length ? 'Página ' + (page + 1) : 'Nenhuma venda encontrada.';
+  } catch {
+   if (request === listRequest) status.textContent = 'Não foi possível carregar as vendas. Use Buscar para tentar novamente.';
+  }
+ }
+ find('buscar').onclick = () => listar(0);
+ find('busca').onkeydown = event => { if(event.key === 'Enter') {event.preventDefault(); void listar(0);} };
+ find('anterior').onclick = () => listar(page - 1);
+ find('proxima').onclick = () => listar(page + 1);
+ window.addEventListener('itop:logged-out', () => {
+  ++listRequest;
+  ++detailRequest;
+  selectedSale = null;
+  page = 0;
+  find('busca').value = '';
+  heading.textContent = 'Selecione uma venda para consultar o histórico.';
+  for (const part of [history,notice,find('vendas'),find('status-lista')]) part.replaceChildren();
+  find('salvar').disabled = false;
+ });
+ find('salvar').onclick = async event => {
+  refreshItems();
+  if (!form.reportValidity()) return;
+  const current = session;
+  const control = event.currentTarget;
+  control.disabled = true;
+  pdfStatus.textContent = 'Salvando venda…';
+  try {
+   const dados = Object.fromEntries(new FormData(form));
+   const produtos = [...items.children].flatMap((row,i) => {
+    const item = itemData(row);
+    const name = 'Item ' + (i+1) + ' · ';
+    const products = [{nome:name+'Bloco de '+item.size+' cm',quantidade:item.quantity}];
+    if (item.spacers) products.push({nome:name+'Espaçador de '+item.spacerSize+' cm',quantidade:item.spacers});
+    return products;
+   });
+   const sale = must(await salesTable().insert({data_venda:dados.dataVenda,cliente:dados.cliente.trim(),dados,itens:produtos})
+    .select('id,numero').single());
+   if (current !== session) return;
+   pdfStatus.textContent = 'Venda nº ' + sale.numero + ' cadastrada.';
+   find('busca').value = '';
+   await Promise.all([listar(0),abrir(sale.id)]);
+  } catch {
+   if (current === session) pdfStatus.textContent = 'Não foi possível salvar a venda. Confira os dados e tente novamente.';
+  } finally {
+   if (current === session) control.disabled = false;
+  }
+ };
+ async function abrir(id, scroll = false) {
+  const request = ++detailRequest;
+  selectedSale = id;
+  history.replaceChildren();
+  notice.textContent = 'Carregando histórico…';
+  try {
+   const sale = must(await salesTable().select('*,inova_entregas(*)').eq('id',id).single());
+   if (request !== detailRequest) return;
+   renderHistory(sale);
+   notice.textContent = '';
+   if (scroll) heading.scrollIntoView({block:'nearest'});
+  } catch {
+   if (request === detailRequest) notice.textContent = 'Não foi possível abrir a venda.';
+  }
+ }
+ async function changeSale(id, control, operation) {
+  const request = detailRequest;
+  control.disabled = true;
+  notice.textContent = 'Salvando…';
+  try {
+   await operation();
+   if (request === detailRequest && selectedSale === id) await Promise.all([abrir(id),listar()]);
+  } catch (error) {
+   if (request === detailRequest) notice.textContent = error.message || 'Não foi possível salvar.';
+  } finally {
+   control.disabled = false;
+  }
+ }
+ function renderHistory(sale) {
+  const info = stats(sale);
+  heading.textContent = 'Pedido ' + sale.numero + ' · ' + sale.cliente + ' · ' + brDate(sale.data_venda) + ' · ' + info.status
+   + (info.alert ? ' · 🔴 ' + info.alert : '');
+  const amounts = node('ul','');
+  sale.itens.forEach((item,i) => amounts.append(node('li',item.nome + ' · Pedido: ' + item.quantidade +
+   ' · Entregue: ' + info.totals[i].sent + ' · Saldo: ' + info.totals[i].balance)));
+  const address = ['logradouro','numero','complemento','bairro','cidade','uf','cep'].map(key => sale.dados[key]).filter(Boolean).join(', ');
+  history.append(node('p',[sale.dados.telefone,address].filter(Boolean).join(' · ')),amounts,node('h3','Histórico de saídas'));
+  const rows = sale.inova_entregas.slice().sort((a,b) => a.data_saida.localeCompare(b.data_saida) || a.id.localeCompare(b.id));
+  if (!rows.length) history.append(node('p','Nenhuma saída registrada.'));
+  for (const row of rows) {
+   const part = node('fieldset','');
+   part.append(node('legend',brDate(row.data_saida) + ' · ' + sale.itens[row.item].nome + ' · ' + row.quantidade + ' un.'));
+   if (row.comprovante) {
+    part.append(button('Baixar comprovante',async () => {
+     try {
+      const blob = must(await files().download(row.id));
+      const extension = {'application/pdf':'pdf','image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[blob.type] || 'pdf';
+      const url = URL.createObjectURL(blob);
+      const link = node('a','');
+      link.href = url;
+      link.download = 'Comprovante-' + sale.numero + '-' + row.data_saida + '.' + extension;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url),30000);
+     } catch { notice.textContent = 'Não foi possível baixar o comprovante.'; }
+    }));
+   } else {
+    const file = node('input','');
+    file.type = 'file';
+    file.accept = 'application/pdf,image/jpeg,image/png,image/webp';
+    part.append(label('Comprovante assinado',file),button('Anexar',event => {
+     const upload = file.files[0];
+     if (!upload || upload.size > 10485760 || !file.accept.split(',').includes(upload.type)) {
+      notice.textContent = 'Selecione foto JPG, PNG, WebP ou PDF de até 10 MB.';
+      return;
+     }
+     return changeSale(sale.id,event.currentTarget,async () => {
+      must(await files().upload(row.id,upload,{upsert:true,contentType:upload.type}));
+      must(await deliveryTable().update({comprovante:true}).eq('id',row.id).select('id').single());
+     });
+    }));
+   }
+   history.append(part);
+  }
+  if (!info.balance) {
+   history.append(sale.pesquisa_em ? node('p','Pesquisa confirmada em ' + brDate(sale.pesquisa_em))
+    : button('Confirmar pesquisa de satisfação', event => changeSale(sale.id,event.currentTarget, async () => {
+     must(await salesTable().update({pesquisa_em:hoje()}).eq('id',sale.id).select('id').single());
+    })));
+   return;
+  }
+  const date = node('input','');
+  date.type = 'date';
+  date.setAttribute('form', 'inova-controles-entrega');
+  date.min = sale.data_venda;
+  date.max = date.value = hoje();
+  const product = node('select','');
+  sale.itens.forEach((item,i) => {
+   if (!info.totals[i].balance) return;
+   const option = node('option',item.nome);
+   option.value = i;
+   product.append(option);
+  });
+  const qty = node('input','');
+  qty.type = 'number';
+  qty.setAttribute('form', 'inova-controles-entrega');
+  qty.min = '1';
+  qty.step = '1';
+  const delivery = node('fieldset','');
+  delivery.append(node('legend','Registrar entrega'),label('Data da saída',date),label('Produto',product),
+   label('Quantidade entregue',qty),button('Registrar entrega',event => {
+    const item = Number(product.value);
+    const quantidade = Number(qty.value);
+    const remaining = info.totals[item].balance;
+    if (!date.value || !date.validity.valid || !Number.isInteger(quantidade) || quantidade < 1 || quantidade > remaining) {
+     notice.textContent = 'Confira a data e a quantidade. Saldo do item: ' + remaining + '.';
+     return;
+    }
+    return changeSale(sale.id,event.currentTarget,async () => {
+     must(await deliveryTable().insert({venda_id:sale.id,item,data_saida:date.value,quantidade}));
+    });
+   }));
+  history.append(delivery);
+ }
  resetProposal();
 
  function renderPdf(data, lines, image) {
