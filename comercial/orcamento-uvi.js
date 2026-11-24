@@ -84,7 +84,12 @@ import {isCombo, isPortaria, minimumQuantity, quoteNotes} from './catalogo-secur
     const securityButton = document.createElement('button');
     securityButton.type = 'button';
     securityButton.textContent = 'Montar orçamento Security';
-    securityModule.querySelector('section').append(securityButton);
+    const securityHeading = securityModule.querySelector('section > h2');
+    const securityHeader = document.createElement('div');
+    securityHeader.style.cssText = 'display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px';
+    securityButton.style.marginInlineStart = 'auto';
+    securityHeading.replaceWith(securityHeader);
+    securityHeader.append(securityHeading, securityButton);
     const securityTab = document.querySelector('[data-module="portaria-seguranca"]');
     const pdfOnly = () => ['retencao', 'portaria-seguranca'].includes(returnModule);
     const retentionTab = document.createElement('button');
