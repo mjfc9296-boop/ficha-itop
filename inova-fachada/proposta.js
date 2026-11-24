@@ -280,7 +280,7 @@
   try {
    const search = find('busca').value.trim();
    let query = salesTable().select('id,numero,cliente,data_venda,itens,pesquisa_em,inova_entregas(item,quantidade,comprovante)')
-    .order('data_venda',{ascending:false}).order('numero',{ascending:false});
+    .is('arquivada_em',null).order('data_venda',{ascending:false}).order('numero',{ascending:false});
    if (/^\d+$/.test(search)) query = query.eq('numero', search);
    else if (search) query = query.ilike('cliente','%' + search.replace(/[\\%_]/g, '\\$&') + '%');
    const rows = must(await query.range(target * 20, target * 20 + 20));
@@ -350,7 +350,7 @@
   history.replaceChildren();
   notice.textContent = 'Carregando histórico…';
   try {
-   const sale = must(await salesTable().select('*,inova_entregas(*)').eq('id',id).single());
+   const sale = must(await salesTable().select('*,inova_entregas(*)').eq('id',id).is('arquivada_em',null).single());
    if (request !== detailRequest) return;
    renderHistory(sale);
    notice.textContent = '';
@@ -372,7 +372,32 @@
    control.disabled = false;
   }
  }
+ async function apagarVenda(sale, control) {
+  if (!window.confirm('Retirar o pedido ' + sale.numero + ' — ' + sale.cliente + ' da lista de vendas?')) return;
+  const request = detailRequest;
+  const current = session;
+  control.disabled = true;
+  notice.textContent = 'Removendo venda…';
+  try {
+   must(await salesTable().update({arquivada_em:new Date().toISOString()})
+    .eq('id',sale.id).is('arquivada_em',null).select('id').single());
+   if (current !== session) return;
+   if (request === detailRequest) {
+    ++detailRequest;
+    selectedSale = null;
+    history.replaceChildren();
+    heading.textContent = 'Selecione uma venda para consultar o histórico.';
+    notice.textContent = 'Venda retirada da lista.';
+   }
+   await listar(0);
+  } catch {
+   if (request === detailRequest) notice.textContent = 'Não foi possível retirar a venda. Atualize a lista e tente novamente.';
+  } finally {
+   control.disabled = false;
+  }
+ }
  function renderHistory(sale) {
+  history.append(button('Apagar venda', event => apagarVenda(sale,event.currentTarget)));
   const info = stats(sale);
   heading.textContent = 'Pedido ' + sale.numero + ' · ' + sale.cliente + ' · ' + brDate(sale.data_venda) + ' · ' + info.status
    + (info.alert ? ' · 🔴 ' + info.alert : '');
