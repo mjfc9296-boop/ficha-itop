@@ -16,7 +16,7 @@
    <img src="${logoUrl}" alt="Inova Blocos">
    <h2>Controle de Venda e Entregas</h2>
   </div>
-  <button type="submit">Baixar PDF</button> <button type="button" data-salvar>Salvar venda</button>
+  <button type="submit">Baixar PDF</button>
   <p role="status" class="inova-pdf-status"></p>
   <fieldset><legend>1. Dados do pedido</legend>
    <div class="inova-proposta-grid inova-proposta-cliente">
@@ -65,8 +65,12 @@
    <label>Cliente ou número do pedido<input type="search" data-busca></label>
    <button type="button" data-buscar>Buscar</button>
    <ul data-vendas></ul>
-   <button type="button" data-anterior>Anterior</button>
-   <button type="button" data-proxima>Próxima</button>
+   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div><button type="button" data-anterior>Anterior</button>
+    <button type="button" data-proxima>Próxima</button></div>
+    <button type="button" data-salvar>Salvar venda</button>
+   </div>
+   <p role="status" data-status-salvar></p>
    <p data-status-lista role="status"></p>
   </fieldset>`;
  panel.firstElementChild.after(form);
@@ -320,7 +324,7 @@
   page = 0;
   find('busca').value = '';
   heading.textContent = 'Selecione uma venda para consultar o histórico.';
-  for (const part of [history,notice,find('vendas'),find('status-lista')]) part.replaceChildren();
+  for (const part of [history,notice,find('status-salvar'),find('vendas'),find('status-lista')]) part.replaceChildren();
   find('salvar').disabled = false;
  });
  find('salvar').onclick = async event => {
@@ -329,7 +333,7 @@
   const current = session;
   const control = event.currentTarget;
   control.disabled = true;
-  pdfStatus.textContent = 'Salvando venda…';
+  find('status-salvar').textContent = 'Salvando venda…';
   try {
    const dados = Object.fromEntries(new FormData(form));
    const produtos = [...items.children].flatMap((row,i) => {
@@ -342,11 +346,11 @@
    const sale = must(await salesTable().insert({data_venda:dados.dataVenda,cliente:dados.cliente.trim(),dados,itens:produtos})
     .select('id,numero').single());
    if (current !== session) return;
-   pdfStatus.textContent = 'Venda nº ' + sale.numero + ' cadastrada.';
+   find('status-salvar').textContent = 'Venda nº ' + sale.numero + ' cadastrada.';
    find('busca').value = '';
    await Promise.all([listar(0),abrir(sale.id)]);
   } catch {
-   if (current === session) pdfStatus.textContent = 'Não foi possível salvar a venda. Confira os dados e tente novamente.';
+   if (current === session) find('status-salvar').textContent = 'Não foi possível salvar a venda. Confira os dados e tente novamente.';
   } finally {
    if (current === session) control.disabled = false;
   }
@@ -408,9 +412,11 @@
   const info = stats(sale);
   heading.textContent = 'Pedido ' + sale.numero + ' · ' + sale.cliente + ' · ' + brDate(sale.data_venda) + ' · ' + info.status
    + (info.alert ? ' · 🔴 ' + info.alert : '');
-  const amounts = node('ul','');
-  sale.itens.forEach((item,i) => amounts.append(node('li',item.nome + ' · Pedido: ' + item.quantidade +
-   ' · Entregue: ' + info.totals[i].sent + ' · Saldo: ' + info.totals[i].balance)));
+  const {box:amounts, body:summary} = productTable('Produtos do pedido', ['Produto','Pedido','Entregue','Saldo']);
+  sale.itens.forEach((item,i) => {
+   const row = summary.insertRow();
+   for (const value of [item.nome,item.quantidade,info.totals[i].sent,info.totals[i].balance]) row.insertCell().textContent = value;
+  });
   const address = ['logradouro','numero','complemento','bairro','cidade','uf','cep'].map(key => sale.dados[key]).filter(Boolean).join(', ');
   history.append(node('p',[sale.dados.telefone,address].filter(Boolean).join(' · ')),amounts,node('h3','Histórico de saídas'));
   if (sale.dados.dataPagamento) {
@@ -418,9 +424,19 @@
   }
   const rows = sale.inova_entregas.slice().sort((a,b) => a.data_saida.localeCompare(b.data_saida) || a.id.localeCompare(b.id));
   if (!rows.length) history.append(node('p','Nenhuma saída registrada.'));
+  const groups = new Map();
   for (const row of rows) {
-   const part = node('fieldset','');
-   part.append(node('legend',brDate(row.data_saida) + ' · ' + sale.itens[row.item].nome + ' · ' + row.quantidade + ' un.'));
+   let group = groups.get(row.saida_id);
+   if (!group) {
+    group = productTable('Saída de ' + brDate(row.data_saida), ['Produto','Entregue','Comprovante']);
+    groups.set(row.saida_id,group);
+    history.append(group.box);
+   }
+   if (!group.body.rows.length) group.box.prepend(node('h4','Saída de ' + brDate(row.data_saida)));
+   const line = group.body.insertRow();
+   line.insertCell().textContent = sale.itens[row.item].nome;
+   line.insertCell().textContent = row.quantidade;
+   const part = line.insertCell();
    if (row.comprovante) {
     part.append(button('Baixar comprovante',async () => {
      try {
@@ -450,7 +466,6 @@
      });
     }));
    }
-   history.append(part);
   }
   if (!info.balance) {
    history.append(sale.pesquisa_em ? node('p','Pesquisa confirmada em ' + brDate(sale.pesquisa_em))
@@ -459,38 +474,75 @@
     })));
    return;
   }
+  history.insertBefore(deliveryEditor(sale,info), history.querySelector('h3'));
+ }
+
+ function productTable(title, columns) {
+  const box = node('div','');
+  box.style.overflowX = 'auto';
+  const table = node('table','');
+  table.style.cssText = 'width:100%;min-width:420px;margin:8px 0';
+  table.setAttribute('aria-label',title);
+  const head = table.createTHead().insertRow();
+  columns.forEach(name => {
+   const cell = node('th',name);
+   cell.scope = 'col';
+   head.append(cell);
+  });
+  const body = table.createTBody();
+  box.append(table);
+  return {box,body};
+ }
+
+ function deliveryEditor(sale,info) {
+  const delivery = node('fieldset','');
   const date = node('input','');
   date.type = 'date';
-  date.setAttribute('form', 'inova-controles-entrega');
+  date.setAttribute('form','inova-controles-entrega');
   date.min = sale.data_venda;
   date.max = date.value = hoje();
-  const product = node('select','');
-  sale.itens.forEach((item,i) => {
-   if (!info.totals[i].balance) return;
-   const option = node('option',item.nome);
-   option.value = i;
-   product.append(option);
+  const {box,body} = productTable('Produtos desta saída',['Produto','Saldo atual','Quantidade nesta saída','Saldo após saída']);
+  const inputs = [];
+  sale.itens.forEach((item,index) => {
+   const balance = info.totals[index].balance;
+   if (!balance) return;
+   const row = body.insertRow();
+   row.insertCell().textContent = item.nome;
+   row.insertCell().textContent = balance;
+   const qty = node('input','');
+   qty.type = 'number';
+   qty.setAttribute('form','inova-controles-entrega');
+   qty.setAttribute('aria-label','Quantidade nesta saída: ' + item.nome);
+   qty.min = '0';
+   qty.max = balance;
+   qty.step = '1';
+   qty.placeholder = '0';
+   row.insertCell().append(qty);
+   const remaining = row.insertCell();
+   remaining.textContent = balance;
+   qty.oninput = () => { remaining.textContent = qty.validity.valid ? balance - Number(qty.value) : 'Confira a quantidade'; };
+   inputs.push({index,qty});
   });
-  const qty = node('input','');
-  qty.type = 'number';
-  qty.setAttribute('form', 'inova-controles-entrega');
-  qty.min = '1';
-  qty.step = '1';
-  const delivery = node('fieldset','');
-  delivery.append(node('legend','Registrar entrega'),label('Data da saída',date),label('Produto',product),
-   label('Quantidade entregue',qty),button('Registrar entrega',event => {
-    const item = Number(product.value);
-    const quantidade = Number(qty.value);
-    const remaining = info.totals[item].balance;
-    if (!date.value || !date.validity.valid || !Number.isInteger(quantidade) || quantidade < 1 || quantidade > remaining) {
-     notice.textContent = 'Confira a data e a quantidade. Saldo do item: ' + remaining + '.';
+  const saidaId = crypto.randomUUID();
+  delivery.append(node('legend','Registrar entrega'),label('Data da saída',date),box,
+   button('Confirmar entrega',event => {
+    if (!date.value || !date.reportValidity() || inputs.some(({qty}) => !qty.reportValidity())) {
+     notice.textContent = 'Confira a data e as quantidades desta saída.';
+     return;
+    }
+    const rows = inputs.filter(({qty}) => Number(qty.value) > 0).map(({index,qty}) => ({
+     venda_id:sale.id, saida_id:saidaId, item:index, data_saida:date.value, quantidade:Number(qty.value)
+    }));
+    if (!rows.length) {
+     notice.textContent = 'Informe a quantidade de pelo menos um produto.';
      return;
     }
     return changeSale(sale.id,event.currentTarget,async () => {
-     must(await deliveryTable().insert({venda_id:sale.id,item,data_saida:date.value,quantidade}));
+     const existing = must(await deliveryTable().select('id').eq('venda_id',sale.id).eq('saida_id',saidaId).limit(1));
+     if (!existing.length) must(await deliveryTable().insert(rows));
     });
    }));
-  history.append(delivery);
+  return delivery;
  }
  resetProposal();
 
