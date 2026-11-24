@@ -382,6 +382,7 @@ import {isCombo, isPortaria, minimumQuantity, quoteNotes} from './catalogo-secur
     const retentionOperator = input('retencao_operador');
     const retentionExtraFields = customerFields.map(([key]) => key)
       .filter(key => !['cliente_nome', 'cliente_whatsapp', 'cliente_documento'].includes(key));
+    const securityFields = ['cliente_nome', 'cliente_cidade', 'cliente_whatsapp', 'observacoes'];
     const validityFields = ['uvi-budget-issue-fieldset', 'uvi-budget-unit-fieldset'].map(id => $(id));
 
     const footer = document.createElement('section');
@@ -489,15 +490,20 @@ import {isCombo, isPortaria, minimumQuantity, quoteNotes} from './catalogo-secur
       retentionDocument.setCustomValidity('');
       const retention = source === 'retencao';
       const security = source === 'portaria-seguranca';
-      for (const key of retentionExtraFields) {
-        input(key).closest('.field').hidden = input(key).disabled = retention;
+      for (const [key] of customerFields) {
+        const hidden = (retention && retentionExtraFields.includes(key)) || (security && !securityFields.includes(key));
+        input(key).closest('.field').hidden = input(key).disabled = hidden;
       }
-      for (const fieldset of validityFields) fieldset.hidden = fieldset.disabled = retention;
-      for (const control of [retentionOperator, input('codigo_workspace')]) {
-        control.closest('.field').hidden = control.disabled = !retention;
+      for (const fieldset of validityFields) fieldset.hidden = fieldset.disabled = retention || security;
+      retentionOperator.closest('.field').hidden = retentionOperator.disabled = !(retention || security);
+      input('codigo_workspace').closest('.field').hidden = input('codigo_workspace').disabled = !retention;
+      for (const control of [input('cliente_cidade'), input('cliente_whatsapp'), retentionOperator]) {
+        control.required = security;
       }
+      form.querySelector('label[for="uvi-budget-cliente_nome"]').textContent = security
+        ? 'Nome completo' : customerFields[0][1];
       form.querySelector('label[for="uvi-budget-cliente_documento"]').textContent = retention ? 'CPF / CNPJ' : 'CPF ou CNPJ';
-      input('retorno_em').closest('.field').hidden = retention;
+      input('retorno_em').closest('.field').hidden = pdfOnly();
       panel.querySelector('.section-tag').hidden = retention;
       simulationBanner.hidden = !retention;
       currentPanel.hidden = !retention;
@@ -562,6 +568,11 @@ import {isCombo, isPortaria, minimumQuantity, quoteNotes} from './catalogo-secur
         retentionDocument.reportValidity();
         throw Error('Informe um CPF ou CNPJ válido.');
       }
+      if (returnModule === 'portaria-seguranca') {
+        for (const control of [input('cliente_cidade'), input('cliente_whatsapp'), retentionOperator]) {
+          control.value = control.value.trim();
+        }
+      }
       if (!form.reportValidity()) throw Error('Confira os campos obrigatórios do orçamento.');
       if (!input('emissao_data').value || !input('emissao_hora').value) throw Error('Informe a data e o horário de emissão.');
       const {items, total} = window.ITOPBudgetCalculator();
@@ -575,11 +586,11 @@ import {isCombo, isPortaria, minimumQuantity, quoteNotes} from './catalogo-secur
         throw Error('Complete a simulação de energia com os dados válidos da fatura ou limpe os campos.');
       }
       if (!items.length && !energy.valid) throw Error('Selecione ao menos um produto ou preencha a simulação de energia.');
-      const data = Object.fromEntries(fields.map(([key]) => [key, input(key).value.trim() || null]));
+      const data = Object.fromEntries(fields.map(([key]) => [key, returnModule === 'portaria-seguranca' && (input(key).disabled || key === 'retorno_em') ? null : input(key).value.trim() || null]));
       return {
         ...data,
         ...(returnModule === 'retencao' ? {codigo_workspace: input('codigo_workspace').value.trim(), plano_atual: currentItems.map(item => ({...item}))} : {}),
-        consultor_nome: returnModule === 'retencao' ? retentionOperator.value.trim() : (operator?.profile.nome || ''),
+        consultor_nome: pdfOnly() ? retentionOperator.value.trim() : (operator?.profile.nome || ''),
         produtos: items,
         valor_mensal: Math.round(total * 100) / 100,
         retorno_em: data.retorno_em ? new Date(data.retorno_em).toISOString() : null,
