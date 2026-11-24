@@ -14,7 +14,7 @@
  form.innerHTML = `
   <div class="inova-proposta-banner">
    <img src="${logoUrl}" alt="Inova Blocos">
-   <h2>Monte da Carga</h2>
+   <h2>Controle de Venda e Entregas</h2>
   </div>
   <button type="submit">Baixar PDF</button>
   <p role="status" class="inova-pdf-status"></p>
