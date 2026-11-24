@@ -36,13 +36,23 @@
   <fieldset><legend>Condições comerciais</legend>
    <div class="inova-proposta-grid">
     <label>Pagamento<select name="pagamento" required><option value="">Selecione</option><option>Boleto</option><option>Pix</option><option>Cartão</option></select></label>
+    <label>Data de pagamento<input name="dataPagamento" type="date"></label>
     <label>Entrega<select name="entrega"><option>A definir</option><option value="data">Definir data</option></select></label>
     <label data-inova-data hidden>Data de entrega<input name="dataEntrega" type="date" disabled></label>
     <label>Responsável<select name="responsavel" required><option value="">Selecione</option><option>Mário Caputo</option><option>Felipe Vilela</option></select></label>
    </div>
   </fieldset>
   <fieldset><legend>Itens da proposta</legend>
-   <div class="inova-proposta-itens"></div>
+   <div style="overflow-x:auto">
+    <table aria-label="Itens da proposta" style="width:100%;min-width:710px">
+     <thead><tr>
+      <th scope="col">Bloco</th><th scope="col">Quant. blocos</th><th scope="col">Quant. espaç.</th>
+      <th scope="col">Preço</th><th scope="col">Desconto</th><th scope="col">Unitário</th>
+      <th scope="col">Total</th><th scope="col">Ação</th>
+     </tr></thead>
+     <tbody class="inova-proposta-itens"></tbody>
+    </table>
+   </div>
    <button type="button" data-inova-add>Adicionar linha</button>
    <p class="inova-proposta-total">Total da proposta <output>R$ 0,00</output></p>
   </fieldset>
@@ -144,9 +154,8 @@
  }
  function refreshItems() {
   let total = 0;
-  [...items.children].forEach((row, index) => {
+  [...items.children].forEach(row => {
    const item = itemData(row);
-   row.querySelector('legend').textContent = 'Item ' + (index + 1);
    row.querySelector('[data-remove]').disabled = items.children.length === 1;
    row.querySelector('[data-output="spacers"]').textContent = item.spacers;
    for (const key of ['net', 'total']) row.querySelector('[data-output="' + key + '"]').textContent = brl(item[key]);
@@ -155,18 +164,16 @@
   totalOutput.textContent = brl(total);
  }
  function addLine(focus = false) {
-  const row = document.createElement('fieldset');
-  row.className = 'inova-proposta-item';
-  row.innerHTML = `<legend></legend><div class="inova-proposta-grid">
-    <label>Bloco<select data-field="size" required><option value="">Selecione</option>${sizes}</select></label>
-    <label>Quant. blocos<input data-field="quantity" type="number" min="1" max="999999" step="1" value="1" required></label>
-    <label>Quant. espaç.<output data-output="spacers"></output></label>
-    <label>Preço<input data-field="price" inputmode="decimal" maxlength="9" required></label>
-    <label>Desconto<input data-field="discount" inputmode="decimal" maxlength="8" value="0,00"></label>
-    <label>Unitário<output data-output="net"></output></label>
-    <label style="min-width:max-content">Total<output style="white-space:nowrap;min-width:max-content" data-output="total"></output></label>
-    <button type="button" data-remove aria-label="Remover linha">Remover</button>
-   </div>`;
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><select aria-label="Bloco" data-field="size" required><option value="">Selecione</option>${sizes}</select></td>
+    <td><input aria-label="Quantidade de blocos" data-field="quantity" type="number" min="1" max="999999" step="1" value="1" required></td>
+    <td><output aria-label="Quantidade de espaçadores" data-output="spacers"></output></td>
+    <td><input aria-label="Preço" data-field="price" inputmode="decimal" maxlength="9" required></td>
+    <td><input aria-label="Desconto" data-field="discount" inputmode="decimal" maxlength="8" value="0,00"></td>
+    <td style="white-space:nowrap"><output aria-label="Preço unitário líquido" data-output="net"></output></td>
+    <td style="white-space:nowrap"><output aria-label="Total da linha" data-output="total"></output></td>
+    <td><button type="button" data-remove aria-label="Remover linha">Remover</button></td>`;
   items.append(row);
   refreshItems();
   if (focus) row.querySelector('select').focus();
@@ -207,7 +214,7 @@
  items.addEventListener('click', event => {
   const button = event.target.closest('[data-remove]');
   if (!button || items.children.length === 1) return;
-  button.closest('fieldset').remove();
+  button.closest('tr').remove();
   refreshItems();
  });
  form.querySelector('[data-inova-add]').addEventListener('click', () => addLine(true));
@@ -406,6 +413,9 @@
    ' · Entregue: ' + info.totals[i].sent + ' · Saldo: ' + info.totals[i].balance)));
   const address = ['logradouro','numero','complemento','bairro','cidade','uf','cep'].map(key => sale.dados[key]).filter(Boolean).join(', ');
   history.append(node('p',[sale.dados.telefone,address].filter(Boolean).join(' · ')),amounts,node('h3','Histórico de saídas'));
+  if (sale.dados.dataPagamento) {
+   history.insertBefore(node('p','Data de pagamento: ' + brDate(sale.dados.dataPagamento)),amounts);
+  }
   const rows = sale.inova_entregas.slice().sort((a,b) => a.data_saida.localeCompare(b.data_saida) || a.id.localeCompare(b.id));
   if (!rows.length) history.append(node('p','Nenhuma saída registrada.'));
   for (const row of rows) {
@@ -531,7 +541,8 @@
   paragraph('CPF/CNPJ: ' + data.documento + '  |  Telefone: ' + data.telefone);
   paragraph('Endereço: ' + [data.logradouro, data.numero, data.complemento, data.bairro, data.cidade + '/' + data.uf, 'CEP ' + data.cep].filter(Boolean).join(', '));
   y += 3;
-  paragraph('Pagamento: ' + data.pagamento + '  |  Entrega: ' + (data.entrega === 'data' ? dateLabel(data.dataEntrega) : 'A definir'));
+  const paymentDate = data.dataPagamento ? '  |  Data de pagamento: ' + dateLabel(data.dataPagamento) : '';
+  paragraph('Pagamento: ' + data.pagamento + paymentDate + '  |  Entrega: ' + (data.entrega === 'data' ? dateLabel(data.dataEntrega) : 'A definir'));
   paragraph('Responsável: ' + data.responsavel);
   y += 4;
   paragraph('Itens da proposta');
