@@ -1,11 +1,11 @@
 (() => {
- const prices = {10: 7500, 13: 8400, 15: 9300, 20: 10700};
+ const blockSizes = [10, 13, 15, 20];
  const money = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'});
  const brl = cents => money.format(cents / 100);
  const digits = value => value.replace(/\D/g, '');
  const number = value => Number(String(value).trim().replace(',', '.'));
  const cents = value => Math.round(number(value) * 100);
- const sizes = Object.keys(prices).map(size => '<option value="' + size + '">' + size + ' cm</option>').join('');
+ const sizes = blockSizes.map(size => '<option value="' + size + '">' + size + ' cm</option>').join('');
  const logoUrl = 'inova-fachada/marca.webp';
  const panel = document.querySelector('#inova-blocos');
  const form = document.createElement('form');
@@ -130,17 +130,17 @@
   const get = name => row.querySelector('[data-field="' + name + '"]');
   const size = get('size').value;
   const quantity = number(get('quantity').value);
-  const spacerSize = get('spacerSize').value;
-  const spacers = number(get('spacers').value);
-  const price = prices[size] || 0;
+  const spacers = Number.isInteger(quantity) && quantity > 0 ? quantity * 4 : 0;
+  const priceInput = get('price');
+  const price = cents(priceInput.value);
+  const validPrice = /^\d+(?:[.,]\d{1,2})?$/.test(priceInput.value.trim());
+  priceInput.setCustomValidity(!priceInput.value || validPrice ? '' : 'Informe o preço unitário com até duas casas decimais.');
   const discountInput = get('discount');
   const discount = cents(discountInput.value);
-  const validDiscount = /^(?:\d+(?:[.,]\d{0,2})?)?$/.test(discountInput.value.trim()) && discount >= 0 && discount <= price;
-  discountInput.setCustomValidity(validDiscount ? '' : 'Informe um desconto unitário entre zero e o preço de tabela, com até duas casas decimais.');
-  get('spacerSize').required = spacers > 0;
-  get('spacers').min = spacerSize ? '1' : '0';
-  const net = validDiscount ? price - discount : 0;
-  return {size, quantity, spacerSize, spacers, price, discount, net, total: net * quantity};
+  const validDiscount = /^(?:\d+(?:[.,]\d{0,2})?)?$/.test(discountInput.value.trim()) && discount <= price;
+  discountInput.setCustomValidity(validDiscount ? '' : 'Informe um desconto unitário entre zero e o preço informado, com até duas casas decimais.');
+  const net = validPrice && validDiscount ? price - discount : 0;
+  return {size, quantity, spacers, price, discount, net, total: net * quantity};
  }
  function refreshItems() {
   let total = 0;
@@ -148,7 +148,8 @@
    const item = itemData(row);
    row.querySelector('legend').textContent = 'Item ' + (index + 1);
    row.querySelector('[data-remove]').disabled = items.children.length === 1;
-   for (const key of ['price', 'net', 'total']) row.querySelector('[data-output="' + key + '"]').textContent = brl(item[key]);
+   row.querySelector('[data-output="spacers"]').textContent = item.spacers;
+   for (const key of ['net', 'total']) row.querySelector('[data-output="' + key + '"]').textContent = brl(item[key]);
    total += item.total;
   });
   totalOutput.textContent = brl(total);
@@ -159,12 +160,11 @@
   row.innerHTML = `<legend></legend><div class="inova-proposta-grid">
     <label>Bloco<select data-field="size" required><option value="">Selecione</option>${sizes}</select></label>
     <label>Quant. blocos<input data-field="quantity" type="number" min="1" max="999999" step="1" value="1" required></label>
-    <label>Tam. espaç.<select data-field="spacerSize"><option value="">Sem espaçadores</option>${sizes}</select></label>
-    <label>Quant. espaç.<input data-field="spacers" type="number" min="0" max="999999" step="1" value="0" required></label>
-    <label>Preço<output data-output="price"></output></label>
+    <label>Quant. espaç.<output data-output="spacers"></output></label>
+    <label>Preço<input data-field="price" inputmode="decimal" maxlength="9" required></label>
     <label>Desconto<input data-field="discount" inputmode="decimal" maxlength="8" value="0,00"></label>
     <label>Unitário<output data-output="net"></output></label>
-    <label>Total<output data-output="total"></output></label>
+    <label style="min-width:max-content">Total<output style="white-space:nowrap;min-width:max-content" data-output="total"></output></label>
     <button type="button" data-remove aria-label="Remover linha">Remover</button>
    </div>`;
   items.append(row);
@@ -329,7 +329,7 @@
     const item = itemData(row);
     const name = 'Item ' + (i+1) + ' · ';
     const products = [{nome:name+'Bloco de '+item.size+' cm',quantidade:item.quantity}];
-    if (item.spacers) products.push({nome:name+'Espaçador de '+item.spacerSize+' cm',quantidade:item.spacers});
+    if (item.spacers) products.push({nome:name+'Espaçador de '+item.size+' cm',quantidade:item.spacers});
     return products;
    });
    const sale = must(await salesTable().insert({data_venda:dados.dataVenda,cliente:dados.cliente.trim(),dados,itens:produtos})
@@ -544,7 +544,7 @@
    doc.rect(12, y, 186, height, 'F');
    const values = ['Bloco de ' + item.size + ' cm', String(item.quantity), brl(item.price), brl(item.discount), brl(item.net), brl(item.total)];
    values.forEach((value, i) => doc.text(value, columns[i], y + 5.2, {align: i < 2 ? 'left' : 'right'}));
-   if (item.spacers) doc.text('Espaçadores ' + item.spacerSize + ' cm: ' + item.spacers, 14, y + 10);
+   if (item.spacers) doc.text('Espaçadores ' + item.size + ' cm: ' + item.spacers, 14, y + 10);
    y += height;
    grandTotal += item.total;
   }
