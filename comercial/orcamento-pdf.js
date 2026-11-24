@@ -110,6 +110,10 @@
       paragraph(draft.cliente_nome, {size: 11, bold: true});
       fields([['WhatsApp', draft.cliente_whatsapp], ['CPF / CNPJ', draft.cliente_documento], ['Nome do operador', draft.consultor_nome]]);
       if (draft.codigo_workspace) fields([['Código Workspace', draft.codigo_workspace]]);
+    } else if (security) {
+      section('Dados do cliente');
+      paragraph(draft.cliente_nome, {size: 12, bold: true});
+      fields([['Cidade', draft.cliente_cidade], ['WhatsApp', draft.cliente_whatsapp], ['Nome do operador', draft.consultor_nome]]);
     } else {
       font(7, true, MUTED); doc.text('NÚMERO DO ORÇAMENTO', left, y + 2);
       font(8); doc.text(wrap(draft.id || '—', width), left, y + 7); y += 11;
