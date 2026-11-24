@@ -73,7 +73,22 @@
    <p role="status" data-status-salvar></p>
    <p data-status-lista role="status"></p>
   </fieldset>`;
+ const tableStyles = document.createElement('style');
+ tableStyles.textContent = `
+  #inova-proposta .inova-delivery-table-wrap {overflow-x:auto;margin:10px 0 16px;border:1px solid #bfd5b2;border-radius:8px}
+  #inova-proposta .inova-delivery-table {width:100%;min-width:420px;border-collapse:collapse;margin:0}
+  #inova-proposta .inova-delivery-table :is(th,td) {padding:9px 12px;border-bottom:1px solid #dce7d5;vertical-align:middle;text-align:center}
+  #inova-proposta .inova-delivery-table :is(th,td):first-child {text-align:left}
+  #inova-proposta .inova-delivery-table thead {background:#e4f2db;color:#1c371a}
+  #inova-proposta .inova-delivery-table tbody tr:nth-child(even) {background:#f5f9f2}
+  #inova-proposta .inova-delivery-table tbody tr:last-child td {border-bottom:0}
+  #inova-proposta .inova-delivery-table td {font-variant-numeric:tabular-nums}
+  #inova-proposta .inova-delivery-table input[type=number] {width:7em;max-width:100%}
+  #inova-proposta .inova-delivery-alert {margin:8px 0;padding:8px 12px;border-left:4px solid #996a00;background:#fff3d6;color:#543b00;font-weight:700}
+  #inova-proposta .inova-delivery-alert[data-urgente] {border-color:#b32c25;background:#fff0ed;color:#7d201a}
+ `;
  panel.firstElementChild.after(form);
+ form.prepend(tableStyles);
  const fields = form.elements;
  const items = form.querySelector('.inova-proposta-itens');
  const cepStatus = form.querySelector('.inova-cep-status');
@@ -268,6 +283,18 @@
   if (result.error) throw result.error;
   return result.data;
  }
+ function deliveryReminder(sale, balance, today = hoje()) {
+  const date = sale.data_entrega ?? sale.dados?.dataEntrega;
+  if (!balance || !date) return null;
+  const label = date < today ? 'Entrega atrasada' : date === today ? 'Entrega hoje' : 'Entrega programada';
+  return {text:label + ' · ' + brDate(date), urgent:date <= today};
+ }
+ function reminderElement(reminder) {
+  const badge = node('p',reminder.text);
+  badge.className = 'inova-delivery-alert';
+  badge.toggleAttribute('data-urgente',reminder.urgent);
+  return badge;
+ }
  function stats(sale) {
   const rows = sale.inova_entregas;
   const totals = sale.itens.map((item, i) => {
@@ -290,7 +317,7 @@
   status.textContent = 'Carregando vendas…';
   try {
    const search = find('busca').value.trim();
-   let query = salesTable().select('id,numero,cliente,data_venda,itens,pesquisa_em,inova_entregas(item,quantidade,comprovante)')
+   let query = salesTable().select('id,numero,cliente,data_venda,itens,pesquisa_em,data_entrega:dados->>dataEntrega,inova_entregas(item,quantidade,comprovante)')
     .is('arquivada_em',null).order('data_venda',{ascending:false}).order('numero',{ascending:false});
    if (/^\d+$/.test(search)) query = query.eq('numero', search);
    else if (search) query = query.ilike('cliente','%' + search.replace(/[\\%_]/g, '\\$&') + '%');
@@ -303,6 +330,8 @@
     li.append(button((info.alert ? '🔴 ' : '') + 'Pedido ' + sale.numero + ' · ' + sale.cliente + ' · ' +
      brDate(sale.data_venda) + ' · ' + info.status + ' · ' + info.sent + ' entregues · ' + info.balance + ' a entregar',
      () => abrir(sale.id,true)));
+    const reminder = deliveryReminder(sale,info.balance);
+    if (reminder) li.append(reminderElement(reminder));
     if (info.alert) li.append(node('p',info.alert));
     return li;
    }));
@@ -412,6 +441,8 @@
   const info = stats(sale);
   heading.textContent = 'Pedido ' + sale.numero + ' · ' + sale.cliente + ' · ' + brDate(sale.data_venda) + ' · ' + info.status
    + (info.alert ? ' · 🔴 ' + info.alert : '');
+  const reminder = deliveryReminder(sale,info.balance);
+  if (reminder) history.append(reminderElement(reminder));
   const {box:amounts, body:summary} = productTable('Produtos do pedido', ['Produto','Pedido','Entregue','Saldo']);
   sale.itens.forEach((item,i) => {
    const row = summary.insertRow();
@@ -479,9 +510,9 @@
 
  function productTable(title, columns) {
   const box = node('div','');
-  box.style.overflowX = 'auto';
+  box.className = 'inova-delivery-table-wrap';
   const table = node('table','');
-  table.style.cssText = 'width:100%;min-width:420px;margin:8px 0';
+  table.className = 'inova-delivery-table';
   table.setAttribute('aria-label',title);
   const head = table.createTHead().insertRow();
   columns.forEach(name => {
