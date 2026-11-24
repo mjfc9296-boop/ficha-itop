@@ -76,14 +76,16 @@
  const tableStyles = document.createElement('style');
  tableStyles.textContent = `
   #inova-proposta .inova-delivery-table-wrap {overflow-x:auto;margin:10px 0 16px;border:1px solid #bfd5b2;border-radius:8px}
-  #inova-proposta .inova-delivery-table {width:100%;min-width:420px;border-collapse:collapse;margin:0}
-  #inova-proposta .inova-delivery-table :is(th,td) {padding:9px 12px;border-bottom:1px solid #dce7d5;vertical-align:middle;text-align:center}
-  #inova-proposta .inova-delivery-table :is(th,td):first-child {text-align:left}
+  #inova-proposta .inova-delivery-table {width:100%;min-width:420px;border-collapse:collapse;table-layout:fixed;margin:0}
+  #inova-proposta .inova-delivery-table :is(th,td) {padding:9px 12px;border-bottom:1px solid #dce7d5;vertical-align:middle;text-align:center!important}
+  #inova-proposta .inova-delivery-table :is(th,td):first-child {width:43%;text-align:left!important;overflow-wrap:anywhere}
   #inova-proposta .inova-delivery-table thead {background:#e4f2db;color:#1c371a}
   #inova-proposta .inova-delivery-table tbody tr:nth-child(even) {background:#f5f9f2}
   #inova-proposta .inova-delivery-table tbody tr:last-child td {border-bottom:0}
   #inova-proposta .inova-delivery-table td {font-variant-numeric:tabular-nums}
-  #inova-proposta .inova-delivery-table input[type=number] {width:7em;max-width:100%}
+  #inova-proposta .inova-delivery-table input[type=number] {display:block;width:min(7em,100%)!important;min-width:0!important;margin:0 auto;text-align:center}
+  #inova-proposta .inova-delivery-date {display:grid;gap:4px;width:min(190px,100%);margin:8px 0;text-align:left}
+  #inova-proposta .inova-delivery-table td:last-child {font-weight:700}
   #inova-proposta .inova-delivery-alert {margin:8px 0;padding:8px 12px;border-left:4px solid #996a00;background:#fff3d6;color:#543b00;font-weight:700}
   #inova-proposta .inova-delivery-alert[data-urgente] {border-color:#b32c25;background:#fff0ed;color:#7d201a}
  `;
@@ -555,7 +557,9 @@
    inputs.push({index,qty});
   });
   const saidaId = crypto.randomUUID();
-  delivery.append(node('legend','Registrar entrega'),label('Data da saída',date),box,
+  const dateLabel = label('Data da saída',date);
+  dateLabel.className = 'inova-delivery-date';
+  delivery.append(node('legend','Registrar entrega'),dateLabel,box,
    button('Confirmar entrega',event => {
     if (!date.value || !date.reportValidity() || inputs.some(({qty}) => !qty.reportValidity())) {
      notice.textContent = 'Confira a data e as quantidades desta saída.';
