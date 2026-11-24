@@ -1,7 +1,7 @@
-/* Mais espaço para as laterais e tipografia legível no conteúdo central. */
+/* Laterais compactas e tipografia legível no conteúdo central. */
 @media screen and (min-width: 901px) {
   html body > main:has(> .itop-work-rail) {
-    --itop-side-width: max(248px, 21%);
+    --itop-side-width: max(198.4px, 16.8%);
     grid-template-columns: minmax(0, var(--itop-side-width)) minmax(0, 1fr) minmax(0, var(--itop-side-width)) !important;
     gap: 6px !important;
     padding-inline: 8px !important;
