@@ -1,18 +1,18 @@
 @media screen {
- html:has(#sondagem.active:not([hidden])) { --itop-module-tarja: url("arte-sondagem.webp"); --itop-module-tarja-height: calc(100vw * 277 / 1800); }
- html:has(#confraternizacao.active:not([hidden])) { --itop-module-tarja: url("arte-confraternizacao.webp"); --itop-module-tarja-height: calc(100vw * 284 / 1800); }
- html:has(#retencao.active:not([hidden])) { --itop-module-tarja: url("arte-retencao.webp"); --itop-module-tarja-height: calc(100vw * 283 / 1800); }
- html:has(#comercial.active:not([hidden])) { --itop-module-tarja: url("comercial.webp"); --itop-module-tarja-height: calc(100vw * 238 / 2048); }
+ html:has(#sondagem.active:not([hidden])) { --itop-module-tarja: url("neon-sondagem.webp"); --itop-module-tarja-height: calc(100vw * 240 / 1800); }
+ html:has(#confraternizacao.active:not([hidden])) { --itop-module-tarja: url("neon-confraternizacao.webp"); --itop-module-tarja-height: calc(100vw * 283 / 1800); }
+ html:has(#retencao.active:not([hidden])) { --itop-module-tarja: url("neon-retencao.webp"); --itop-module-tarja-height: calc(100vw * 300 / 1800); }
+ html:has(#comercial.active:not([hidden])) { --itop-module-tarja: url("neon-comercial.webp"); --itop-module-tarja-height: calc(100vw * 268 / 1800); }
  html:has(#gestao-usuarios.active:not([hidden])) { --itop-module-tarja: url("arte-gestao-usuarios.webp"); --itop-module-tarja-height: calc(100vw * 304 / 1800); }
- html:has(#portaria-seguranca.active:not([hidden])) { --itop-module-tarja: url("arte-portaria-seguranca.webp"); --itop-module-tarja-height: calc(100vw * 279 / 1800); }
- html:has(#comissionamento-area.active:not([hidden])) { --itop-module-tarja: url("arte-comissionamento-area.webp"); --itop-module-tarja-height: calc(100vw * 287 / 1800); }
- html:has(#svas-area.active:not([hidden])) { --itop-module-tarja: url("arte-svas-area.webp"); --itop-module-tarja-height: calc(100vw * 272 / 1800); }
- html:has(#itop-comunica.active:not([hidden])) { --itop-module-tarja: url("arte-itop-comunica.webp"); --itop-module-tarja-height: calc(100vw * 268 / 1800); }
- html:has(#movel.active:not([hidden])) { --itop-module-tarja: url("arte-movel.webp"); --itop-module-tarja-height: calc(100vw * 273 / 1800); }
- html:has(#itop-movel.active:not([hidden])) { --itop-module-tarja: url("arte-itop-movel.webp"); --itop-module-tarja-height: calc(100vw * 269 / 1800); }
- html:has(#energia.active:not([hidden])) { --itop-module-tarja: url("arte-energia.webp"); --itop-module-tarja-height: calc(100vw * 269 / 1800); }
- html:has(#fechamento.active:not([hidden])) { --itop-module-tarja: url("arte-fechamento.webp"); --itop-module-tarja-height: calc(100vw * 275 / 1800); }
- html:has(#pacote.active:not([hidden])) { --itop-module-tarja: url("arte-pacote.webp"); --itop-module-tarja-height: calc(100vw * 275 / 1800); }
+ html:has(#portaria-seguranca.active:not([hidden])) { --itop-module-tarja: url("neon-portaria-seguranca.webp"); --itop-module-tarja-height: calc(100vw * 233 / 1800); }
+ html:has(#comissionamento-area.active:not([hidden])) { --itop-module-tarja: url("neon-comissionamento-area.webp"); --itop-module-tarja-height: calc(100vw * 298 / 1800); }
+ html:has(#svas-area.active:not([hidden])) { --itop-module-tarja: url("neon-svas-area.webp"); --itop-module-tarja-height: calc(100vw * 301 / 1800); }
+ html:has(#itop-comunica.active:not([hidden])) { --itop-module-tarja: url("neon-itop-comunica.webp"); --itop-module-tarja-height: calc(100vw * 277 / 1800); }
+ html:has(#movel.active:not([hidden])) { --itop-module-tarja: url("neon-movel.webp"); --itop-module-tarja-height: calc(100vw * 284 / 1800); }
+ html:has(#itop-movel.active:not([hidden])) { --itop-module-tarja: url("neon-itop-movel.webp"); --itop-module-tarja-height: calc(100vw * 279 / 1800); }
+ html:has(#energia.active:not([hidden])) { --itop-module-tarja: url("neon-energia.webp"); --itop-module-tarja-height: calc(100vw * 281 / 1800); }
+ html:has(#fechamento.active:not([hidden])) { --itop-module-tarja: url("neon-fechamento.webp"); --itop-module-tarja-height: calc(100vw * 229 / 1800); }
+ html:has(#pacote.active:not([hidden])) { --itop-module-tarja: url("neon-pacote.webp"); --itop-module-tarja-height: calc(100vw * 231 / 1800); }
  html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header {
   height: var(--itop-module-tarja-height) !important;
   background: #050505 var(--itop-module-tarja) center / 100% auto no-repeat !important;
