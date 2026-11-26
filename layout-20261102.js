@@ -46,9 +46,22 @@
  const financeLink = document.createElement('a');
  financeLink.id = 'itop-fluxo-eficiente';
  financeLink.href = 'https://financeiro.fluxoeficiente.com/';
- financeLink.textContent = 'Fluxo Eficiente';
+ financeLink.setAttribute('aria-label', '16 Fluxo Eficiente');
  financeLink.hidden = true;
- financeLink.style.cssText = 'box-sizing:border-box;align-items:center;justify-content:center;width:100%;min-height:44px;padding:8px;border:1px solid #d27a2f;border-radius:9px;background:#050505;color:#fff;font-weight:700;text-align:center;text-decoration:none';
+ financeLink.style.cssText = 'position:relative;width:100%;border-radius:9px;background:#050505';
+
+ const financeCover = document.createElement('img');
+ financeCover.src = 'capas/fluxo-eficiente-16.webp';
+ financeCover.alt = '';
+ financeCover.width = 720;
+ financeCover.height = 377;
+ financeCover.style.cssText = 'display:block;width:100%;height:auto;border-radius:inherit';
+
+ const financeNumber = document.createElement('span');
+ financeNumber.textContent = '16';
+ financeNumber.setAttribute('aria-hidden', 'true');
+ financeNumber.style.cssText = 'position:absolute;top:5px;left:5px;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#fff;color:#111;font-size:13px;font-weight:800;line-height:1';
+ financeLink.append(financeCover, financeNumber);
  menu.querySelector('.nav-tabs').append(financeLink);
 
  let financeAccessCheck = 0;
