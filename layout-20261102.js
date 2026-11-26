@@ -46,6 +46,8 @@
  const financeLink = document.createElement('a');
  financeLink.id = 'itop-fluxo-eficiente';
  financeLink.href = 'https://financeiro.fluxoeficiente.com/';
+ financeLink.target = '_blank';
+ financeLink.rel = 'noopener';
  financeLink.setAttribute('aria-label', '16 Fluxo Eficiente');
  financeLink.hidden = true;
  financeLink.style.cssText = 'position:relative;width:100%;border-radius:9px;background:#050505';
