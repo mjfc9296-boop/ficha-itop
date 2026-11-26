@@ -101,8 +101,7 @@ import {isCombo, isPortaria, minimumQuantity, quoteNotes} from './catalogo-secur
     retentionTab.setAttribute('aria-controls', 'retencao');
     retentionTab.innerHTML = '<img alt="" class="itop-tab-art" src="capas/menu-bronze-retencao.webp"><span class="step-ball" aria-hidden="true">14</span><span class="itop-nav-label">Retenção</span>';
     const moduleNav = document.querySelector('.itop-module-menu .nav-tabs');
-    const inovaTab = moduleNav.querySelector('[data-module="inova-blocos"]');
-    moduleNav.insertBefore(retentionTab, inovaTab);
+    moduleNav.insertBefore(retentionTab, $('itop-fluxo-eficiente'));
     const retentionModule = document.createElement('div');
     retentionModule.id = 'retencao';
     retentionModule.className = 'module';
@@ -133,8 +132,7 @@ import {isCombo, isPortaria, minimumQuantity, quoteNotes} from './catalogo-secur
     banner.loading = 'lazy';
     banner.style.cssText = 'display:block;width:100%;height:auto;margin:0 0 12px;border-radius:12px';
     retentionModule.prepend(banner);
-    const inova = $('inova-blocos');
-    (inova || packageModule).after(retentionModule);
+    packageModule.after(retentionModule);
 
     const partyTab = document.createElement('button');
     partyTab.type = 'button';

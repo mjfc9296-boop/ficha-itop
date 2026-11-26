@@ -83,8 +83,7 @@
   ['svas-area', 'sva-topo.webp', 'SVA — Serviços de Valor Agregado', 2048, 684],
   ['comissionamento-area', 'topo-comissao.webp', 'Comissão', 2048, 684],
   ['gestao-usuarios', 'gestao-usuarios-topo.webp', 'Gestão de Usuários', 2048, 684],
-  ['comercial', 'gestao-plataforma-topo.webp', 'Gestão da Plataforma', 2048, 684],
-  ['inova-blocos', 'inova-blocos-topo.webp', 'Inova Blocos', 2048, 682]
+  ['comercial', 'gestao-plataforma-topo.webp', 'Gestão da Plataforma', 2048, 684]
  ]) {
   const module = $(moduleId);
   if (!module) continue;
