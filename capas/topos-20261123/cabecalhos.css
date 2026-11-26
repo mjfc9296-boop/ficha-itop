@@ -22,12 +22,12 @@
   min-height: var(--itop-module-header-height) !important;
   max-height: var(--itop-module-header-height) !important;
  }
- html:has(:is(#procedimentos, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header {
+ html:has(:is(#procedimentos, #sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header {
   background: #050505 var(--itop-module-tarja) center top / 100% var(--itop-module-tarja-height) no-repeat !important;
  }
- html:has(:is(#procedimentos, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header::before,
- html:has(:is(#procedimentos, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header::after,
- html:has(:is(#procedimentos, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header > :is(.itop-module-header-center, .itop-top-mascote, .itop-top-marca, .itop-top-uvi) {
+ html:has(:is(#procedimentos, #sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header::before,
+ html:has(:is(#procedimentos, #sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header::after,
+ html:has(:is(#procedimentos, #sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header > :is(.itop-module-header-center, .itop-top-mascote, .itop-top-marca, .itop-top-uvi) {
   display: none !important;
  }
 }
