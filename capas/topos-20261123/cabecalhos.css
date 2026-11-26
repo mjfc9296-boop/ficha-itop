@@ -1,21 +1,25 @@
 @media screen {
- html:has(#sondagem.active:not([hidden])) { --itop-module-tarja: url("neon-sondagem.webp"); --itop-module-tarja-height: calc(100vw * 240 / 1800); }
- html:has(#confraternizacao.active:not([hidden])) { --itop-module-tarja: url("neon-confraternizacao.webp"); --itop-module-tarja-height: calc(100vw * 283 / 1800); }
- html:has(#retencao.active:not([hidden])) { --itop-module-tarja: url("neon-retencao.webp"); --itop-module-tarja-height: calc(100vw * 300 / 1800); }
- html:has(#comercial.active:not([hidden])) { --itop-module-tarja: url("neon-comercial.webp"); --itop-module-tarja-height: calc(100vw * 268 / 1800); }
- html:has(#gestao-usuarios.active:not([hidden])) { --itop-module-tarja: url("arte-gestao-usuarios.webp"); --itop-module-tarja-height: calc(100vw * 304 / 1800); }
- html:has(#portaria-seguranca.active:not([hidden])) { --itop-module-tarja: url("neon-portaria-seguranca.webp"); --itop-module-tarja-height: calc(100vw * 233 / 1800); }
- html:has(#comissionamento-area.active:not([hidden])) { --itop-module-tarja: url("neon-comissionamento-area.webp"); --itop-module-tarja-height: calc(100vw * 298 / 1800); }
- html:has(#svas-area.active:not([hidden])) { --itop-module-tarja: url("neon-svas-area.webp"); --itop-module-tarja-height: calc(100vw * 301 / 1800); }
- html:has(#itop-comunica.active:not([hidden])) { --itop-module-tarja: url("neon-itop-comunica.webp"); --itop-module-tarja-height: calc(100vw * 277 / 1800); }
- html:has(#movel.active:not([hidden])) { --itop-module-tarja: url("neon-movel.webp"); --itop-module-tarja-height: calc(100vw * 284 / 1800); }
- html:has(#itop-movel.active:not([hidden])) { --itop-module-tarja: url("neon-itop-movel.webp"); --itop-module-tarja-height: calc(100vw * 279 / 1800); }
- html:has(#energia.active:not([hidden])) { --itop-module-tarja: url("neon-energia.webp"); --itop-module-tarja-height: calc(100vw * 281 / 1800); }
- html:has(#fechamento.active:not([hidden])) { --itop-module-tarja: url("neon-fechamento.webp"); --itop-module-tarja-height: calc(100vw * 229 / 1800); }
- html:has(#pacote.active:not([hidden])) { --itop-module-tarja: url("neon-pacote.webp"); --itop-module-tarja-height: calc(100vw * 231 / 1800); }
+ :root { --itop-module-tarja-height: calc(100vw * 238 / 2048); }
+ html:has(#sondagem.active:not([hidden])) { --itop-module-tarja: url("neon-sondagem.webp"); }
+ html:has(#confraternizacao.active:not([hidden])) { --itop-module-tarja: url("neon-confraternizacao.webp"); }
+ html:has(#retencao.active:not([hidden])) { --itop-module-tarja: url("neon-retencao.webp"); }
+ html:has(#comercial.active:not([hidden])) { --itop-module-tarja: url("neon-comercial.webp"); }
+ html:has(#gestao-usuarios.active:not([hidden])) { --itop-module-tarja: url("arte-gestao-usuarios.webp"); }
+ html:has(#portaria-seguranca.active:not([hidden])) { --itop-module-tarja: url("neon-portaria-seguranca.webp"); }
+ html:has(#comissionamento-area.active:not([hidden])) { --itop-module-tarja: url("neon-comissionamento-area.webp"); }
+ html:has(#svas-area.active:not([hidden])) { --itop-module-tarja: url("neon-svas-area.webp"); }
+ html:has(#itop-comunica.active:not([hidden])) { --itop-module-tarja: url("neon-itop-comunica.webp"); }
+ html:has(#movel.active:not([hidden])) { --itop-module-tarja: url("neon-movel.webp"); }
+ html:has(#itop-movel.active:not([hidden])) { --itop-module-tarja: url("neon-itop-movel.webp"); }
+ html:has(#energia.active:not([hidden])) { --itop-module-tarja: url("neon-energia.webp"); }
+ html:has(#fechamento.active:not([hidden])) { --itop-module-tarja: url("neon-fechamento.webp"); }
+ html:has(#pacote.active:not([hidden])) { --itop-module-tarja: url("neon-pacote.webp"); }
  html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header {
-  height: var(--itop-module-tarja-height) !important;
-  background: #050505 var(--itop-module-tarja) center / 100% auto no-repeat !important;
+  --itop-module-header-height: var(--itop-module-tarja-height);
+  height: var(--itop-module-header-height) !important;
+  min-height: var(--itop-module-header-height) !important;
+  max-height: var(--itop-module-header-height) !important;
+  background: #050505 var(--itop-module-tarja) center top / auto var(--itop-module-tarja-height) no-repeat !important;
  }
  html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header::before,
  html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header::after,
@@ -31,7 +35,6 @@
 }
 @media screen and (max-width: 900px) {
  html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header {
-  height: calc(var(--itop-module-tarja-height) + 32px) !important;
-  background-position: center top !important;
+  --itop-module-header-height: calc(var(--itop-module-tarja-height) + 32px);
  }
 }
