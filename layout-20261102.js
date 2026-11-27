@@ -806,7 +806,7 @@
  const compras = inovaPanel.querySelector('#inova-compras');
  const comprasStyle = document.createElement('link');
  comprasStyle.rel = 'stylesheet';
- comprasStyle.href = 'inova-fachada/compras.css?v=6';
+ comprasStyle.href = 'inova-fachada/compras.css?v=7';
  document.head.append(comprasStyle);
  inovaTab.addEventListener('click', async () => {
   if (inovaTab.hidden) return;
@@ -815,7 +815,7 @@
   try {
    if (!purchases) {
     compras.textContent = 'Carregando Compras…';
-    const {mountPurchases} = await import('./inova-fachada/compras.js?v=12');
+    const {mountPurchases} = await import('./inova-fachada/compras.js?v=13');
     if (inovaTab.hidden || compras.hidden || !inovaPanel.classList.contains('active')) return;
     purchases ??= mountPurchases(compras, async () => (await getInovaStock()).stock, {supplierForm, saveSupplier, supplierError});
     compras.querySelector('[data-return]').onclick = () => returnButton.click();
