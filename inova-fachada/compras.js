@@ -56,7 +56,12 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
         <label>Prioridade<select name="prioridade"><option value="normal">Normal</option><option value="urgente">Urgente</option></select></label>
       </div></section>
       <section class="compras-card"><div class="compras-heading"><h3>Itens</h3><button type="button" data-add>+ Adicionar item</button></div>
-        <div data-items></div><datalist id="inova-compra-produtos"></datalist>
+        <div class="compras-order-items" role="region" aria-label="Linhas de itens" tabindex="0">
+         <div class="compras-order-items-head" aria-hidden="true">
+          <span>Produto</span><span>Quantidade</span><span>Valor unitário (R$)</span><span>Total</span>
+         </div>
+         <div data-items></div>
+        </div><datalist id="inova-compra-produtos"></datalist>
       </section>
       <section class="compras-card">
         <h3>Orçamentos</h3>
@@ -178,10 +183,10 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
   if (items.children.length >= 100) return;
   const row = document.createElement('div');
   row.className = 'compras-item';
-  row.innerHTML = `<label>Produto<input list="inova-compra-produtos" required maxlength="160"></label>
-   <label>Quantidade<input type="number" min="0.001" max="999999" step="0.001" required></label>
-   <label>Valor unitário (R$)<input type="number" min="0" max="999999" step="0.01" required></label>
-   <label>Total<output></output></label><button type="button" aria-label="Remover item" title="Remover item">🗑</button>`;
+  row.innerHTML = `<input aria-label="Produto" list="inova-compra-produtos" required maxlength="160">
+   <input aria-label="Quantidade" type="number" min="0.001" max="999999" step="0.001" required>
+   <input aria-label="Valor unitário (R$)" type="number" min="0" max="999999" step="0.01" required>
+   <output aria-label="Total"></output><button type="button" aria-label="Remover item" title="Remover item">🗑</button>`;
   row.querySelector('button').onclick = () => {
    row.remove();
    if (!items.childElementCount) addItem(true);
