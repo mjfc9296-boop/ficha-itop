@@ -144,6 +144,7 @@
  inovaPanel.innerHTML = `
   <h2>Inova Blocos</h2>
   <p role="status"></p>
+  <section hidden id="inova-compras" aria-label="Compras"></section>
   <section hidden id="inova-estoque" aria-labelledby="inova-estoque-titulo">
    <div class="inova-view-heading">
     <h2 id="inova-estoque-titulo">Estoque</h2>
@@ -215,7 +216,8 @@
   </section>
  `;
  document.getElementById('comercial').after(inovaPanel);
- const inovaViews = '#inova-proposta, #inova-envios, #inova-solicitacoes, #inova-estoque, #inova-fornecedores, #inova-imagens-uteis, #inova-videos-uteis';
+ const inovaViews = '#inova-compras, #inova-proposta, #inova-envios, #inova-solicitacoes, #inova-estoque, #inova-fornecedores, #inova-imagens-uteis, #inova-videos-uteis';
+ let purchases;
  let selectedInovaView = '';
  function selectInovaView(id) {
   selectedInovaView = id;
@@ -484,17 +486,9 @@
   selectInovaView(stockDialog.id);
   const session = archiveSession;
   try {
-   const client = window.itopAuthClient;
-   const {data, error} = await client.from('inova_blocos_estoque').select('saldos,revisao').eq('id', 1).maybeSingle();
-   if (error) throw error;
-   let stock = data?.saldos;
-   if (!stock) {
-    const initial = await client.from('inova_blocos_arquivos').select('pdf').eq('id', 'estoque-inicial').single();
-    if (initial.error) throw initial.error;
-    stock = JSON.parse(await inovaFileBlob(initial.data.pdf, 'application/json').text());
-   }
+   const {stock, revision} = await getInovaStock();
    if (session !== archiveSession || request !== stockRequest || stockDialog.hidden) return;
-   stockRevision = data?.revisao ?? null;
+   stockRevision = revision;
    stockGroups.replaceChildren(stockTable('Máscara', 'mascara', stock.mascara), stockTable('Blocos', 'blocos', stock.blocos));
    stockSave.disabled = false;
    stockStatus.textContent = '';
@@ -504,6 +498,16 @@
    }
   }
  });
+
+ async function getInovaStock() {
+  const client = window.itopAuthClient;
+  const {data, error} = await client.from('inova_blocos_estoque').select('saldos,revisao').eq('id', 1).maybeSingle();
+  if (error) throw error;
+  if (data?.saldos) return {stock: data.saldos, revision: data.revisao};
+  const initial = await client.from('inova_blocos_arquivos').select('pdf').eq('id', 'estoque-inicial').single();
+  if (initial.error) throw initial.error;
+  return {stock: JSON.parse(await inovaFileBlob(initial.data.pdf, 'application/json').text()), revision: null};
+ }
 
  const supplierDialog = inovaPanel.querySelector('#inova-fornecedores');
  const supplierForm = supplierDialog.querySelector('[data-fornecedor]');
@@ -750,6 +754,7 @@
   galleryButton.setAttribute('aria-expanded', 'false');
   if (imageDialog.open) imageDialog.close();
   selectInovaView('');
+  purchases?.reset();
   inovaPanel.querySelector('#inova-envios')?.dispatchEvent(new Event('inova:saiu'));
 
   supplierQuery += 1;
@@ -789,9 +794,27 @@
   void verifyInovaAccess(window.itopAuthorizedProfile);
  }
 
- inovaTab.addEventListener('click', () => {
+ const compras = inovaPanel.querySelector('#inova-compras');
+ const comprasStyle = document.createElement('link');
+ comprasStyle.rel = 'stylesheet';
+ comprasStyle.href = 'inova-fachada/compras.css?v=1';
+ document.head.append(comprasStyle);
+ inovaTab.addEventListener('click', async () => {
   if (inovaTab.hidden) return;
   switchModule(inovaPanel.id);
+  selectInovaView(compras.id);
+  try {
+   if (!purchases) {
+    compras.textContent = 'Carregando Compras…';
+    const {mountPurchases} = await import('./inova-fachada/compras.js?v=1');
+    if (inovaTab.hidden || compras.hidden || !inovaPanel.classList.contains('active')) return;
+    purchases ??= mountPurchases(compras, async () => (await getInovaStock()).stock);
+    compras.querySelector('[data-return]').onclick = () => returnButton.click();
+   }
+   void purchases.open();
+  } catch {
+   compras.textContent = 'Não foi possível abrir Compras. Selecione o módulo novamente.';
+  }
  });
  for (const button of inovaPanel.querySelectorAll('button[data-arquivo]')) {
   button.addEventListener('click', async () => {
