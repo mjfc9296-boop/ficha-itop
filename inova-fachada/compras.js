@@ -1,6 +1,6 @@
-import {mountPurchaseQuotes} from './orcamentos-compras.js?v=1';
+import {mountPurchaseQuotes} from './orcamentos-compras.js?v=2';
 
-export function mountPurchases(panel, loadStock) {
+export function mountPurchases(panel, loadStock, supplierRegistration) {
  const money = cents => (cents / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
  const date = value => value ? value.split('-').reverse().join('/') : '—';
  const client = () => window.itopAuthClient;
@@ -58,7 +58,7 @@ export function mountPurchases(panel, loadStock) {
  function fillOptions(selector, values) {
   find(selector).replaceChildren(...values.map(value => new Option(value)));
  }
- const quotes = mountPurchaseQuotes(panel, {client, money, date, showQuotes: () => show('quotes'),
+ const quotes = mountPurchaseQuotes(panel, {...supplierRegistration, client, money, date, showQuotes: () => show('quotes'),
   async loadSuppliers() {
    const current = revision;
    try {
