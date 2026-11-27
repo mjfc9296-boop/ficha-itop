@@ -1,5 +1,7 @@
 import {mountPurchaseQuotes} from './orcamentos-compras.js?v=4';
 
+import {mountPurchaseStatus, fileTypes} from './status-compras.js?v=1';
+
 export function mountPurchases(panel, loadStock, supplierRegistration) {
  const money = cents => (cents / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
  const date = value => value ? value.split('-').reverse().join('/') : '—';
@@ -7,13 +9,33 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
  panel.innerHTML = `
   <header class="compras-header"><div><span>INOVA BLOCOS</span><h2>Compras</h2></div>
     <nav aria-label="Ações de compras"><button type="button" data-return>Voltar à ITOP</button><button type="button" data-open="stock">Estoque mínimo</button>
-    <button type="button" class="compras-primary" data-open="form">+ Novo PC</button></nav>
+    </nav>
   </header>
   <nav class="compras-tabs" aria-label="Compras">
+   <button type="button" class="compras-primary" data-open="form">+ Novo PC</button>
+   <button type="button" data-open="status">Status Pedido</button>
+   <button type="button" data-open="complete">Concluir Pedido</button>
    <button type="button" data-open="orders" aria-current="page">Pedido de compra</button>
    <button type="button" data-open="quotes">Orçamentos</button>
   </nav>
   <p data-status role="status"></p>
+  <section data-view="status" class="compras-card" hidden>
+   <h3>Status Pedido</h3><div class="compras-table-scroll" data-purchase-status></div>
+  </section>
+  <section data-view="complete" class="compras-card" hidden>
+   <h3>Concluir Pedido</h3><div class="compras-table-scroll" data-approved-orders></div>
+   <section data-complete-order hidden>
+    <div class="compras-heading"><h3></h3><button type="button" data-close-completion>Fechar pedido</button></div>
+    <div data-complete-details></div><p role="status"></p>
+    <form>
+     <div class="compras-pair">
+      <label>Comprovante de pagamento<input name="comprovante" type="file" accept="${fileTypes},.xml" required></label>
+      <label>Nota fiscal<input name="nota_fiscal" type="file" accept="${fileTypes},.xml" required></label>
+     </div>
+     <button type="submit" class="compras-primary">Concluir pedido</button>
+    </form>
+   </section>
+  </section>
   <section data-view="orders" class="compras-card"><h3>Pedidos de compra</h3><ul data-orders></ul></section>
   <section data-view="quotes" class="compras-card" hidden><div class="compras-heading">
    <h3>Orçamentos</h3><button type="button" class="compras-primary" data-new-quote>+ Adicionar orçamento</button>
@@ -68,6 +90,9 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
  let slot = 1;
  let screen = 'orders', revision = 0, saving = false, orderId;
  const setStatus = message => { status.textContent = message; };
+ const workflow = mountPurchaseStatus(panel, {client, money, show, setStatus,
+  isCurrent: view => screen === view && !panel.hidden
+ });
  const products = data => Object.entries({Máscara: data?.mascara, Bloco: data?.blocos})
   .flatMap(([name, balances]) => (balances || []).map(([size, base, extra]) => ({
    produto: name + ' ' + size + ' cm', saldo: Number(base || 0) + Number(extra || 0)
@@ -163,9 +188,10 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
   totals();
   if (focus) row.querySelector('input').focus();
  }
- async function show(view) {
+ async function show(view, page = 0) {
   if (saving) return;
   screen = view;
+  workflow.reset();
   const current = ++revision;
   for (const section of panel.querySelectorAll('[data-view]')) section.hidden = section.dataset.view !== view;
   for (const tab of panel.querySelectorAll('.compras-tabs [data-open]')) {
@@ -191,6 +217,10 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
   }
   setStatus('Carregando…');
   try {
+   if (view === 'status' || view === 'complete') {
+    await workflow.load(view, () => revision === current, page);
+    return;
+   }
    if (view === 'quotes') {
     find('[data-quotes]').replaceChildren();
     const rows = await quotes.list();
@@ -401,7 +431,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
    if (error) throw error;
    if (revision !== current) return;
    saving = false;
-   await show('orders');
+   await show(approve ? 'status' : 'orders');
   } catch {
    if (revision === current) setStatus('Não foi possível criar o pedido. Os dados continuam no formulário.');
   } finally { saving = submit.disabled = send.disabled = false; }
@@ -426,6 +456,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
  return {open: () => show('orders'), reset() {
   revision++;
   quotes.reset();
+  workflow.reset();
   draftQuotes.clear();
   orderId = null;
   find('[data-quotes]').replaceChildren();
