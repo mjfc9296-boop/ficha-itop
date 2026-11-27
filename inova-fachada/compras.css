@@ -61,3 +61,17 @@ html body #inova-compras .compras-tabs [aria-current="page"] { background: #dcee
 #inova-compras .compras-quote footer { display: flex; justify-content: flex-end; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 18px; border-top: 1px solid #d5e6e1; }
 #inova-compras .compras-quote [role="status"] { margin: 0 auto 0 0; }
 #inova-compras .compras-quote select { width: 100%; min-width: 0; padding: 8px; background: #fff; color: #193333; border: 1px solid #9eb9b1; border-radius: 8px; font-size: 16px; }
+
+#inova-compras label.compras-exclusive { display: inline-flex; align-items: center; gap: 6px; }
+#inova-compras .compras-exclusive input { width: auto; }
+
+#inova-compras .compras-table-scroll { overflow-x: auto; }
+#inova-compras :is(.compras-table-scroll, [data-complete-details]) table { width: 100%; border-collapse: collapse; }
+#inova-compras :is(.compras-table-scroll, [data-complete-details]) :is(th, td) {
+ padding: 10px; border-bottom: 1px solid #d5e6e1; text-align: left; vertical-align: top;
+}
+#inova-compras .compras-decision { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-weight: 700; }
+#inova-compras .compras-decision::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #a66c13; }
+#inova-compras .compras-decision[data-decision="aprovado"]::after { background: #168143; }
+#inova-compras .compras-decision[data-decision="reprovado"]::after { background: #bc2f40; }
+#inova-compras [data-complete-order] { margin-top: 18px; }
