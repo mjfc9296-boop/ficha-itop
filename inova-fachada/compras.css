@@ -64,3 +64,14 @@ html body #inova-compras .compras-tabs [aria-current="page"] { background: #dcee
 
 #inova-compras label.compras-exclusive { display: inline-flex; align-items: center; gap: 6px; }
 #inova-compras .compras-exclusive input { width: auto; }
+
+#inova-compras .compras-table-scroll { overflow-x: auto; }
+#inova-compras :is(.compras-table-scroll, [data-complete-details]) table { width: 100%; border-collapse: collapse; }
+#inova-compras :is(.compras-table-scroll, [data-complete-details]) :is(th, td) {
+ padding: 10px; border-bottom: 1px solid #d5e6e1; text-align: left; vertical-align: top;
+}
+#inova-compras .compras-decision { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-weight: 700; }
+#inova-compras .compras-decision::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #a66c13; }
+#inova-compras .compras-decision[data-decision="aprovado"]::after { background: #168143; }
+#inova-compras .compras-decision[data-decision="reprovado"]::after { background: #bc2f40; }
+#inova-compras [data-complete-order] { margin-top: 18px; }
