@@ -890,7 +890,7 @@
  sync();
 
  const telemedicineScript = document.createElement('script');
- telemedicineScript.src = 'telemedicina.js?v=20261127-itop-health';
+ telemedicineScript.src = 'telemedicina.js?v=20261127-reativar';
  document.head.append(telemedicineScript);
 })();
 
