@@ -578,37 +578,46 @@
   loadSuppliers(supplierPage + Number(button.dataset.pagina));
  }));
 
- supplierForm.addEventListener('submit', async event => {
-  event.preventDefault();
-  if (supplierSaving || inovaTab.hidden) return;
-  const fields = Object.fromEntries([...new FormData(supplierForm)].map(([key, value]) => [key, value.trim() || null]));
+ async function saveSupplier(form) {
+  const fields = Object.fromEntries([...new FormData(form)].map(([key, value]) => [key, value.trim() || null]));
   if (!fields.nome) {
-   supplierStatus.textContent = 'Preencha o nome do fornecedor.';
-   supplierForm.elements.nome.focus();
-   return;
+   throw Object.assign(new Error('Preencha o nome do fornecedor.'), {field:'nome'});
   }
   if (fields.cnpj) {
    fields.cnpj = fields.cnpj.replace(/[.\/\s-]/g, '').toUpperCase();
    if (!/^[A-Z0-9]{12}[0-9]{2}$/.test(fields.cnpj)) {
-    supplierStatus.textContent = 'Confira o formato do CNPJ.';
-    supplierForm.elements.cnpj.focus();
-    return;
+    throw Object.assign(new Error('Confira o formato do CNPJ.'), {field:'cnpj'});
    }
   }
+  const {error} = await window.itopAuthClient.from('inova_blocos_fornecedores').insert(fields);
+  if (error) throw error;
+  return fields.nome;
+ }
+
+ function supplierError(error, form) {
+  if (error?.field) {
+   form.elements[error.field].focus();
+   return error.message;
+  }
+  return error?.code === '23505' ? 'Já existe um fornecedor com esse CNPJ.'
+   : 'Não foi possível salvar o fornecedor. Tente novamente.';
+ }
+
+ supplierForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (supplierSaving || inovaTab.hidden) return;
   const session = archiveSession;
   supplierSaving = supplierSave.disabled = true;
   supplierStatus.textContent = 'Salvando fornecedor…';
   try {
-   const { error } = await window.itopAuthClient.from('inova_blocos_fornecedores').insert(fields);
-   if (error) throw error;
+   await saveSupplier(supplierForm);
    if (session !== archiveSession) return;
    supplierForm.reset();
    supplierStatus.textContent = 'Fornecedor cadastrado.';
    if (!supplierDialog.hidden) loadSuppliers();
   } catch (error) {
    if (session !== archiveSession) return;
-   supplierStatus.textContent = error?.code === '23505' ? 'Já existe um fornecedor com esse CNPJ.'
-    : 'Não foi possível salvar o fornecedor. Tente novamente.';
+   supplierStatus.textContent = supplierError(error, supplierForm);
   } finally {
    supplierSaving = supplierSave.disabled = false;
   }
@@ -806,9 +815,9 @@
   try {
    if (!purchases) {
     compras.textContent = 'Carregando Compras…';
-    const {mountPurchases} = await import('./inova-fachada/compras.js?v=2');
+    const {mountPurchases} = await import('./inova-fachada/compras.js?v=3');
     if (inovaTab.hidden || compras.hidden || !inovaPanel.classList.contains('active')) return;
-    purchases ??= mountPurchases(compras, async () => (await getInovaStock()).stock);
+    purchases ??= mountPurchases(compras, async () => (await getInovaStock()).stock, {supplierForm, saveSupplier, supplierError});
     compras.querySelector('[data-return]').onclick = () => returnButton.click();
    }
    void purchases.open();
