@@ -1,7 +1,11 @@
 -- Aplicar após inova-compras-orcamentos-posicoes.sql e inova-compras-aprovacao.sql.
 begin;
 
-grant insert (fornecedor_exclusivo) on public.inova_compras to authenticated;
+alter table public.inova_compras
+ add column solicitante text check (length(btrim(solicitante)) between 1 and 160),
+ add column prioridade text not null default 'normal' check (prioridade in ('normal', 'urgente'));
+
+grant insert (fornecedor_exclusivo, solicitante, prioridade) on public.inova_compras to authenticated;
 
 create function public.inova_criar_pedido_com_orcamentos(
  pedido jsonb, orcamentos jsonb, exclusivo boolean, aprovar boolean
@@ -14,6 +18,10 @@ as $$
 declare
  v_pedido_id uuid := (pedido->>'id')::uuid;
 begin
+ if nullif(btrim(pedido->>'solicitante'), '') is null then
+  raise exception 'Informe o solicitante do pedido';
+ end if;
+
  if jsonb_typeof(orcamentos) is distinct from 'array'
     or jsonb_array_length(orcamentos) > (case when exclusivo then 1 else 3 end)
     or exists (
@@ -23,9 +31,10 @@ begin
   raise exception 'Posições de orçamento inválidas';
  end if;
 
- insert into public.inova_compras (id, fornecedor, entrega, itens, observacoes, fornecedor_exclusivo)
+ insert into public.inova_compras (id, fornecedor, entrega, itens, observacoes, fornecedor_exclusivo, solicitante, prioridade)
  values (v_pedido_id, pedido->>'fornecedor', (pedido->>'entrega')::date,
-         pedido->'itens', pedido->>'observacoes', exclusivo)
+         pedido->'itens', pedido->>'observacoes', exclusivo, btrim(pedido->>'solicitante'),
+         coalesce(pedido->>'prioridade', 'normal'))
  on conflict (id) do nothing;
  if not found then
   return;
