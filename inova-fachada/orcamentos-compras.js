@@ -36,7 +36,7 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
  const add = dialog.querySelector('[data-add-quote]');
  const localDate = new Intl.DateTimeFormat('sv-SE', {timeZone:'America/Sao_Paulo'});
  const cents = input => Math.round((input.valueAsNumber || 0) * 100);
- let pending = false, draft, afterSave;
+ let pending = false, draft, afterSave, saveInOrder;
  const registration = document.createElement('dialog');
  registration.className = 'compras-quote';
  registration.setAttribute('aria-labelledby', 'inova-supplier-title');
@@ -107,11 +107,12 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
    <label>Quantidade<input type="number" min="0.001" max="999999" step="0.001" required></label>
    <label>Preço unitário (R$)<input type="number" min="0" max="999999" step="0.01" inputmode="decimal" placeholder="Não cotado"></label>
    <label>Subtotal<output></output></label>`;
-  const [name, quantity] = row.querySelectorAll('input');
+  const [name, quantity, price] = row.querySelectorAll('input');
   if (linked) {
    name.value = item.produto;
    quantity.value = item.quantidade;
    name.readOnly = quantity.readOnly = true;
+   if (saveInOrder && item.valor_centavos != null) price.value = item.valor_centavos / 100;
   } else {
    const remove = document.createElement('button');
    remove.type = 'button';
@@ -127,7 +128,7 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
   items.append(row);
   update();
  }
- function open(order, slot, onSaved = showQuotes) {
+ function open(order, slot, onSaved = showQuotes, localQuote) {
   if (dialog.open || pending) return;
   form.reset();
   items.replaceChildren();
@@ -135,6 +136,17 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
   form.elements.data_orcamento.value = localDate.format(new Date());
   draft = {id:crypto.randomUUID(), pedido_id:order?.id ?? null, posicao:slot ?? null};
   afterSave = onSaved;
+  saveInOrder = Boolean(localQuote);
+  if (localQuote) {
+   const previous = localQuote.previous;
+   draft.id = previous?.id ?? draft.id;
+   if (previous) {
+    for (const field of ['fornecedor', 'data_orcamento', 'valido_ate', 'pagamento', 'prazo_dias', 'link', 'observacoes']) {
+     form.elements[field].value = previous[field] ?? '';
+    }
+    form.elements.frete.value = previous.frete_centavos / 100;
+   }
+  }
   dialog.querySelector('h3').textContent = slot ? 'Orçamento ' + slot + ' do pedido' : 'Novo orçamento';
   add.hidden = Boolean(order);
   for (const item of order?.itens ?? [null]) addLine(item, Boolean(order));
@@ -165,16 +177,20 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
   }
   pending = submit.disabled = true;
   try {
-   const {error} = await client().from('inova_compras_orcamentos').upsert({
+   const values = {
     ...current, fornecedor:fornecedor.value.trim(), data_orcamento:data_orcamento.value,
     valido_ate:valido_ate.value || null, pagamento:pagamento.value || null,
     prazo_dias:prazo_dias.value === '' ? null : prazo_dias.valueAsNumber,
     frete_centavos:cents(frete), link:url || null, itens:lines, observacoes:observacoes.value.trim()
-   }, {onConflict:'id',ignoreDuplicates:true});
-   if (error) throw error;
+   };
+   if (!saveInOrder) {
+    const {error} = await client().from('inova_compras_orcamentos')
+     .upsert(values, {onConflict:'id',ignoreDuplicates:true});
+    if (error) throw error;
+   }
    if (draft !== current) return;
    dialog.close();
-   await afterSave();
+   await afterSave(values);
   } catch (error) {
    if (draft === current) status.textContent = error?.code === '23505'
     ? 'Já existe um orçamento nesta posição. Feche o formulário para atualizar a aba.'
