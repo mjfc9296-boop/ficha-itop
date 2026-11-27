@@ -124,7 +124,7 @@
       <label data-full>Motivo do cancelamento<textarea name="motivo" rows="3" maxlength="2000" required></textarea></label>
       ${formFooter}
     </form>
-    <section data-active-clients>
+    <section data-active-clients hidden>
       <h3>Lista de ativos</h3>
       <p data-active-status role="status"></p>
       <ul data-active-list></ul>
@@ -164,6 +164,9 @@
   const digits = value => value.replace(/\D/g, '');
   const actions = new WeakMap();
   const pageSize = 20;
+  const readers = new Set(["87cb0194-1ffb-417d-b8ea-a681376b4146","52578d57-4075-488e-850a-0462ed700b84","3a3f0123-7bc3-4237-92db-f599627f5b00","13b9f5bd-ebfb-4fd2-ab6a-c238f7d33f6c"]);
+  const activeSection = panel.querySelector('[data-active-clients]');
+  let canRead = false;
   let profile, manager = false, session = 0, badgeVersion = 0, queueVersion = 0;
   let selected = '', page = 0, activePage = 0, activeVersion = 0;
 
@@ -205,7 +208,7 @@
   }
 
   async function refreshBadge() {
-    if (!profile) return;
+    if (!canRead) return;
     const version = ++badgeVersion;
     try {
       const { count, error } = await table().select('id', { count: 'exact', head: true }).neq('aliviaapp', 'sim');
@@ -265,7 +268,7 @@
   }
 
   async function loadQueue(quiet = false) {
-    if (!selected || !profile || !panel.classList.contains('active')) return;
+    if (!selected || !canRead || !panel.classList.contains('active')) return;
     const version = ++queueVersion;
     const start = page * pageSize;
     if (!quiet) {
@@ -300,7 +303,7 @@
   }
 
   async function loadActiveClients(quiet = false) {
-    if (!profile || !panel.classList.contains('active')) return;
+    if (!canRead || !panel.classList.contains('active')) return;
     const version = ++activeVersion;
     if (!quiet) {
       activePrevious.hidden = activeNext.hidden = true;
@@ -392,18 +395,14 @@
       updateFormButton(form);
       formStatus(form, 'Enviando…');
       try {
-        const result = await table().insert({ id, ...payload }).select('criado_em').single();
-        let { data, error } = result;
-        if (error?.code === '23505') {
-          ({ data, error } = await table().select('criado_em').eq('id', id).single());
-        }
+        const { error } = await table().insert({ id, ...payload });
         if (epoch !== session) return;
-        if (error) throw error;
+        if (error && error.code !== '23505') throw error;
         form.reset();
         actions.delete(form);
         setDates();
         if (profile.nome) activation.elements.vendedor.value = profile.nome;
-        formStatus(form, `Enviado em ${localTime.format(new Date(data.criado_em))}. Aguardando confirmação no AliviaApp.`);
+        formStatus(form, `Enviado em ${localTime.format(new Date())}. Aguardando confirmação no AliviaApp.`);
         page = activePage = 0;
         await Promise.all([refreshBadge(), loadQueue(), loadActiveClients()]);
       } catch {
@@ -424,7 +423,7 @@
       page = 0;
       for (const view of views) view.setAttribute('aria-pressed', String(view === button));
       for (const form of forms) form.hidden = form.dataset.tipo !== selected;
-      queue.hidden = false;
+      queue.hidden = !canRead;
       setDates();
       void loadQueue();
     });
@@ -460,7 +459,8 @@
     activePrevious.hidden = activeNext.hidden = true;
     activeStatus.textContent = '';
     profile = null;
-    manager = false;
+    manager = canRead = false;
+    activeSection.hidden = true;
     selected = '';
     page = 0;
     badge.hidden = tab.hidden = panel.hidden = true;
@@ -488,15 +488,15 @@
     resetSession();
     profile = currentProfile;
     const epoch = session;
-    if (profile.papel === 'administrador') {
-      try {
-        const { data, error } = await window.itopAuthClient.auth.getUser();
-        if (epoch !== session) return;
-        manager = !error && data.user?.email?.toLowerCase() === 'mjfc9296@gmail.com';
-      } catch {
-        if (epoch !== session) return;
-      }
+    try {
+      const { data, error } = await window.itopAuthClient.auth.getUser();
+      if (epoch !== session) return;
+      canRead = !error && readers.has(data.user?.id);
+      manager = canRead && profile.papel === 'administrador' && data.user?.id === '87cb0194-1ffb-417d-b8ea-a681376b4146';
+    } catch {
+      if (epoch !== session) return;
     }
+    activeSection.hidden = !canRead;
     tab.hidden = panel.hidden = false;
     if (profile.nome) activation.elements.vendedor.value = profile.nome;
     updateFormButton(activation);
