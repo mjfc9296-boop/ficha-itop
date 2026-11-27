@@ -138,7 +138,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
    }
    if (view === 'orders') {
     find('[data-orders]').replaceChildren();
-    const {data, error} = await client().from('inova_compras').select('id,numero,fornecedor,entrega,itens,observacoes,enviado_para_aprovacao_em').order('numero', {ascending:false}).limit(30);
+    const {data, error} = await client().from('inova_compras').select('id,numero,fornecedor,entrega,itens,observacoes,fornecedor_exclusivo,enviado_para_aprovacao_em').order('numero', {ascending:false}).limit(30);
     if (error) throw error;
     if (revision !== current) return;
     find('[data-orders]').replaceChildren(...data.map(order => {
@@ -202,35 +202,62 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
      }
      quoteTabs.append(quoteLabel, tabs, result);
      quoteTabs.addEventListener('toggle', () => { if (quoteTabs.open) void refresh(selected); });
+     const exclusiveLabel = document.createElement('label');
+     const exclusive = document.createElement('input');
+     exclusive.type = 'checkbox';
+     exclusive.style.width = 'auto';
+     exclusiveLabel.style.display = 'inline-flex';
+     exclusiveLabel.style.alignItems = 'center';
+     exclusive.checked = order.fornecedor_exclusivo;
+     exclusiveLabel.append(exclusive, ' Fornecedor exclusivo');
+     function syncQuoteTabs() {
+      for (const tab of [...tabs.children].slice(1)) tab.hidden = exclusive.checked;
+      if (exclusive.checked && selected !== 1) void refresh(1);
+     }
+     exclusive.onchange = syncQuoteTabs;
+     syncQuoteTabs();
      const approval = document.createElement('button');
      approval.type = 'button';
      const approvalStatus = document.createElement('p');
      approvalStatus.setAttribute('role', 'status');
      function markPending() {
-      approval.disabled = true;
+      exclusive.disabled = approval.disabled = true;
       approvalStatus.textContent = 'Aguardando aprovação';
       summary.textContent += ' · Aguardando aprovação';
      }
      approval.textContent = 'Enviar para aprovação';
      approval.className = 'compras-primary';
      approval.onclick = async () => {
-      approval.disabled = true;
+      exclusive.disabled = approval.disabled = true;
       approvalStatus.textContent = 'Enviando…';
       try {
+       const {data: quotes, error: quotesError} = await client().from('inova_compras_orcamentos')
+        .select('posicao').eq('pedido_id', order.id).not('posicao', 'is', null);
+       if (quotesError) throw quotesError;
+       const required = exclusive.checked ? [1] : [1, 2, 3];
+       if (!required.every(slot => quotes.some(quote => quote.posicao === slot))) {
+        approvalStatus.textContent = exclusive.checked
+         ? 'Preencha o Orçamento 1 para enviar.'
+         : 'Preencha os três orçamentos para enviar ou marque Fornecedor exclusivo.';
+        exclusive.disabled = approval.disabled = false;
+        return;
+       }
        const update = client().from('inova_compras');
-       const {error} = await update.update({enviado_para_aprovacao_em: new Date().toISOString()})
+       const {error} = await update.update({enviado_para_aprovacao_em: new Date().toISOString(), fornecedor_exclusivo: exclusive.checked})
         .eq('id', order.id).is('enviado_para_aprovacao_em', null);
        if (error) throw error;
-       const {data, error: readError} = await update.select('enviado_para_aprovacao_em').eq('id', order.id).single();
+       const {data, error: readError} = await update.select('enviado_para_aprovacao_em,fornecedor_exclusivo').eq('id', order.id).single();
        if (readError || !data.enviado_para_aprovacao_em) throw readError ?? new Error('Envio não confirmado');
+       exclusive.checked = data.fornecedor_exclusivo;
+       syncQuoteTabs();
        markPending();
       } catch {
        approvalStatus.textContent = 'Não foi possível confirmar o envio. Tente novamente.';
-       approval.disabled = false;
+       exclusive.disabled = approval.disabled = false;
       }
      };
      if (order.enviado_para_aprovacao_em) markPending();
-     detail.append(quoteTabs, approval, approvalStatus);
+     detail.append(exclusiveLabel, quoteTabs, approval, approvalStatus);
      li.append(detail);
      return li;
     }));
