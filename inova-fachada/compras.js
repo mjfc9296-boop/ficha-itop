@@ -73,6 +73,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
         </nav>
         <p data-draft-quote aria-live="polite"></p>
         <button type="button" data-fill-quote>Preencher orçamento</button>
+        <div class="compras-quote-cards" data-draft-quote-cards hidden></div>
         <p><button type="button" class="compras-primary" data-send-approval>Enviar para aprovação</button></p>
       </section>
       <section class="compras-card"><label>Observações<textarea name="observacoes" rows="3" maxlength="2000"></textarea></label></section>
@@ -138,11 +139,42 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
   find('[data-delivery]').textContent = date(form.elements.entrega.value);
   find('[data-count]').textContent = rows.reduce((sum, row) => sum + row.quantidade, 0).toLocaleString('pt-BR');
   refreshDraftQuote(rows);
+  renderQuoteCards(rows);
   return rows;
  }
  function quoteMatches(quote, rows) {
   return quote.itens.length === rows.length && quote.itens.every((item, index) =>
    item.produto === rows[index].produto && item.quantidade === rows[index].quantidade);
+ }
+ function renderQuoteCards(rows) {
+  const container = find('[data-draft-quote-cards]');
+  const positions = exclusiveDraft.checked ? [1] : [1, 2, 3];
+  const saved = positions.map(position => draftQuotes.get(position));
+  if (saved.some(quote => !quote || !quoteMatches(quote, rows))) {
+   container.hidden = true;
+   container.replaceChildren();
+   return;
+  }
+  const cards = saved.map(quote => {
+   const card = document.createElement('article');
+   const title = document.createElement('h4');
+   title.textContent = 'Orçamento ' + quote.posicao + ' · ' + quote.fornecedor;
+   const items = document.createElement('ul');
+   for (const item of quote.itens) {
+    const line = document.createElement('li');
+    const price = item.valor_centavos === null ? 'Não cotado' : money(item.valor_centavos) + ' por unidade';
+    line.textContent = item.produto + ' · ' + item.quantidade + ' itens · ' + price;
+    items.append(line);
+   }
+   const freight = document.createElement('p');
+   freight.textContent = 'Frete ' + money(quote.frete_centavos);
+   const total = document.createElement('strong');
+   total.textContent = 'Total com frete ' + money(quote.frete_centavos + quote.itens.reduce((sum, item) => sum + (item.total_centavos ?? 0), 0));
+   card.append(title, items, freight, total);
+   return card;
+  });
+  container.replaceChildren(...cards);
+  container.hidden = false;
  }
  function refreshDraftQuote(rows) {
   const max = exclusiveDraft.checked ? 1 : 3;

@@ -92,3 +92,7 @@ html body #inova-compras .compras-tabs [aria-current="page"] { background: #dcee
 #inova-compras .compras-order-items output { white-space: normal; overflow-wrap: anywhere; }
 
 #inova-compras .compras-order-items select { width: 100%; min-width: 0; padding: 8px; border: 1px solid #9eb9b1; border-radius: 8px; background: white; color: #193333; font-size: 16px; }
+
+#inova-compras .compras-quote-cards { display: grid; gap: 10px; margin-top: 14px; }
+#inova-compras .compras-quote-cards article { padding: 14px; border: 1px solid #cbded8; border-radius: 10px; overflow-wrap: anywhere; }
+#inova-compras .compras-quote-cards h4 { margin: 0; }
