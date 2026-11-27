@@ -138,7 +138,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
    }
    if (view === 'orders') {
     find('[data-orders]').replaceChildren();
-    const {data, error} = await client().from('inova_compras').select('id,numero,fornecedor,entrega,itens,observacoes').order('numero', {ascending:false}).limit(30);
+    const {data, error} = await client().from('inova_compras').select('id,numero,fornecedor,entrega,itens,observacoes,enviado_para_aprovacao_em').order('numero', {ascending:false}).limit(30);
     if (error) throw error;
     if (revision !== current) return;
     find('[data-orders]').replaceChildren(...data.map(order => {
@@ -202,7 +202,35 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
      }
      quoteTabs.append(quoteLabel, tabs, result);
      quoteTabs.addEventListener('toggle', () => { if (quoteTabs.open) void refresh(selected); });
-     detail.append(quoteTabs);
+     const approval = document.createElement('button');
+     approval.type = 'button';
+     const approvalStatus = document.createElement('p');
+     approvalStatus.setAttribute('role', 'status');
+     function markPending() {
+      approval.disabled = true;
+      approvalStatus.textContent = 'Aguardando aprovação';
+      summary.textContent += ' · Aguardando aprovação';
+     }
+     approval.textContent = 'Enviar para aprovação';
+     approval.className = 'compras-primary';
+     approval.onclick = async () => {
+      approval.disabled = true;
+      approvalStatus.textContent = 'Enviando…';
+      try {
+       const update = client().from('inova_compras');
+       const {error} = await update.update({enviado_para_aprovacao_em: new Date().toISOString()})
+        .eq('id', order.id).is('enviado_para_aprovacao_em', null);
+       if (error) throw error;
+       const {data, error: readError} = await update.select('enviado_para_aprovacao_em').eq('id', order.id).single();
+       if (readError || !data.enviado_para_aprovacao_em) throw readError ?? new Error('Envio não confirmado');
+       markPending();
+      } catch {
+       approvalStatus.textContent = 'Não foi possível confirmar o envio. Tente novamente.';
+       approval.disabled = false;
+      }
+     };
+     if (order.enviado_para_aprovacao_em) markPending();
+     detail.append(quoteTabs, approval, approvalStatus);
      li.append(detail);
      return li;
     }));
