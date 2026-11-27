@@ -888,6 +888,10 @@
  const action=document.getElementById('simulateEnergy')?.closest('.actions');
  if(action)document.querySelector('#pacote')?.append(action);
  sync();
+
+ const telemedicineScript = document.createElement('script');
+ telemedicineScript.src = 'telemedicina.js?v=20261127';
+ document.head.append(telemedicineScript);
 })();
 
 /* Canais e procedimentos da ITOP TV são dois materiais independentes. */
