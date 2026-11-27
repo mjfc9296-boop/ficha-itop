@@ -264,7 +264,56 @@
       }
       card.append(heading, controls);
     }
+    if (row.tipo === 'cancelamento' && row.aliviaapp === 'sim') {
+      const controls = document.createElement('div');
+      controls.className = 'tele-actions';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = 'Reativar vida';
+      button.addEventListener('click', () => void prepareReactivation(row, button));
+      controls.append(button);
+      card.append(controls);
+    }
     return card;
+  }
+
+  let reactivationVersion = 0;
+
+  async function prepareReactivation(row, button) {
+    if (!canRead || button.disabled) return;
+    const epoch = session;
+    const form = activation.elements;
+    if (activation.querySelector('[type="submit"]').disabled) return;
+    const draftFields = ['titular', 'titular_mk', 'plano', 'telefone', 'cpf', 'nascimento', 'email', 'codigo_mk'];
+    if (draftFields.some(name => form[name].value) && !window.confirm('Substituir o formulário de ativação em preenchimento?')) return;
+    const version = ++reactivationVersion;
+    button.disabled = true;
+    let prior;
+    try {
+      const { data, error } = await table().select('cpf,nascimento,email,codigo_mk,telefone')
+        .eq('tipo', 'ativacao').eq('titular', row.titular)
+        .eq('titular_mk', row.titular_mk).eq('plano', row.plano)
+        .lte('criado_em', row.criado_em).order('criado_em', { ascending: false }).limit(10);
+      if (!error && data?.length && data.length < 10 && new Set(data.map(item => item.cpf)).size === 1) [prior] = data;
+    } catch {
+      // The cancellation itself supplies the fields available for manual reactivation.
+    } finally {
+      button.disabled = false;
+    }
+    if (version !== reactivationVersion || epoch !== session || selected !== 'cancelamento' || !panel.classList.contains('active')) return;
+    activation.reset();
+    activation.querySelectorAll('[aria-invalid]').forEach(input => input.removeAttribute('aria-invalid'));
+    Object.entries({
+      titular: row.titular, titular_mk: row.titular_mk, plano: row.plano,
+      telefone: prior?.telefone || row.telefone, cpf: prior?.cpf, nascimento: prior?.nascimento,
+      email: prior?.email, codigo_mk: prior?.codigo_mk, vendedor: profile.nome
+    }).forEach(([name, value]) => { form[name].value = value ?? ''; });
+    views.find(view => view.dataset.view === 'ativacao').click();
+    updateFormButton(activation);
+    formStatus(activation, prior
+      ? 'Confira os dados e clique em Enviar para solicitar a reativação.'
+      : 'Complete os dados que faltam e clique em Enviar para solicitar a reativação.');
+    activation.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async function loadQueue(quiet = false) {
