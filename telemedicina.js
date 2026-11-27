@@ -23,7 +23,7 @@
       html:has(#telemedicina.active:not([hidden])) body > header > :is(.head, .itop-module-header-center, .itop-top-mascote, .itop-top-marca, .itop-top-uvi) {
         display:none!important;
       }
-      html:has(#telemedicina.active:not([hidden])) body > header #itop-logout {
+      html:has(#telemedicina.module.active:not([hidden]):not(#inova-blocos)) body > header #itop-logout {
         top:0!important; right:0!important; bottom:auto!important;
       }
     }
