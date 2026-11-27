@@ -13,7 +13,7 @@
 #inova-compras .compras-header span { font-size: .75rem; letter-spacing: .12em; }
 #inova-compras .compras-card { background: #fff; border: 1px solid #cbded8; padding: 16px; border-radius: 12px; min-width: 0; color: #193333; }
 #inova-compras h3 { color: #193333; margin: 0 0 14px; }
-#inova-compras .compras-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(210px, 27%); align-items: start; gap: 14px; }
+#inova-compras .compras-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 #inova-compras .compras-fields { display: grid; gap: 12px; min-width: 0; }
 #inova-compras .compras-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 #inova-compras .compras-item { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto auto; align-items: end; gap: 8px; padding: 12px 0; border-bottom: 1px solid #dfebe7; }
@@ -22,16 +22,13 @@
 #inova-compras output { display: block; padding-block: 8px; white-space: nowrap; }
 #inova-compras .compras-summary dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
 #inova-compras .compras-summary dd { margin: 0; text-align: right; max-width: 130px; overflow-wrap: anywhere; }
-#inova-compras .compras-summary button { width: 100%; margin: 4px 0; }
+#inova-compras .compras-summary button { margin: 4px 8px 4px 0; }
 html body #inova-compras button { background: #f5faf8 !important; color: #173c38 !important; border: 1px solid #9eb9b1 !important; border-radius: 8px; padding: 8px 12px; }
 html body #inova-compras button.compras-primary { background: #006653 !important; color: white !important; border-color: #006653 !important; }
 #inova-compras [data-stock] label { grid-template-columns: minmax(0,1fr) minmax(75px, 125px); align-items: center; margin: 8px 0; }
 #inova-compras .compras-low { color: #a52a28; }
 #inova-compras [data-orders] { padding-left: 18px; }
 #inova-compras summary { overflow-wrap: anywhere; cursor: pointer; }
-@media (max-width: 760px) {
- #inova-compras .compras-layout { grid-template-columns: minmax(0, 1fr); }
-}
 @media (max-width: 480px) {
  #inova-compras .compras-pair, #inova-compras .compras-item { grid-template-columns: repeat(2, minmax(0, 1fr)); }
  #inova-compras .compras-item label:first-child { grid-column: 1 / -1; }
