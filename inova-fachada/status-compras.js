@@ -19,7 +19,7 @@ export function mountPurchaseStatus(panel, {client, money, show, isCurrent, setS
    .filter(quote => quote.posicao && (!order.fornecedor_exclusivo || quote.posicao === 1))
    .sort((a, b) => a.posicao - b.posicao);
  }
- function numberOf(order) { return 'PC-' + String(order.numero).padStart(5, '0'); }
+ function numberOf(order) { return 'SC-' + String(order.numero).padStart(5, '0'); }
  function totals(items, freight) {
   return money(freight + items.reduce((sum, item) => sum + (item.total_centavos ?? 0), 0));
  }
@@ -40,7 +40,10 @@ export function mountPurchaseStatus(panel, {client, money, show, isCurrent, setS
  function buildTable(orders, canDecide) {
   const table = element('table');
   const header = table.createTHead().insertRow();
-  for (const name of ['Pedido', 'Fornecedor', 'Produto', 'Preço unitário', 'Frete', 'Total', 'Status']) {
+  const headings = canDecide
+   ? ['Número', 'Fornecedor', 'Produto', 'Preço unitário', 'Frete', 'Total', 'Solicitante', 'Situação']
+   : ['Número', 'Itens', 'Prioridade', 'Solicitante', 'Situação'];
+  for (const name of headings) {
    const heading = element('th', name);
    heading.scope = 'col';
    header.append(heading);
@@ -49,18 +52,25 @@ export function mountPurchaseStatus(panel, {client, money, show, isCurrent, setS
   for (const order of orders) {
    const row = body.insertRow();
    row.insertCell().textContent = numberOf(order);
-   const cells = Array.from({length: 5}, () => row.insertCell());
-   const status = row.insertCell();
+
    const decision = decisionOf(order);
    const quotes = quotesOf(order);
    const selectedQuote = quotes.find(quote => quote.id === decision?.orcamento_id);
+   const cells = canDecide ? Array.from({length: 5}, () => row.insertCell()) : [];
+   if (!canDecide) {
+    const items = selectedQuote?.itens ?? order.itens;
+    row.insertCell().append(...items.map(item => element('div', item.produto + ' × ' + item.quantidade)));
+    row.insertCell().textContent = order.prioridade === 'urgente' ? 'Urgente' : 'Normal';
+   }
+   row.insertCell().textContent = order.solicitante || 'Não informado';
+   const status = row.insertCell();
    const decisionText = decision?.resultado === 'aprovado' ? 'Aprovado'
     : decision?.resultado === 'reprovado' ? 'Reprovado' : 'Aguardando aprovação';
    const indicator = element('span', decisionText);
    indicator.className = 'compras-decision';
    indicator.dataset.decision = decision?.resultado ?? 'pendente';
    status.append(indicator);
-   fillDetails(cells, order, selectedQuote ?? quotes[0]);
+   if (canDecide) fillDetails(cells, order, selectedQuote ?? quotes[0]);
    if (conclusionOf(order)) status.append(element('div', 'Concluído'));
    if (!canDecide) {
     const open = element('button', conclusionOf(order) ? 'Ver pedido concluído' : 'Abrir pedido autorizado');
@@ -113,7 +123,7 @@ export function mountPurchaseStatus(panel, {client, money, show, isCurrent, setS
   target.replaceChildren();
   const decisions = view === 'status' ? 'inova_compras_decisoes' : 'inova_compras_decisoes!inner';
   const query = client().from('inova_compras')
-   .select(`id,numero,entrega,fornecedor,itens,observacoes,fornecedor_exclusivo,${decisions}(resultado,orcamento_id),inova_compras_conclusoes(comprovante,nota_fiscal),inova_compras_orcamentos(id,posicao,fornecedor,frete_centavos,itens)`, {count:'exact'})
+   .select(`id,numero,entrega,fornecedor,itens,observacoes,solicitante,prioridade,fornecedor_exclusivo,${decisions}(resultado,orcamento_id),inova_compras_conclusoes(comprovante,nota_fiscal),inova_compras_orcamentos(id,posicao,fornecedor,frete_centavos,itens)`, {count:'exact'})
    .not('enviado_para_aprovacao_em', 'is', null)
    .order('numero', {ascending:false}).range(page * pageSize, (page + 1) * pageSize - 1);
   if (view === 'complete') query.eq('inova_compras_decisoes.resultado', 'aprovado');
@@ -156,6 +166,7 @@ export function mountPurchaseStatus(panel, {client, money, show, isCurrent, setS
   });
   fillDetails(cells, order, quote);
   details.append(table);
+  if (order.solicitante) details.append(element('p', 'Solicitante · ' + order.solicitante));
   if (order.entrega) details.append(element('p', 'Entrega prevista em ' + order.entrega.split('-').reverse().join('/')));
   if (order.observacoes) details.append(element('p', order.observacoes));
   const finished = conclusionOf(order);
