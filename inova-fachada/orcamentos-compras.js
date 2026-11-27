@@ -1,4 +1,4 @@
-export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loadSuppliers}) {
+export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loadSuppliers, supplierForm, saveSupplier, supplierError}) {
  const dialog = document.createElement('dialog');
  dialog.className = 'compras-quote';
  dialog.setAttribute('aria-labelledby', 'inova-quote-title');
@@ -9,6 +9,7 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
    </div>
    <div class="compras-quote-body">
     <label>Fornecedor<input name="fornecedor" list="inova-compra-fornecedores" required maxlength="200"></label>
+    <div><button type="button" data-add-supplier>+ Adicionar fornecedor</button></div>
     <div class="compras-pair">
      <label>Data do orçamento<input type="date" name="data_orcamento" required></label>
      <label>Válido até (opcional)<input type="date" name="valido_ate"></label>
@@ -35,6 +36,54 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
  const localDate = new Intl.DateTimeFormat('sv-SE', {timeZone:'America/Sao_Paulo'});
  const cents = input => Math.round((input.valueAsNumber || 0) * 100);
  let pending = false, draft;
+ const registration = document.createElement('dialog');
+ registration.className = 'compras-quote';
+ registration.setAttribute('aria-labelledby', 'inova-supplier-title');
+ const registrationForm = supplierForm.cloneNode(true);
+ registrationForm.removeAttribute('data-fornecedor');
+ registrationForm.querySelector('[type=submit]').remove();
+ const fields = document.createElement('div');
+ fields.className = 'compras-quote-body';
+ fields.append(...registrationForm.children);
+ registrationForm.innerHTML = `
+  <div class="compras-heading"><h3 id="inova-supplier-title">Cadastrar fornecedor</h3></div>
+  <footer><p role="status"></p><button type="button">Cancelar</button>
+   <button type="submit" class="compras-primary">Salvar fornecedor</button></footer>`;
+ registrationForm.querySelector('footer').before(fields);
+ registration.append(registrationForm);
+ panel.append(registration);
+ const registrationStatus = registration.querySelector('[role=status]');
+ const registrationSave = registration.querySelector('[type=submit]');
+ const registrationCancel = registration.querySelector('[type=button]');
+ dialog.querySelector('[data-add-supplier]').onclick = () => {
+  if (pending || registrationSave.disabled) return;
+  registrationForm.reset();
+  registrationStatus.textContent = '';
+  registration.showModal();
+ };
+ registrationCancel.onclick = () => registration.close();
+ registration.addEventListener('cancel', event => {
+  if (registrationSave.disabled) event.preventDefault();
+ });
+ registrationForm.onsubmit = async event => {
+  event.preventDefault();
+  if (registrationSave.disabled) return;
+  const current = draft;
+  registrationSave.disabled = registrationCancel.disabled = true;
+  registrationStatus.textContent = 'Salvando fornecedor…';
+  try {
+   const name = await saveSupplier(registrationForm);
+   if (draft !== current) return;
+   form.elements.fornecedor.value = name;
+   registration.close();
+   form.elements.fornecedor.focus();
+   void loadSuppliers();
+  } catch (error) {
+   if (draft === current) registrationStatus.textContent = supplierError(error, registrationForm);
+  } finally {
+   registrationSave.disabled = registrationCancel.disabled = false;
+  }
+ };
  function update() {
   const lines = [...items.children].map(row => {
    const [product, quantity, price] = row.querySelectorAll('input');
@@ -121,7 +170,7 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
    if (draft === current) status.textContent = 'Não foi possível salvar. Os dados continuam no formulário.';
   } finally { pending = submit.disabled = false; }
  };
- return {open, reset() { draft = null; dialog.close(); form.reset(); items.replaceChildren(); status.textContent = ''; },
+ return {open, reset() { draft = null; registration.close(); registrationForm.reset(); dialog.close(); form.reset(); items.replaceChildren(); status.textContent = ''; },
   async list() {
    const {data,error} = await client().from('inova_compras_orcamentos')
     .select('fornecedor,data_orcamento,valido_ate,pagamento,prazo_dias,frete_centavos,itens,observacoes,inova_compras(numero)')
