@@ -16,6 +16,7 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
      <label>Condição de pagamento<select name="pagamento"><option value="">Selecione</option><option>PIX</option><option>À vista</option><option>30/60/90</option></select></label>
      <label>Prazo de entrega (dias)<input type="number" name="prazo_dias" min="0" max="3650" step="1"></label>
      <label>Valor do frete (R$)<input type="number" name="frete" min="0" max="999999" step="0.01" inputmode="decimal"></label>
+     <label>Link do orçamento<input type="url" name="link" maxlength="2048" placeholder="https://"></label>
     </div>
     <section><div class="compras-heading"><h4>Preço por item</h4><button type="button" data-add-quote>+ Adicionar item</button></div>
      <p>Deixe o preço em branco quando o fornecedor não cotar o item.</p>
@@ -35,7 +36,7 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
  const add = dialog.querySelector('[data-add-quote]');
  const localDate = new Intl.DateTimeFormat('sv-SE', {timeZone:'America/Sao_Paulo'});
  const cents = input => Math.round((input.valueAsNumber || 0) * 100);
- let pending = false, draft;
+ let pending = false, draft, afterSave;
  const registration = document.createElement('dialog');
  registration.className = 'compras-quote';
  registration.setAttribute('aria-labelledby', 'inova-supplier-title');
@@ -126,13 +127,15 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
   items.append(row);
   update();
  }
- function open(order) {
+ function open(order, slot, onSaved = showQuotes) {
   if (dialog.open || pending) return;
   form.reset();
   items.replaceChildren();
   status.textContent = '';
   form.elements.data_orcamento.value = localDate.format(new Date());
-  draft = {id:crypto.randomUUID(), pedido_id:order?.id ?? null};
+  draft = {id:crypto.randomUUID(), pedido_id:order?.id ?? null, posicao:slot ?? null};
+  afterSave = onSaved;
+  dialog.querySelector('h3').textContent = slot ? 'Orçamento ' + slot + ' do pedido' : 'Novo orçamento';
   add.hidden = Boolean(order);
   for (const item of order?.itens ?? [null]) addLine(item, Boolean(order));
   dialog.showModal();
@@ -149,9 +152,15 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
   if (pending) return;
   const current = draft;
   const lines = update();
-  const {fornecedor, data_orcamento, valido_ate, pagamento, prazo_dias, frete, observacoes} = form.elements;
+  const {fornecedor, data_orcamento, valido_ate, pagamento, prazo_dias, frete, observacoes, link} = form.elements;
   if (!fornecedor.value.trim() || lines.some(line => !line.produto)) {
    status.textContent = 'Preencha o fornecedor e os produtos.';
+   return;
+  }
+  const url = link.value.trim();
+  if (url && !/^https?:\/\//i.test(url)) {
+   status.textContent = 'Informe um link que comece com https:// ou http://.';
+   link.focus();
    return;
   }
   pending = submit.disabled = true;
@@ -160,21 +169,25 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
     ...current, fornecedor:fornecedor.value.trim(), data_orcamento:data_orcamento.value,
     valido_ate:valido_ate.value || null, pagamento:pagamento.value || null,
     prazo_dias:prazo_dias.value === '' ? null : prazo_dias.valueAsNumber,
-    frete_centavos:cents(frete), itens:lines, observacoes:observacoes.value.trim()
+    frete_centavos:cents(frete), link:url || null, itens:lines, observacoes:observacoes.value.trim()
    }, {onConflict:'id',ignoreDuplicates:true});
    if (error) throw error;
    if (draft !== current) return;
    dialog.close();
-   await showQuotes();
-  } catch {
-   if (draft === current) status.textContent = 'Não foi possível salvar. Os dados continuam no formulário.';
+   await afterSave();
+  } catch (error) {
+   if (draft === current) status.textContent = error?.code === '23505'
+    ? 'Já existe um orçamento nesta posição. Feche o formulário para atualizar a aba.'
+    : 'Não foi possível salvar. Os dados continuam no formulário.';
   } finally { pending = submit.disabled = false; }
  };
  return {open, reset() { draft = null; registration.close(); registrationForm.reset(); dialog.close(); form.reset(); items.replaceChildren(); status.textContent = ''; },
-  async list() {
-   const {data,error} = await client().from('inova_compras_orcamentos')
-    .select('fornecedor,data_orcamento,valido_ate,pagamento,prazo_dias,frete_centavos,itens,observacoes,inova_compras(numero)')
+  async list(orderId, slot) {
+   const query = client().from('inova_compras_orcamentos')
+    .select('fornecedor,data_orcamento,valido_ate,pagamento,prazo_dias,frete_centavos,itens,observacoes,link,inova_compras(numero)')
     .order('criado_em',{ascending:false}).limit(30);
+   if (orderId) query.eq('pedido_id', orderId).eq('posicao', slot);
+   const {data,error} = await query;
    if (error) throw error;
    return data.map(row => {
     const li = document.createElement('li');
@@ -200,6 +213,15 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
     notes.textContent = row.observacoes;
     detail.append(summary,metadata,list);
     if (row.observacoes) detail.append(notes);
+    if (/^https?:\/\//i.test(row.link ?? '')) {
+     const link = document.createElement('a');
+     link.href = row.link;
+     link.target = '_blank';
+     link.rel = 'noopener noreferrer';
+     link.textContent = 'Abrir link do orçamento';
+     detail.append(link);
+    }
+    if (orderId) detail.open = true;
     li.append(detail);
     return li;
    });
