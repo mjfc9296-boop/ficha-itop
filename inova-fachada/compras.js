@@ -1,3 +1,5 @@
+import {mountPurchaseQuotes} from './orcamentos-compras.js?v=1';
+
 export function mountPurchases(panel, loadStock) {
  const money = cents => (cents / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
  const date = value => value ? value.split('-').reverse().join('/') : '—';
@@ -7,8 +9,15 @@ export function mountPurchases(panel, loadStock) {
     <nav aria-label="Ações de compras"><button type="button" data-return>Voltar à ITOP</button><button type="button" data-open="stock">Estoque mínimo</button>
     <button type="button" class="compras-primary" data-open="form">+ Novo PC</button></nav>
   </header>
+  <nav class="compras-tabs" aria-label="Compras">
+   <button type="button" data-open="orders" aria-current="page">Pedido de compra</button>
+   <button type="button" data-open="quotes">Orçamentos</button>
+  </nav>
   <p data-status role="status"></p>
   <section data-view="orders" class="compras-card"><h3>Pedidos de compra</h3><ul data-orders></ul></section>
+  <section data-view="quotes" class="compras-card" hidden><div class="compras-heading">
+   <h3>Orçamentos</h3><button type="button" class="compras-primary" data-new-quote>+ Adicionar orçamento</button>
+  </div><ul data-quotes></ul></section>
   <section data-view="stock" class="compras-card" hidden><h3>Estoque mínimo</h3>
    <p>Defina o mínimo por produto. O saldo atual é consultado no estoque da Inova.</p>
    <form data-min-form><div data-stock></div><button class="compras-primary" disabled>Salvar mínimos</button>
@@ -49,6 +58,18 @@ export function mountPurchases(panel, loadStock) {
  function fillOptions(selector, values) {
   find(selector).replaceChildren(...values.map(value => new Option(value)));
  }
+ const quotes = mountPurchaseQuotes(panel, {client, money, date, showQuotes: () => show('quotes'),
+  async loadSuppliers() {
+   const current = revision;
+   try {
+    const {data, error} = await client().from('inova_blocos_fornecedores').select('nome').order('nome');
+    if (!error && current === revision) fillOptions('#inova-compra-fornecedores', data.map(row => row.nome));
+   } catch {
+    // O fornecedor pode ser digitado mesmo quando o cadastro está indisponível.
+   }
+  }
+ });
+ find('[data-new-quote]').onclick = () => quotes.open();
  function totals() {
   const rows = [...items.children].map(row => {
    const [product, quantity, price] = row.querySelectorAll('input');
@@ -86,6 +107,9 @@ export function mountPurchases(panel, loadStock) {
   screen = view;
   const current = ++revision;
   for (const section of panel.querySelectorAll('[data-view]')) section.hidden = section.dataset.view !== view;
+  for (const tab of panel.querySelectorAll('.compras-tabs button')) {
+   tab.setAttribute('aria-current', tab.dataset.open === view ? 'page' : 'false');
+  }
   setStatus('');
   if (view === 'form') {
    form.reset();
@@ -104,9 +128,17 @@ export function mountPurchases(panel, loadStock) {
   }
   setStatus('Carregando…');
   try {
+   if (view === 'quotes') {
+    find('[data-quotes]').replaceChildren();
+    const rows = await quotes.list();
+    if (revision !== current) return;
+    find('[data-quotes]').replaceChildren(...rows);
+    setStatus(rows.length ? '' : 'Nenhum orçamento cadastrado.');
+    return;
+   }
    if (view === 'orders') {
     find('[data-orders]').replaceChildren();
-    const {data, error} = await client().from('inova_compras').select('numero,fornecedor,entrega,itens,observacoes').order('numero', {ascending:false}).limit(30);
+    const {data, error} = await client().from('inova_compras').select('id,numero,fornecedor,entrega,itens,observacoes').order('numero', {ascending:false}).limit(30);
     if (error) throw error;
     if (revision !== current) return;
     find('[data-orders]').replaceChildren(...data.map(order => {
@@ -127,6 +159,11 @@ export function mountPurchases(panel, loadStock) {
       notes.textContent = order.observacoes;
       detail.append(notes);
      }
+     const quoteButton = document.createElement('button');
+     quoteButton.type = 'button';
+     quoteButton.textContent = 'Adicionar orçamento';
+     quoteButton.onclick = () => quotes.open(order);
+     detail.append(quoteButton);
      li.append(detail);
      return li;
     }));
@@ -211,6 +248,8 @@ export function mountPurchases(panel, loadStock) {
  };
  return {open: () => show('orders'), reset() {
   revision++;
+  quotes.reset();
+  find('[data-quotes]').replaceChildren();
   form.reset();
   items.replaceChildren();
   stock.replaceChildren();
