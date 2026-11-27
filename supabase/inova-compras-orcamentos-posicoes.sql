@@ -1,7 +1,7 @@
 begin;
 
 alter table public.inova_compras_orcamentos
- add column posicao smallint check (posicao between 1 and 3 and pedido_id is not null),
+ add column posicao smallint check (posicao is null or (posicao between 1 and 3 and pedido_id is not null)),
  add column link text check (length(link) <= 2048 and link ~* '^https?://');
 
 with numerados as (
