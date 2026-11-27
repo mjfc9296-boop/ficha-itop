@@ -75,3 +75,21 @@ html body #inova-compras .compras-tabs [aria-current="page"] { background: #dcee
 #inova-compras .compras-decision[data-decision="aprovado"]::after { background: #168143; }
 #inova-compras .compras-decision[data-decision="reprovado"]::after { background: #bc2f40; }
 #inova-compras [data-complete-order] { margin-top: 18px; }
+
+#inova-compras .compras-order-items {
+ --compras-order-columns: minmax(10rem, 2fr) minmax(6.5rem, 1fr) minmax(9rem, 1fr) 7rem 2.5rem;
+ overflow-x: auto;
+}
+#inova-compras .compras-order-items-head,
+#inova-compras .compras-order-items [data-items] > .compras-item {
+ display: grid;
+ grid-template-columns: var(--compras-order-columns);
+ gap: 8px;
+ min-width: 37rem;
+ align-items: center;
+ text-align: center;
+}
+#inova-compras .compras-order-items-head { font-weight: 600; padding-top: 12px; }
+#inova-compras .compras-order-items [data-items] > .compras-item { padding: 8px 0; }
+#inova-compras .compras-order-items input { text-align: center; }
+#inova-compras .compras-order-items output { white-space: normal; overflow-wrap: anywhere; }
