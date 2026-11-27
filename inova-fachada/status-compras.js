@@ -123,7 +123,7 @@ export function mountPurchaseStatus(panel, {client, money, show, isCurrent, setS
   target.replaceChildren();
   const decisions = view === 'status' ? 'inova_compras_decisoes' : 'inova_compras_decisoes!inner';
   const query = client().from('inova_compras')
-   .select(`id,numero,entrega,fornecedor,itens,observacoes,solicitante,prioridade,fornecedor_exclusivo,${decisions}(resultado,orcamento_id),inova_compras_conclusoes(comprovante,nota_fiscal),inova_compras_orcamentos(id,posicao,fornecedor,frete_centavos,itens)`, {count:'exact'})
+   .select(`id,numero,entrega,fornecedor,itens,observacoes,solicitante,prioridade,tipo_material,fornecedor_exclusivo,${decisions}(resultado,orcamento_id),inova_compras_conclusoes(comprovante,nota_fiscal),inova_compras_orcamentos(id,posicao,fornecedor,frete_centavos,itens)`, {count:'exact'})
    .not('enviado_para_aprovacao_em', 'is', null)
    .order('numero', {ascending:false}).range(page * pageSize, (page + 1) * pageSize - 1);
   if (view === 'complete') query.eq('inova_compras_decisoes.resultado', 'aprovado');
@@ -166,6 +166,7 @@ export function mountPurchaseStatus(panel, {client, money, show, isCurrent, setS
   });
   fillDetails(cells, order, quote);
   details.append(table);
+  if (order.tipo_material) details.append(element('p', 'Tipo de material · ' + order.tipo_material));
   if (order.solicitante) details.append(element('p', 'Solicitante · ' + order.solicitante));
   if (order.entrega) details.append(element('p', 'Entrega prevista em ' + order.entrega.split('-').reverse().join('/')));
   if (order.observacoes) details.append(element('p', order.observacoes));

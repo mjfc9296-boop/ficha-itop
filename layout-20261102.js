@@ -815,7 +815,7 @@
   try {
    if (!purchases) {
     compras.textContent = 'Carregando Compras…';
-    const {mountPurchases} = await import('./inova-fachada/compras.js?v=9');
+    const {mountPurchases} = await import('./inova-fachada/compras.js?v=10');
     if (inovaTab.hidden || compras.hidden || !inovaPanel.classList.contains('active')) return;
     purchases ??= mountPurchases(compras, async () => (await getInovaStock()).stock, {supplierForm, saveSupplier, supplierError});
     compras.querySelector('[data-return]').onclick = () => returnButton.click();

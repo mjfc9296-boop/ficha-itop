@@ -1,6 +1,6 @@
 import {mountPurchaseQuotes} from './orcamentos-compras.js?v=5';
 
-import {mountPurchaseStatus, fileTypes} from './status-compras.js?v=2';
+import {mountPurchaseStatus, fileTypes} from './status-compras.js?v=3';
 
 export function mountPurchases(panel, loadStock, supplierRegistration) {
  const money = cents => (cents / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -52,6 +52,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
         <datalist id="inova-compra-fornecedores"></datalist>
         <label>Previsão de entrega<input name="entrega" type="date"></label>
         <label>Solicitante do pedido<input name="solicitante" maxlength="160" required></label>
+        <label>Tipo de material solicitado<select name="tipo_material" required><option value="">Selecione</option><option>EPI</option><option>EPS</option><option>Suprimento</option><option>Patrimônio</option></select></label>
         <label>Prioridade<select name="prioridade"><option value="normal">Normal</option><option value="urgente">Urgente</option></select></label>
       </div></section>
       <section class="compras-card"><div class="compras-heading"><h3>Itens</h3><button type="button" data-add>+ Adicionar item</button></div>
@@ -233,7 +234,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
    }
    if (view === 'orders') {
     find('[data-orders]').replaceChildren();
-    const {data, error} = await client().from('inova_compras').select('id,numero,fornecedor,entrega,itens,observacoes,fornecedor_exclusivo,enviado_para_aprovacao_em').order('numero', {ascending:false}).limit(30);
+    const {data, error} = await client().from('inova_compras').select('id,numero,fornecedor,entrega,itens,observacoes,tipo_material,fornecedor_exclusivo,enviado_para_aprovacao_em').order('numero', {ascending:false}).limit(30);
     if (error) throw error;
     if (revision !== current) return;
     find('[data-orders]').replaceChildren(...data.map(order => {
@@ -248,7 +249,13 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
       line.textContent = item.produto + ' · ' + item.quantidade + ' × ' + money(item.valor_centavos) + ' · ' + money(item.total_centavos);
       list.append(line);
      }
-     detail.append(summary, list);
+     detail.append(summary);
+     if (order.tipo_material) {
+      const material = document.createElement('p');
+      material.textContent = 'Tipo de material · ' + order.tipo_material;
+      detail.append(material);
+     }
+     detail.append(list);
      if (order.observacoes) {
       const notes = document.createElement('p');
       notes.textContent = order.observacoes;
@@ -429,7 +436,8 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
    const order = {
     id: orderId, fornecedor: supplier, entrega: form.elements.entrega.value || null,
     itens: lines, observacoes: form.elements.observacoes.value.trim(),
-    solicitante: requester, prioridade: form.elements.prioridade.value
+    solicitante: requester, prioridade: form.elements.prioridade.value,
+    tipo_material: form.elements.tipo_material.value
    };
    const {error} = await client().rpc('inova_criar_pedido_com_orcamentos', {
     pedido: order, orcamentos: selectedQuotes, exclusivo: exclusiveDraft.checked, aprovar: approve
