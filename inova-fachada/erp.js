@@ -414,7 +414,7 @@ export function mountErp(panel, legacy) {
   async function receiving(current) {
     const [orders, stock] = await Promise.all([
       allRows(client.from('inova_compras').select(
-        'id,numero,fornecedor,entrega,inova_compras_conclusoes(concluido_em),inova_compras_decisoes!inner(resultado,orcamento_id),inova_compras_orcamentos(id,itens),inova_erp_recebimentos(id,recebido_em,nota_fiscal,observacoes,inova_erp_entradas_compra(linha,sku,quantidade))'
+        'id,numero,fornecedor,entrega,observacoes,inova_compras_conclusoes(concluido_em),inova_compras_decisoes!inner(resultado,orcamento_id),inova_compras_orcamentos(id,fornecedor,itens,frete_centavos,pagamento,prazo_dias,data_orcamento,observacoes),inova_erp_recebimentos(id,recebido_em,nota_fiscal,observacoes,inova_erp_entradas_compra(linha,sku,quantidade))'
       ).eq('inova_compras_decisoes.resultado', 'aprovado'), 'numero'),
       products()
     ]);
@@ -461,6 +461,23 @@ export function mountErp(panel, legacy) {
           lines.map(line => [line.item.produto, number.format(line.item.quantidade),
             closed && !entries.length ? '—' : number.format(line.received),
             closed ? '—' : number.format(line.pending)])));
+        const pdfStatus = element('p');
+        pdfStatus.setAttribute('role', 'status');
+        const pdf = button('Baixar pedido de compra em PDF', async () => {
+          pdf.disabled = true;
+          pdfStatus.textContent = '';
+          try {
+            const {downloadPurchasePdf} = await import('./pedido-compra-pdf.js?v=1');
+            await downloadPurchasePdf(order, quote, root.querySelector('.erp-top img').src);
+          } catch (error) {
+            pdfStatus.textContent = quote.itens.some(item => item.valor_centavos == null || item.total_centavos == null)
+              ? 'A cotação aprovada precisa ter preço para todos os itens.'
+              : 'Falha ao gerar o PDF. Tente novamente.';
+          } finally {
+            pdf.disabled = false;
+          }
+        });
+        details.append(pdf, pdfStatus);
         if (receipts.length) {
           details.append(table(['Data', 'Nota fiscal', 'Observações'],
             receipts.map(receipt => [receipt.recebido_em, receipt.nota_fiscal, receipt.observacoes])));
@@ -677,4 +694,3 @@ export function mountErp(panel, legacy) {
     }
   };
 }
-

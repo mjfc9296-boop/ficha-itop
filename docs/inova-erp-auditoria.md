@@ -70,3 +70,9 @@ No PostgreSQL local, foram verificados recebimentos parcial e integral, repetiç
 No navegador a 390 px, com API simulada, foram confirmados o registro parcial, o saldo restante, a manutenção do SKU, o recebimento integral e o histórico.
 
 Continuam pendentes a emissão do pedido comercial de compra em PDF, anexos de recebimento no fluxo novo, cancelamentos, divergências e devoluções, cadastro completo de fornecedores, integração financeira e publicação. As migrações continuam fora da produção.
+
+### PDF do pedido de compra
+
+A tela **Compras → Recebimentos** gera um PDF a partir da cotação vencedora com fornecedor, número SC, itens, valores unitários, subtotais, frete, valor total, condições de pagamento e entrega. Os dados são reutilizados sem redigitação. O PDF usa o logotipo existente quando o navegador consegue carregá-lo. O botão pede o preenchimento dos preços quando a cotação aprovada ainda tem itens sem valor.
+
+Foram gerados PDFs de uma página e de várias páginas para testar a formatação, a numeração, a retenção do último item, os totais e o bloqueio de cotação com preço ausente. O PDF é gerado a partir do número do registro de compras existente. A emissão de uma nova entidade de pedido, com numeração própria e descontos, continua pendente.
