@@ -14,7 +14,7 @@ O catálogo novo contém somente as três linhas de estoque expressamente autori
 | Documentos e serviços | Acesso a imagens, vídeos, arquivos, atas, reposição e links por meio dos fluxos existentes | Favoritos, recentes, pastas por setor e lixeira |
 | Estoque | Catálogo, SKU editável, cadastro geral e fiscal, foto, categorias e três saldos de abertura | Movimentações, locais relacionais, vínculo com vendas e compras, conciliação com o estoque anterior e histórico |
 | Solicitações e cotações | Formulário legado com múltiplos itens, cálculo de embalagem, sugestões do catálogo, Kanban, Sua vez e comparação com destaque do menor custo completo | Solicitação independente do pedido, trilha de status completa, anexos privados de cotações e dispensa formal com justificativa e aprovação |
-| Pedidos e recebimentos | Navegação para pedidos e conclusão com comprovante e nota fiscal pelos fluxos existentes | Emissão a partir da cotação aprovada, PDF, filtros completos, recebimento parcial, divergências, devoluções e entrada idempotente no estoque |
+| Pedidos e recebimentos | Navegação para pedidos, recebimento parcial e integral com entrada idempotente no catálogo e conclusão com comprovante e nota fiscal pelo fluxo anterior | Emissão a partir da cotação aprovada, PDF, filtros completos, anexos no novo fluxo, divergências e devoluções |
 | Fornecedores | Acesso ao cadastro e à consulta existentes | Ficha expandida, edição, inativação, validação e unicidade documental, vínculo com produtos, avaliações, histórico, filtros e exportações |
 | Vendas e entregas | Acesso aos formulários e registros existentes de pedidos, entregas e satisfação | Clientes e propostas persistentes, conversão, estoque, financeiro, agenda de entregas e transições integradas |
 | Financeiro | Nenhum lançamento criado | Contas a pagar e receber, parcelas, baixas, conciliação, fluxo de caixa, alertas e relatórios |
@@ -58,3 +58,15 @@ O backup do código está na branch [backup/inova-erp-2026-11-27](https://github
 Antes de migrar produção, confirme um backup restaurável da estrutura e dos registros do Supabase e conserve separadamente os objetos de Storage. Valide a restauração em uma instância isolada. Se houver falha após uma migração futura, revise primeiro a reversão pontual das políticas ou da aplicação. Uma restauração integral deve considerar as novas gravações e todos os módulos da ITOP que compartilham o banco.
 
 O backup integral de produção e a recuperação em uma instância isolada ainda não foram verificados.
+
+## Incremento de recebimentos
+
+A tela **Compras → Recebimentos** registra entradas parciais ou integrais a partir de uma cotação aprovada. A primeira entrada exige selecionar o SKU do catálogo para cada linha recebida. As entradas seguintes mantêm essa associação. O histórico guarda data, nota fiscal, observações, quantidades e UUID autenticado do responsável.
+
+A migração `supabase/inova-erp-recebimentos.sql` depende de `inova-erp-fase-1.sql`. Cria as tabelas `inova_erp_recebimentos` e `inova_erp_entradas_compra`, com leitura restrita ao administrador titular e confirmação via RPC. A confirmação serializa operações por pedido e grava histórico e saldo físico na mesma transação. Uma repetição com a mesma chave e os mesmos dados devolve o recibo original. Pedidos já encerrados no fluxo anterior permanecem históricos. O encerramento anterior de um pedido com entradas novas exige que o recebimento esteja completo.
+
+No PostgreSQL local, foram verificados recebimentos parcial e integral, repetição da mesma solicitação, rejeição de chave reaproveitada com dados diferentes, rollback do lote quando uma linha ultrapassa o saldo, preservação do SKU, encerramento legado e bloqueio de outro administrador e de anônimos.
+
+No navegador a 390 px, com API simulada, foram confirmados o registro parcial, o saldo restante, a manutenção do SKU, o recebimento integral e o histórico.
+
+Continuam pendentes a emissão do pedido comercial de compra em PDF, anexos de recebimento no fluxo novo, cancelamentos, divergências e devoluções, cadastro completo de fornecedores, integração financeira e publicação. As migrações continuam fora da produção.

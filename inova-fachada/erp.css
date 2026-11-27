@@ -124,3 +124,10 @@ html body #inova-blocos .inova-erp button.erp-action { background: var(--erp-acc
 }
 .erp-period { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
 .erp-period label { display: flex; align-items: center; gap: 4px; }
+
+
+.erp-receiving-list { display: grid; gap: 8px; margin-top: 12px; }
+.erp-receiving-list details { background: white; border: 1px solid var(--erp-line); border-radius: 8px; padding: 8px 12px; overflow-x: auto; }
+.erp-receiving-pending { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #b82532; margin-inline: 6px; }
+.erp-receiving-list table { margin-block: 8px; }
+.erp-receiving-items legend { font-weight: 650; }

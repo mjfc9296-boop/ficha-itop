@@ -7,7 +7,7 @@ const sectors = {
   'Compras': {
     'Visão geral': ['Painel de compras'],
     'Solicitações e cotações': ['Solicitações', 'Para cotar', 'Cotações', 'Para aprovar'],
-    'Pedidos e fornecedores': ['Pedidos de compra', 'Notas de entrada', 'Fornecedores']
+    'Pedidos e fornecedores': ['Pedidos de compra', 'Recebimentos', 'Notas de entrada', 'Fornecedores']
   },
   'Comercial': {
     Vendas: ['CRM', 'Propostas comerciais', 'Pedidos de venda', 'PDV'],
@@ -411,6 +411,142 @@ export function mountErp(panel, legacy) {
     }
   }
 
+  async function receiving(current) {
+    const [orders, stock] = await Promise.all([
+      allRows(client.from('inova_compras').select(
+        'id,numero,fornecedor,entrega,inova_compras_conclusoes(concluido_em),inova_compras_decisoes!inner(resultado,orcamento_id),inova_compras_orcamentos(id,itens),inova_erp_recebimentos(id,recebido_em,nota_fiscal,observacoes,inova_erp_entradas_compra(linha,sku,quantidade))'
+      ).eq('inova_compras_decisoes.resultado', 'aprovado'), 'numero'),
+      products()
+    ]);
+    if (current !== revision) return;
+    const today = new Intl.DateTimeFormat('sv-SE', {timeZone:'America/Sao_Paulo'}).format(new Date());
+    const filter = element('input');
+    filter.type = 'search';
+    filter.placeholder = 'Número, fornecedor ou produto';
+    filter.setAttribute('aria-label', 'Buscar recebimentos');
+    content.append(filter);
+    const list = element('div');
+    list.className = 'erp-receiving-list';
+    content.append(list);
+
+    function render() {
+      list.replaceChildren();
+      for (const order of [...orders].reverse()) {
+        const quote = order.inova_compras_orcamentos.find(row => row.id === order.inova_compras_decisoes.orcamento_id);
+        if (!quote) continue;
+        const code = 'SC-' + String(order.numero).padStart(5, '0');
+        const terms = [code, order.fornecedor, ...quote.itens.map(item => item.produto)].join(' ').toLowerCase();
+        if (!terms.includes(filter.value.trim().toLowerCase())) continue;
+        const receipts = order.inova_erp_recebimentos;
+        const entries = receipts.flatMap(receipt => receipt.inova_erp_entradas_compra);
+        const lines = quote.itens.map((item, index) => {
+          const previous = entries.filter(row => row.linha === index + 1);
+          const received = previous.reduce((sum, row) => sum + Number(row.quantidade), 0);
+          return {item, index: index + 1, received, pending: Number(item.quantidade) - received, sku: previous[0]?.sku};
+        });
+        const closed = Boolean(order.inova_compras_conclusoes);
+        const pending = !closed && lines.some(line => line.pending > 0);
+        const state = closed ? 'Encerrado no fluxo anterior' : !pending ? 'Recebido integralmente'
+          : order.entrega && order.entrega < today ? 'Atrasado'
+          : entries.length ? 'Recebido parcialmente' : 'Aguardando entrega';
+        const details = element('details');
+        const summary = element('summary', [code, order.fornecedor, state].join(' · '));
+        if (pending) {
+          const dot = element('span');
+          dot.className = 'erp-receiving-pending';
+          dot.setAttribute('aria-hidden', 'true');
+          summary.prepend(dot);
+        }
+        details.append(summary, table(['Produto', 'Comprado', 'Recebido', 'Pendente'],
+          lines.map(line => [line.item.produto, number.format(line.item.quantidade),
+            closed && !entries.length ? '—' : number.format(line.received),
+            closed ? '—' : number.format(line.pending)])));
+        if (receipts.length) {
+          details.append(table(['Data', 'Nota fiscal', 'Observações'],
+            receipts.map(receipt => [receipt.recebido_em, receipt.nota_fiscal, receipt.observacoes])));
+        }
+        if (pending) details.append(button('Registrar recebimento', () => receiptForm(order.id, lines, stock, today)));
+        list.append(details);
+      }
+      if (!list.childElementCount) list.append(element('p', 'Nenhum pedido aprovado encontrado.'));
+    }
+    filter.addEventListener('input', render);
+    render();
+  }
+
+  function receiptForm(orderId, lines, stock, today) {
+    openDialog('Registrar recebimento');
+    const form = element('form');
+    form.innerHTML = `
+      <fieldset>
+        <label>Data de recebimento<input name="date" type="date" required></label>
+        <label>Nota fiscal<input name="invoice" maxlength="120" required></label>
+        <label>Observações<textarea name="notes" maxlength="2000"></textarea></label>
+      </fieldset>
+      <div class="erp-receiving-items"></div>
+      <p role="status"></p><button class="erp-action">Confirmar entrada no estoque</button>`;
+    form.elements.date.value = form.elements.date.max = today;
+    const controls = lines.filter(line => line.pending > 0).map(line => {
+      const fields = element('fieldset');
+      fields.append(element('legend', line.item.produto + ' · Pendente: ' + number.format(line.pending)));
+      const sku = element('select');
+      sku.add(new Option('Selecione o produto no estoque', ''));
+      stock.forEach(product => sku.add(new Option(product.sku + ' · ' + product.nome, product.sku)));
+      if (line.sku) {
+        sku.value = line.sku;
+        sku.disabled = true;
+      }
+      const quantity = element('input');
+      quantity.type = 'number';
+      quantity.min = '0';
+      quantity.max = String(line.pending);
+      quantity.step = 'any';
+      const skuLabel = element('label', 'Produto no estoque');
+      const quantityLabel = element('label', 'Quantidade recebida');
+      skuLabel.append(sku);
+      quantityLabel.append(quantity);
+      fields.append(skuLabel, quantityLabel);
+      form.querySelector('.erp-receiving-items').append(fields);
+      return {line, sku, quantity};
+    });
+    dialogContent.append(form);
+    const key = crypto.randomUUID();
+    let signature;
+    form.onsubmit = async event => {
+      event.preventDefault();
+      const status = form.querySelector('[role=status]');
+      const submit = form.querySelector('button');
+      if (submit.disabled) return;
+      const items = controls.filter(control => control.quantity.valueAsNumber > 0).map(control => ({
+        linha: control.line.index, sku: control.sku.value, quantidade: control.quantity.valueAsNumber
+      }));
+      if (!items.length || items.some(item => !item.sku) || !form.elements.invoice.value.trim()) {
+        status.textContent = 'Informe a nota fiscal, a quantidade recebida e o SKU de cada linha recebida.';
+        return;
+      }
+      const payload = {pedido:orderId, data_recebimento:form.elements.date.value,
+        documento:form.elements.invoice.value.trim(), notas:form.elements.notes.value, linhas:items};
+      const nextSignature = JSON.stringify(payload);
+      if (signature && signature !== nextSignature) {
+        status.textContent = 'Repita com os mesmos dados ou reabra o pedido para conferir o saldo.';
+        return;
+      }
+      signature = nextSignature;
+      submit.disabled = true;
+      try {
+        const {error} = await client.rpc('inova_erp_confirmar_recebimento', {chave:key, ...payload});
+        if (error) throw error;
+        if (!form.isConnected || !dialog.open) return;
+        dialog.close();
+        void navigate('Compras', 'Recebimentos');
+      } catch {
+        status.textContent = 'A confirmação falhou. Confira o saldo e tente novamente com os mesmos dados.';
+      } finally {
+        submit.disabled = false;
+      }
+    };
+  }
+
   async function navigate(group, target) {
     sector = group;
     page = target;
@@ -463,6 +599,9 @@ export function mountErp(panel, legacy) {
         heading(target, button('Nova categoria', newCategory));
         const list = await categories();
         if (current === revision) content.append(table(['Categoria'], list.map(item => [item.nome])));
+      } else if (group === 'Compras' && target === 'Recebimentos') {
+        heading(target);
+        await receiving(current);
       } else if ((group === 'Compras' && purchasePages.includes(target)) || legacyPages[target]) {
         heading(target);
         content.append(legacyContent);
@@ -538,3 +677,4 @@ export function mountErp(panel, legacy) {
     }
   };
 }
+
