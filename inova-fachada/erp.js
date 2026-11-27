@@ -20,7 +20,7 @@ const sectors = {
     Saldos: ['Locais de armazenamento', 'Estoque mínimo', 'Estoque anterior']
   },
   'Produção': ['Ordens de produção'],
-  'Serviços': ['Atas de visita e reposição'],
+  'Serviços': ['Atas de visita e reposição', 'Links úteis'],
   'Cadastros': ['Categorias', 'Fornecedores']
 };
 
@@ -390,6 +390,17 @@ export function mountErp(panel, legacy) {
       } else if (group === 'Estoque' && ['Produtos e serviços','Equipamentos','Patrimônio','Estoque mínimo'].includes(target)) {
         heading(target, button('Novo produto', newProduct));
         await catalog(current);
+      } else if (group === 'Serviços' && target === 'Links úteis') {
+        heading(target);
+        for (const link of legacy.links) {
+          const row = element('p');
+          const anchor = element('a', link.title);
+          anchor.href = link.href;
+          anchor.target = '_blank';
+          anchor.rel = 'noopener noreferrer';
+          row.append(anchor);
+          content.append(row);
+        }
       } else if (group === 'Cadastros' && target === 'Categorias') {
         heading(target, button('Nova categoria', newCategory));
         const list = await categories();

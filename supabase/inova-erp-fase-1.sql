@@ -1,3 +1,22 @@
+-- Resolve o UUID na implantação e mantém a identidade fora do repositório.
+create schema inova_erp_privado;
+revoke all on schema inova_erp_privado from public, anon, authenticated;
+grant usage on schema inova_erp_privado to anon, authenticated;
+
+do $$
+declare titular uuid;
+begin
+  select u.id into strict titular from auth.users u join public.perfis p on p.id = u.id
+  where lower(u.email) = 'mjfc9296@gmail.com' and p.papel = 'administrador'
+    and p.ativo and p.status_aprovacao = 'aprovado';
+  execute format(
+    'create function inova_erp_privado.e_titular() returns boolean language sql stable security invoker set search_path = %L as %L',
+    '', format('select coalesce((select auth.uid()) = %L::uuid, false)', titular)
+  );
+end $$;
+revoke all on function inova_erp_privado.e_titular() from public, anon, authenticated;
+grant execute on function inova_erp_privado.e_titular() to anon, authenticated;
+
 -- Preserva o estoque anterior. Os três saldos abaixo são a abertura do novo catálogo.
 create table public.inova_erp_categorias (
   id bigint generated always as identity primary key,
@@ -37,7 +56,7 @@ as $$
   from public.perfis
   where id = (select auth.uid()) and papel = 'administrador' and ativo
     and status_aprovacao = 'aprovado'
-    and lower((select auth.jwt()->>'email')) = 'mjfc9296@gmail.com';
+    and (select inova_erp_privado.e_titular());
 $$;
 revoke all on function public.inova_erp_proximo_sku() from public, anon, authenticated;
 grant execute on function public.inova_erp_proximo_sku() to authenticated;
@@ -55,7 +74,7 @@ grant insert(sku,nome,tipo,uso,categoria_id,foto,unidade,quantidade_embalagem,es
 do $$
 declare relation text;
   owner_check constant text := $guard$
-    lower((select auth.jwt()->>'email')) = 'mjfc9296@gmail.com'
+    (select inova_erp_privado.e_titular())
     and exists (
       select 1 from public.perfis p where p.id = (select auth.uid())
         and p.papel = 'administrador' and p.ativo and p.status_aprovacao = 'aprovado'
@@ -74,6 +93,12 @@ begin
     execute format('create policy inova_erp_titular on public.%I as restrictive for all to anon, authenticated using (%s) with check (%s)',
       relation, owner_check, owner_check);
   end loop;
+  execute format(
+    'create policy inova_erp_arquivos_titular on storage.objects as restrictive for all to anon, authenticated
+      using (bucket_id not in (%L,%L) or (%s)) with check (bucket_id not in (%L,%L) or (%s))',
+    'inova-comprovantes', 'inova-compras-documentos', owner_check,
+    'inova-comprovantes', 'inova-compras-documentos', owner_check
+  );
 end $$;
 
 with categoria as (

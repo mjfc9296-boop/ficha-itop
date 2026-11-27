@@ -155,7 +155,15 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
    container.replaceChildren();
    return;
   }
-  const cards = saved.map(quote => {
+  const cards = quoteCards(saved);
+  container.replaceChildren(...cards);
+  container.hidden = false;
+ }
+ function quoteCards(quotes) {
+  const complete = quote => quote.itens.every(item => item.total_centavos != null);
+  const gross = quote => Number(quote.frete_centavos) + quote.itens.reduce((sum, item) => sum + Number(item.total_centavos ?? 0), 0);
+  const lowest = Math.min(...quotes.filter(complete).map(gross));
+  return quotes.map(quote => {
    const card = document.createElement('article');
    const title = document.createElement('h4');
    title.textContent = 'Orçamento ' + quote.posicao + ' · ' + quote.fornecedor;
@@ -168,13 +176,20 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
    }
    const freight = document.createElement('p');
    freight.textContent = 'Frete ' + money(quote.frete_centavos);
+   const terms = document.createElement('p');
+   terms.textContent = [quote.pagamento || 'Pagamento a definir',
+    quote.prazo_dias == null ? 'Prazo a definir' : 'Prazo de ' + quote.prazo_dias + ' dia(s)'].join(' · ');
    const total = document.createElement('strong');
-   total.textContent = 'Total com frete ' + money(quote.frete_centavos + quote.itens.reduce((sum, item) => sum + (item.total_centavos ?? 0), 0));
-   card.append(title, items, freight, total);
+   total.textContent = 'Total com frete ' + money(gross(quote));
+   card.append(title, items, freight, terms, total);
+   if (quotes.length > 1 && complete(quote) && gross(quote) === lowest) {
+    card.classList.add('compras-quote-lowest');
+    const badge = document.createElement('p');
+    badge.textContent = 'Menor custo total';
+    card.append(badge);
+   }
    return card;
   });
-  container.replaceChildren(...cards);
-  container.hidden = false;
  }
  function refreshDraftQuote(rows) {
   const max = exclusiveDraft.checked ? 1 : 3;
@@ -335,7 +350,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
        const add = document.createElement('button');
        add.type = 'button';
        add.textContent = '+ Preencher orçamento ' + slot;
-       add.onclick = () => quotes.open(order, slot, () => refresh(slot));
+       add.onclick = () => quotes.open(order, slot, () => { void refresh(slot); void compare(); });
        result.replaceChildren(add);
       } catch {
        if (latest === request) result.textContent = 'Não foi possível carregar o orçamento. Selecione a aba para tentar novamente.';
@@ -348,7 +363,21 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
       tab.onclick = () => void refresh(slot);
       tabs.append(tab);
      }
-     quoteTabs.append(quoteLabel, tabs, result);
+     const comparison = document.createElement('div');
+     comparison.className = 'compras-quote-cards';
+     let comparisonRequest = 0;
+     async function compare() {
+      const current = ++comparisonRequest;
+      comparison.replaceChildren();
+      const {data, error} = await client().from('inova_compras_orcamentos')
+       .select('posicao,fornecedor,pagamento,prazo_dias,frete_centavos,itens')
+       .eq('pedido_id', order.id).not('posicao', 'is', null).order('posicao');
+      if (current !== comparisonRequest) return;
+      if (error) comparison.textContent = 'Não foi possível carregar a comparação.';
+      else if (data.length) comparison.append(...quoteCards(data));
+     }
+     quoteTabs.append(quoteLabel, comparison, tabs, result);
+     quoteTabs.addEventListener('toggle', () => { if (quoteTabs.open) void compare(); });
      quoteTabs.addEventListener('toggle', () => { if (quoteTabs.open) void refresh(selected); });
      const exclusiveLabel = document.createElement('label');
      const exclusive = document.createElement('input');

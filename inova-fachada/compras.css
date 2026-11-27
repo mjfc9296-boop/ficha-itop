@@ -96,3 +96,13 @@ html body #inova-compras .compras-tabs [aria-current="page"] { background: #dcee
 #inova-compras .compras-quote-cards { display: grid; gap: 10px; margin-top: 14px; }
 #inova-compras .compras-quote-cards article { padding: 14px; border: 1px solid #cbded8; border-radius: 10px; overflow-wrap: anywhere; }
 #inova-compras .compras-quote-cards h4 { margin: 0; }
+
+#inova-compras .compras-quote-cards {
+ grid-auto-flow: column;
+ grid-auto-columns: minmax(165px, 1fr);
+ overflow-x: auto;
+}
+#inova-compras .compras-quote-cards .compras-quote-lowest {
+ background: #e8f6ee;
+ border-color: #08735a;
+}

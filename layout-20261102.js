@@ -807,6 +807,7 @@
     if (check !== inovaAccessCheck || inovaTab.hidden) return;
     erp ??= mountErp(inovaPanel, {
      client: window.itopAuthClient,
+     links: usefulLinks,
      stock: stockButton,
      suppliers: supplierButton,
      requests: requestsButton,
@@ -835,14 +836,14 @@
  const compras = inovaPanel.querySelector('#inova-compras');
  const comprasStyle = document.createElement('link');
  comprasStyle.rel = 'stylesheet';
- comprasStyle.href = 'inova-fachada/compras.css?v=7';
+ comprasStyle.href = 'inova-fachada/compras.css?v=8';
  document.head.append(comprasStyle);
  inovaTab.addEventListener('click', () => {
   if (inovaTab.hidden) return;
   const url = new URL(location.href);
   url.searchParams.set('app', 'inova-blocos');
   url.hash = '';
-  location.assign(url);
+  window.open(url, '_blank', 'noopener');
  });
  async function openPurchases() {
   if (inovaTab.hidden) return;
@@ -851,12 +852,12 @@
   try {
    if (!purchases) {
     compras.textContent = 'Carregando Compras…';
-    const {mountPurchases} = await import('./inova-fachada/compras.js?v=13');
+    const {mountPurchases} = await import('./inova-fachada/compras.js?v=14');
     if (inovaTab.hidden || compras.hidden || !inovaPanel.classList.contains('active')) return;
     purchases ??= mountPurchases(compras, async () => (await getInovaStock()).stock, {supplierForm, saveSupplier, supplierError});
     compras.querySelector('[data-return]').onclick = () => returnButton.click();
    }
-   void purchases.open();
+   await purchases.open();
   } catch {
    compras.textContent = 'Não foi possível abrir Compras. Selecione o módulo novamente.';
   }
