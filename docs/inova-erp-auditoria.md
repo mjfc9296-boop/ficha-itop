@@ -76,3 +76,7 @@ Continuam pendentes a emissão do pedido comercial de compra em PDF, anexos de r
 A tela **Compras → Recebimentos** gera um PDF a partir da cotação vencedora com fornecedor, número SC, itens, valores unitários, subtotais, frete, valor total, condições de pagamento e entrega. Os dados são reutilizados sem redigitação. O PDF usa o logotipo existente quando o navegador consegue carregá-lo. O botão pede o preenchimento dos preços quando a cotação aprovada ainda tem itens sem valor.
 
 Foram gerados PDFs de uma página e de várias páginas para testar a formatação, a numeração, a retenção do último item, os totais e o bloqueio de cotação com preço ausente. O PDF é gerado a partir do número do registro de compras existente. A emissão de uma nova entidade de pedido, com numeração própria e descontos, continua pendente.
+
+### Filtros de recebimento
+
+A lista permite buscar pelo número SC, fornecedor da cotação aprovada ou produto, filtrar por situação e delimitar a previsão de entrega. Um recebimento parcial também aparece entre os atrasados quando ainda tem saldo e a data prevista passou.
