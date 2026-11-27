@@ -70,11 +70,14 @@ function purchasePhase(order) {
   return order.inova_compras_orcamentos.length ? 1 : 0;
 }
 
-function overdue(row, today) {
-  if (!row.dados?.dataEntrega || row.dados.dataEntrega >= today) return false;
-  return row.itens.some((item, index) =>
-    Number(item.quantidade) > row.inova_entregas.filter(delivery => delivery.item === index)
+function deliveryState(row) {
+  const items = Array.isArray(row.itens) ? row.itens : [];
+  const delivered = row.inova_entregas ?? [];
+  if (!items.length) return 'pending';
+  const complete = items.every((item, index) =>
+    Number(item.quantidade) <= delivered.filter(delivery => delivery.item === index)
       .reduce((sum, delivery) => sum + Number(delivery.quantidade), 0));
+  return complete ? 'complete' : delivered.length ? 'partial' : 'pending';
 }
 
 async function allRows(query, key) {
@@ -133,9 +136,9 @@ export function mountErp(panel, legacy) {
     'sku,nome,tipo,fisico,reservado,disponivel,estoque_minimo,preco_venda'), 'sku');
   const categories = () => allRows(client.from('inova_erp_categorias').select('id,nome'), 'nome');
   const purchases = () => allRows(client.from('inova_compras').select(
-    'id,numero,fornecedor,entrega,enviado_para_aprovacao_em,inova_compras_orcamentos(id),inova_compras_decisoes(resultado),inova_compras_conclusoes(concluido_em)'), 'numero');
+    'id,numero,fornecedor,entrega,criado_em,enviado_para_aprovacao_em,inova_compras_orcamentos(id),inova_compras_decisoes(resultado),inova_compras_conclusoes(concluido_em)'), 'numero');
   const sales = () => allRows(client.from('inova_vendas').select(
-    'id,dados,itens,inova_entregas(item,quantidade)').is('arquivada_em', null), 'id');
+    'id,data_venda,pesquisa_em,dados,itens,inova_entregas(item,quantidade)').is('arquivada_em', null), 'id');
 
   const legacyPages = {
     'Arquivos úteis': legacy.gallery, 'Imagens úteis': legacy.gallery, 'Vídeos úteis': legacy.videos,
@@ -179,25 +182,80 @@ export function mountErp(panel, legacy) {
     const data = await Promise.allSettled([products(), purchases(), sales()]);
     if (current !== revision) return;
     const [stock, orders, confirmed] = data.map(result => result.status === 'fulfilled' ? result.value : null);
-    const today = new Intl.DateTimeFormat('sv-SE', {timeZone:'America/Sao_Paulo'}).format(new Date());
-    const awaiting = orders?.filter(order => purchasePhase(order) === 2).length;
-    notificationsCount(awaiting);
+    const localDate = new Intl.DateTimeFormat('sv-SE', {timeZone:'America/Sao_Paulo'});
+    const today = localDate.format(new Date());
+    const dateAtNoon = value => new Date(value + 'T12:00:00-03:00');
+    const filter = element('form');
+    filter.className = 'erp-period';
+    filter.innerHTML = `
+      <label>Período <select name="periodo">
+        <option value="">Todo o período</option><option value="dia">Hoje</option>
+        <option value="semana">Semana atual</option><option value="mes">Mês atual</option>
+        <option value="trimestre">Trimestre atual</option><option value="ano">Ano atual</option>
+        <option value="personalizado">Personalizado</option>
+      </select></label>
+      <label hidden>De <input type="date" name="inicio"></label>
+      <label hidden>Até <input type="date" name="fim"></label>`;
+    filter.onsubmit = event => event.preventDefault();
     const cards = element('div');
     cards.className = 'erp-cards';
-    for (const [label, value, group, target] of [
-      ['Estoque crítico', stock?.filter(item => item.disponivel < 0 || (item.estoque_minimo != null && item.disponivel <= item.estoque_minimo)).length, 'Estoque', 'Estoque mínimo'],
-      ['Compras pendentes', orders?.filter(order => purchasePhase(order) >= 0 && purchasePhase(order) < 4).length, 'Compras', 'Painel de compras'],
-      ['Cotações aguardando aprovação', awaiting, 'Compras', 'Painel de compras'],
-      ['Entregas atrasadas', confirmed?.filter(row => overdue(row, today)).length, 'Comercial', 'Pedidos de venda'],
-      ['Propostas em negociação', null, 'Comercial', 'CRM'],
-      ['Vendas confirmadas', confirmed?.length, 'Comercial', 'Pedidos de venda'],
-      ['Ordens de produção', null, 'Produção', 'Ordens de produção']
-    ]) {
-      const card = button(label, () => navigate(group, target));
-      card.append(element('strong', value == null ? 'Indisponível' : number.format(value)));
-      cards.append(card);
+    const totals = key => stock?.reduce((sum, item) => sum + Number(item[key]), 0);
+    const overdueDeliveries = confirmed?.filter(row =>
+      row.dados?.dataEntrega && row.dados.dataEntrega < today && deliveryState(row) !== 'complete').length;
+    const awaiting = orders?.filter(order => purchasePhase(order) === 2).length;
+
+    function updateCards() {
+      const {periodo,inicio,fim} = filter.elements;
+      const custom = periodo.value === 'personalizado';
+      inicio.parentElement.hidden = fim.parentElement.hidden = !custom;
+      const currentDate = dateAtNoon(today);
+      const month = currentDate.getUTCMonth();
+      const year = currentDate.getUTCFullYear();
+      currentDate.setUTCDate(currentDate.getUTCDate() - (currentDate.getUTCDay() + 6) % 7);
+      const boundaries = {
+        dia: today,
+        semana: localDate.format(currentDate),
+        mes: today.slice(0,7) + '-01',
+        trimestre: year + '-' + String(Math.floor(month / 3) * 3 + 1).padStart(2, '0') + '-01',
+        ano: year + '-01-01'
+      };
+      const start = custom ? inicio.value : boundaries[periodo.value];
+      const end = custom ? fim.value : periodo.value ? today : '';
+      const inPeriod = date => (!start && !end) || Boolean(date && (!start || date >= start) && (!end || date <= end));
+      const periodSales = confirmed?.filter(row => inPeriod(row.data_venda));
+      const periodOrders = orders?.filter(row => inPeriod(row.criado_em && localDate.format(new Date(row.criado_em))));
+      const periodDeliveries = confirmed?.filter(row => inPeriod(row.dados?.dataEntrega));
+      cards.replaceChildren();
+      for (const [label, value, group, target] of [
+        ['Produtos cadastrados', stock?.length, 'Estoque', 'Produtos e serviços'],
+        ['Estoque físico', totals('fisico'), 'Estoque', 'Produtos e serviços'],
+        ['Estoque reservado', totals('reservado'), 'Estoque', 'Produtos e serviços'],
+        ['Estoque disponível', totals('disponivel'), 'Estoque', 'Produtos e serviços'],
+        ['Estoque crítico', stock?.filter(item => item.disponivel < 0 || (item.estoque_minimo != null && item.disponivel <= item.estoque_minimo)).length, 'Estoque', 'Estoque mínimo'],
+        ['Produtos sem estoque físico', stock?.filter(item => Number(item.fisico) === 0).length, 'Estoque', 'Produtos e serviços'],
+        ['Compras pendentes', orders?.filter(order => purchasePhase(order) >= 0 && purchasePhase(order) < 4).length, 'Compras', 'Painel de compras'],
+        ['Cotações em andamento', orders?.filter(order => purchasePhase(order) === 1).length, 'Compras', 'Cotações'],
+        ['Cotações aguardando aprovação', awaiting, 'Compras', 'Para aprovar'],
+        ['Compras com entrega atrasada', orders?.filter(order => purchasePhase(order) === 3 && order.entrega && order.entrega < today).length, 'Compras', 'Pedidos de compra'],
+        ['Compras cadastradas no período', periodOrders?.length, 'Compras', 'Pedidos de compra'],
+        ['Entregas programadas no período', periodDeliveries?.filter(row => row.dados?.dataEntrega && deliveryState(row) !== 'complete').length, 'Comercial', 'Pedidos de venda'],
+        ['Entregas atrasadas', overdueDeliveries, 'Comercial', 'Pedidos de venda'],
+        ['Entregas parciais', confirmed?.filter(row => deliveryState(row) === 'partial').length, 'Comercial', 'Pedidos de venda'],
+        ['Avaliações pendentes', confirmed?.filter(row => deliveryState(row) === 'complete' && !row.pesquisa_em).length, 'Comercial', 'Pesquisa de satisfação'],
+        ['Propostas em negociação', null, 'Comercial', 'CRM'],
+        ['Vendas confirmadas no período', periodSales?.length, 'Comercial', 'Pedidos de venda'],
+        ['Ordens de produção', null, 'Produção', 'Ordens de produção']
+      ]) {
+        const card = button(label, () => navigate(group, target));
+        card.append(element('strong', value == null ? 'Indisponível' : number.format(value)));
+        cards.append(card);
+      }
     }
-    content.append(cards);
+
+    filter.addEventListener('change', updateCards);
+    notificationsCount(awaiting);
+    content.append(filter, cards);
+    updateCards();
   }
 
   async function board(current) {

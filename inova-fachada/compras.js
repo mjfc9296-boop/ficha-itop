@@ -267,12 +267,16 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
    orderId = crypto.randomUUID();
    const sources = await Promise.allSettled([
     client().from('inova_blocos_fornecedores').select('nome').order('nome'),
-    loadStock()
+    loadStock(),
+    client().from('inova_erp_produtos').select('nome').order('nome').limit(500)
    ]);
    if (revision !== current) return;
    const suppliers = sources[0].value;
    fillOptions('#inova-compra-fornecedores', (suppliers?.data || []).map(row => row.nome));
-   fillOptions('#inova-compra-produtos', products(sources[1].value).map(row => row.produto));
+   const catalog = sources[2].value?.data ?? [];
+   const candidates = [...catalog.map(row => row.nome), ...products(sources[1].value).map(row => row.produto)];
+   const unique = new Map(candidates.map(name => [name.toLocaleUpperCase('pt-BR'), name]));
+   fillOptions('#inova-compra-produtos', [...unique.values()]);
    return;
   }
   setStatus('Carregando…');

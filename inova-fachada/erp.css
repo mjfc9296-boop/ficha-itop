@@ -122,3 +122,5 @@ html body #inova-blocos .inova-erp button.erp-action { background: var(--erp-acc
   .erp-body #erp-secondary { width: 128px; }
   .erp-content { padding: 10px 6px; }
 }
+.erp-period { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.erp-period label { display: flex; align-items: center; gap: 4px; }
