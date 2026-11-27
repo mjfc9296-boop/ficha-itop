@@ -1,6 +1,6 @@
-import {mountPurchaseQuotes} from './orcamentos-compras.js?v=4';
+import {mountPurchaseQuotes} from './orcamentos-compras.js?v=5';
 
-import {mountPurchaseStatus, fileTypes} from './status-compras.js?v=1';
+import {mountPurchaseStatus, fileTypes} from './status-compras.js?v=2';
 
 export function mountPurchases(panel, loadStock, supplierRegistration) {
  const money = cents => (cents / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -23,7 +23,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
    <h3>Status Pedido</h3><div class="compras-table-scroll" data-purchase-status></div>
   </section>
   <section data-view="complete" class="compras-card" hidden>
-   <h3>Concluir Pedido</h3><div class="compras-table-scroll" data-approved-orders></div>
+   <h3>Pedidos aprovados</h3><div class="compras-table-scroll" data-approved-orders></div>
    <section data-complete-order hidden>
     <div class="compras-heading"><h3></h3><button type="button" data-close-completion>Fechar pedido</button></div>
     <div data-complete-details></div><p role="status"></p>
@@ -51,6 +51,8 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
         <label>Fornecedor<input name="fornecedor" list="inova-compra-fornecedores" required maxlength="200"></label>
         <datalist id="inova-compra-fornecedores"></datalist>
         <label>Previsão de entrega<input name="entrega" type="date"></label>
+        <label>Solicitante do pedido<input name="solicitante" maxlength="160" required></label>
+        <label>Prioridade<select name="prioridade"><option value="normal">Normal</option><option value="urgente">Urgente</option></select></label>
       </div></section>
       <section class="compras-card"><div class="compras-heading"><h3>Itens</h3><button type="button" data-add>+ Adicionar item</button></div>
         <div data-items></div><datalist id="inova-compra-produtos"></datalist>
@@ -238,7 +240,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
      const li = document.createElement('li');
      const detail = document.createElement('details');
      const summary = document.createElement('summary');
-     summary.textContent = 'PC-' + String(order.numero).padStart(5, '0') + ' · ' + order.fornecedor + ' · ' + date(order.entrega) + ' · ' +
+     summary.textContent = 'SC-' + String(order.numero).padStart(5, '0') + ' · ' + order.fornecedor + ' · ' + date(order.entrega) + ' · ' +
       money(order.itens.reduce((sum, item) => sum + item.total_centavos, 0));
      const list = document.createElement('ul');
      for (const item of order.itens) {
@@ -409,7 +411,10 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
   if (saving || screen !== 'form') return;
   const lines = totals();
   const supplier = form.elements.fornecedor.value.trim();
-  if (!supplier || lines.some(line => !line.produto)) return setStatus('Preencha o fornecedor e o produto de cada item.');
+  const requester = form.elements.solicitante.value.trim();
+  if (!supplier || !requester || lines.some(line => !line.produto)) {
+   return setStatus('Preencha o fornecedor, o solicitante e o produto de cada item.');
+  }
   const selectedQuotes = [...draftQuotes.values()].filter(quote => !exclusiveDraft.checked || quote.posicao === 1);
   const approve = approveOnSubmit;
   if (selectedQuotes.some(quote => !quoteMatches(quote, lines))) {
@@ -423,7 +428,8 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
   try {
    const order = {
     id: orderId, fornecedor: supplier, entrega: form.elements.entrega.value || null,
-    itens: lines, observacoes: form.elements.observacoes.value.trim()
+    itens: lines, observacoes: form.elements.observacoes.value.trim(),
+    solicitante: requester, prioridade: form.elements.prioridade.value
    };
    const {error} = await client().rpc('inova_criar_pedido_com_orcamentos', {
     pedido: order, orcamentos: selectedQuotes, exclusivo: exclusiveDraft.checked, aprovar: approve
