@@ -58,7 +58,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
       <section class="compras-card"><div class="compras-heading"><h3>Itens</h3><button type="button" data-add>+ Adicionar item</button></div>
         <div class="compras-order-items" role="region" aria-label="Linhas de itens" tabindex="0">
          <div class="compras-order-items-head" aria-hidden="true">
-          <span>Produto</span><span>Quantidade</span><span>Valor unitário (R$)</span><span>Total</span>
+          <span>Produto</span><span>Referência</span><span>Qtd. de referências</span><span>Itens por referência</span><span>Total de itens</span>
          </div>
          <div data-items></div>
         </div><datalist id="inova-compra-produtos"></datalist>
@@ -79,7 +79,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
     </div>
     <aside class="compras-card compras-summary"><h3>Resumo</h3>
       <dl><dt>Fornecedor</dt><dd data-supplier>—</dd><dt>Entrega prevista</dt><dd data-delivery>—</dd>
-       <dt>Itens</dt><dd data-count>0</dd><dt>Total</dt><dd><strong data-total></strong></dd></dl>
+       <dt>Total de itens</dt><dd data-count>0</dd></dl>
       <button class="compras-primary" type="submit">Criar pedido</button>
       <button type="button" data-open="orders">Cancelar</button>
     </aside>
@@ -122,17 +122,21 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
  find('[data-new-quote]').onclick = () => quotes.open();
  function totals() {
   const rows = [...items.children].map(row => {
-   const [product, quantity, price] = row.querySelectorAll('input');
-   const valor_centavos = Math.round((price.valueAsNumber || 0) * 100);
-   const quantidade = quantity.valueAsNumber || 0;
-   const total_centavos = Math.round(valor_centavos * quantidade);
-   row.querySelector('output').value = money(total_centavos);
-   return {produto: product.value.trim(), quantidade, valor_centavos, total_centavos};
+   const [product, count, units] = row.querySelectorAll('input');
+   const referencia = row.querySelector('select').value;
+   if (referencia === 'Unidade') units.value = '1';
+   units.readOnly = referencia === 'Unidade';
+   const quantidade_referencias = count.valueAsNumber || 0;
+   const itens_por_referencia = units.valueAsNumber || 0;
+   const quantidade = quantidade_referencias * itens_por_referencia;
+   units.setCustomValidity(quantidade > 999999 ? 'O total por linha deve ser de até 999.999 itens.' : '');
+   row.querySelector('output').value = quantidade.toLocaleString('pt-BR');
+   return {produto: product.value.trim(), referencia, quantidade_referencias, itens_por_referencia,
+    quantidade, valor_centavos:null, total_centavos:null};
   });
   find('[data-supplier]').textContent = form.elements.fornecedor.value.trim() || '—';
   find('[data-delivery]').textContent = date(form.elements.entrega.value);
-  find('[data-count]').textContent = rows.filter(row => row.produto).length;
-  find('[data-total]').textContent = money(rows.reduce((sum, row) => sum + row.total_centavos, 0));
+  find('[data-count]').textContent = rows.reduce((sum, row) => sum + row.quantidade, 0).toLocaleString('pt-BR');
   refreshDraftQuote(rows);
   return rows;
  }
@@ -161,7 +165,7 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
  find('[data-fill-quote]').onclick = () => {
   if (saving) return;
   const rows = totals();
-  if (rows.some(item => !item.produto || !item.quantidade)) {
+  if (rows.some(item => !item.produto || !Number.isInteger(item.quantidade_referencias) || !Number.isInteger(item.itens_por_referencia) || item.quantidade_referencias < 1 || item.itens_por_referencia < 1 || item.quantidade > 999999)) {
    setStatus('Preencha os produtos e as quantidades do pedido antes de abrir o orçamento.');
    return;
   }
@@ -184,9 +188,10 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
   const row = document.createElement('div');
   row.className = 'compras-item';
   row.innerHTML = `<input aria-label="Produto" list="inova-compra-produtos" required maxlength="160">
-   <input aria-label="Quantidade" type="number" min="0.001" max="999999" step="0.001" required>
-   <input aria-label="Valor unitário (R$)" type="number" min="0" max="999999" step="0.01" required>
-   <output aria-label="Total"></output><button type="button" aria-label="Remover item" title="Remover item">🗑</button>`;
+   <select aria-label="Referência"><option>Unidade</option><option>Pacote</option><option>Caixa</option><option>Fardo</option><option>Kit</option></select>
+   <input aria-label="Quantidade de referências" type="number" min="1" max="999999" step="1" required>
+   <input aria-label="Itens por referência" type="number" min="1" max="999999" step="1" required>
+   <output aria-label="Total de itens"></output><button type="button" aria-label="Remover item" title="Remover item">🗑</button>`;
   row.querySelector('button').onclick = () => {
    row.remove();
    if (!items.childElementCount) addItem(true);
@@ -246,12 +251,16 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
      const li = document.createElement('li');
      const detail = document.createElement('details');
      const summary = document.createElement('summary');
-     summary.textContent = 'SC-' + String(order.numero).padStart(5, '0') + ' · ' + order.fornecedor + ' · ' + date(order.entrega) + ' · ' +
-      money(order.itens.reduce((sum, item) => sum + item.total_centavos, 0));
+     summary.textContent = 'SC-' + String(order.numero).padStart(5, '0') + ' · ' + order.fornecedor + ' · ' + date(order.entrega);
+     if (order.itens.some(item => item.total_centavos != null)) {
+      summary.textContent += ' · ' + money(order.itens.reduce((sum, item) => sum + (item.total_centavos ?? 0), 0));
+     }
      const list = document.createElement('ul');
      for (const item of order.itens) {
       const line = document.createElement('li');
-      line.textContent = item.produto + ' · ' + item.quantidade + ' × ' + money(item.valor_centavos) + ' · ' + money(item.total_centavos);
+      line.textContent = item.produto + ' · ' + item.quantidade + ' itens';
+      if (item.referencia) line.textContent += ' (' + item.quantidade_referencias + ' × ' + item.referencia + ' de ' + item.itens_por_referencia + ')';
+      if (item.valor_centavos != null) line.textContent += ' · ' + money(item.valor_centavos) + ' por unidade · ' + money(item.total_centavos);
       list.append(line);
      }
      detail.append(summary);
