@@ -24,6 +24,15 @@ const sectors = {
   'Cadastros': ['Categorias', 'Fornecedores']
 };
 
+const purchaseLists = {
+  'Solicitações': ['Número', 'Itens', 'Prioridade', 'Solicitante', 'Situação'],
+  'Para cotar': ['Solicitação', 'Itens', 'Solicitante', 'Prioridade'],
+  'Cotações': ['Cotação', 'Solicitação', 'Fornecedores', 'Situação'],
+  'Para aprovar': ['Solicitação', 'Fornecedor', 'Total com frete', 'Solicitante', 'Situação'],
+  'Pedidos de compra': ['Número', 'Fornecedor', 'Itens', 'Entrega prevista', 'Situação'],
+  'Notas de entrada': ['Nota fiscal', 'Pedido', 'Fornecedor', 'Data de entrada', 'Situação']
+};
+
 const icons = ['⌂', '▤', '▣', '◈', '▦', '⚙', '✓', '☷'];
 const phases = ['Para cotar', 'Cotando', 'Para aprovar', 'Com o fornecedor', 'Recebido'];
 const types = ['EPI', 'EPS', 'Patrimonial', 'Matéria-prima', 'Insumo', 'Produto acabado', 'Ferramenta', 'Equipamento', 'Serviço'];
@@ -96,7 +105,7 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
   const {client} = legacy;
   const style = element('link');
   style.rel = 'stylesheet';
-  style.href = new URL('./erp.css?v=1', import.meta.url);
+  style.href = new URL('./erp.css?v=2', import.meta.url);
   document.head.append(style);
 
   const root = element('div');
@@ -629,7 +638,21 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
       secondary.append(details);
     }
     try {
-      if (group === 'Início') {
+      if (layoutOnly && group === 'Compras' && Object.hasOwn(purchaseLists, target)) {
+        heading(target);
+        const columns = purchaseLists[target];
+        const wrapper = element('div');
+        wrapper.className = 'erp-purchase-list';
+        wrapper.tabIndex = 0;
+        wrapper.setAttribute('role', 'region');
+        wrapper.setAttribute('aria-label', target);
+        const list = table(columns, []);
+        const empty = list.tBodies[0].insertRow().insertCell();
+        empty.colSpan = columns.length;
+        empty.textContent = 'Nenhum registro cadastrado.';
+        wrapper.append(list);
+        content.append(wrapper);
+      } else if (group === 'Início') {
         heading('Início');
         await dashboard(current);
       } else if (group === 'Compras' && target === 'Painel de compras') {

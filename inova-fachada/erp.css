@@ -131,3 +131,7 @@ html body #inova-blocos .inova-erp button.erp-action { background: var(--erp-acc
 .erp-receiving-pending { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #b82532; margin-inline: 6px; }
 .erp-receiving-list table { margin-block: 8px; }
 .erp-receiving-items legend { font-weight: 650; }
+
+.inova-erp .erp-purchase-list { overflow-x: auto; }
+.inova-erp .erp-purchase-list table { min-width: 36rem; }
+.inova-erp .erp-purchase-list td[colspan] { text-align: center; padding: 24px 12px; }
