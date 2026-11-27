@@ -214,7 +214,7 @@ export function mountPurchaseQuotes(panel, {client, money, date, showQuotes, loa
     const metadata = document.createElement('p');
     const orderNumber = row.inova_compras?.numero;
     metadata.textContent = [
-     orderNumber && 'PC-' + String(orderNumber).padStart(5,'0'),
+     orderNumber && 'SC-' + String(orderNumber).padStart(5,'0'),
      row.valido_ate && 'Válido até ' + date(row.valido_ate), row.pagamento,
      row.prazo_dias !== null && 'Entrega em ' + row.prazo_dias + ' dia(s)', 'Frete ' + money(row.frete_centavos)
     ].filter(Boolean).join(' · ');
