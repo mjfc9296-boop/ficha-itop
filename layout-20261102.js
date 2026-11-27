@@ -221,7 +221,10 @@
  let selectedInovaView = '';
  function selectInovaView(id) {
   selectedInovaView = id;
-  for (const view of inovaPanel.querySelectorAll(inovaViews)) view.hidden = view.id !== id;
+  for (const view of inovaPanel.querySelectorAll(inovaViews)) {
+   view.hidden = view.id !== id;
+   if (!view.hidden) inovaPanel.querySelector('.erp-legacy-content')?.append(view);
+  }
   for (const button of moduleRail.querySelectorAll('.itop-inova-slot > button[aria-controls]')) {
    const active = button.getAttribute('aria-controls') === id;
    button.setAttribute('aria-current', active ? 'page' : 'false');
@@ -739,6 +742,7 @@
 
  function setInovaAccess(allowed) {
   inovaTab.hidden = !allowed;
+  if (!allowed) erp?.close();
   if (allowed) {
    inovaPanel.hidden = false;
    return;
@@ -778,6 +782,8 @@
   archiveStatus.textContent = '';
  }
 
+ const inovaRoute = new URLSearchParams(location.search).get('app') === 'inova-blocos';
+ let erp;
  let inovaAccessCheck = 0;
  async function verifyInovaAccess(profile) {
   const check = ++inovaAccessCheck;
@@ -792,7 +798,31 @@
   } catch {
    // Keep the module hidden when the session cannot be verified.
   }
-  if (check === inovaAccessCheck) setInovaAccess(isOwner);
+  if (check !== inovaAccessCheck) return;
+  setInovaAccess(isOwner);
+  if (isOwner && inovaRoute) {
+   switchModule(inovaPanel.id);
+   try {
+    const {mountErp} = await import('./inova-fachada/erp.js?v=2');
+    if (check !== inovaAccessCheck || inovaTab.hidden) return;
+    erp ??= mountErp(inovaPanel, {
+     client: window.itopAuthClient,
+     links: usefulLinks,
+     stock: stockButton,
+     suppliers: supplierButton,
+     requests: requestsButton,
+     gallery: galleryButton,
+     videos: videosButton,
+     sales: moduleRail.querySelector('[aria-controls="inova-proposta"]'),
+     shipments: moduleRail.querySelector('[aria-controls="inova-envios"]'),
+     purchases: openPurchases,
+     clear: () => selectInovaView('')
+    });
+    erp.open();
+   } catch {
+    void openPurchases();
+   }
+  }
  }
  window.addEventListener('itop:authorized', event => void verifyInovaAccess(event.detail));
  window.addEventListener('itop:logged-out', () => {
@@ -806,25 +836,32 @@
  const compras = inovaPanel.querySelector('#inova-compras');
  const comprasStyle = document.createElement('link');
  comprasStyle.rel = 'stylesheet';
- comprasStyle.href = 'inova-fachada/compras.css?v=7';
+ comprasStyle.href = 'inova-fachada/compras.css?v=8';
  document.head.append(comprasStyle);
- inovaTab.addEventListener('click', async () => {
+ inovaTab.addEventListener('click', () => {
+  if (inovaTab.hidden) return;
+  const url = new URL(location.href);
+  url.searchParams.set('app', 'inova-blocos');
+  url.hash = '';
+  window.open(url, '_blank', 'noopener');
+ });
+ async function openPurchases() {
   if (inovaTab.hidden) return;
   switchModule(inovaPanel.id);
   selectInovaView(compras.id);
   try {
    if (!purchases) {
     compras.textContent = 'Carregando Compras…';
-    const {mountPurchases} = await import('./inova-fachada/compras.js?v=13');
+    const {mountPurchases} = await import('./inova-fachada/compras.js?v=14');
     if (inovaTab.hidden || compras.hidden || !inovaPanel.classList.contains('active')) return;
     purchases ??= mountPurchases(compras, async () => (await getInovaStock()).stock, {supplierForm, saveSupplier, supplierError});
     compras.querySelector('[data-return]').onclick = () => returnButton.click();
    }
-   void purchases.open();
+   await purchases.open();
   } catch {
    compras.textContent = 'Não foi possível abrir Compras. Selecione o módulo novamente.';
   }
- });
+ }
  for (const button of inovaPanel.querySelectorAll('button[data-arquivo]')) {
   button.addEventListener('click', async () => {
    const client = window.itopAuthClient;
