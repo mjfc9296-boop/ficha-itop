@@ -778,6 +778,8 @@
   archiveStatus.textContent = '';
  }
 
+ const inovaRoute = new URLSearchParams(location.search).get('app');
+ let erp;
  let inovaAccessCheck = 0;
  async function verifyInovaAccess(profile) {
   const check = ++inovaAccessCheck;
@@ -792,11 +794,27 @@
   } catch {
    // Keep the module hidden when the session cannot be verified.
   }
-  if (check === inovaAccessCheck) setInovaAccess(isOwner);
+  if (check !== inovaAccessCheck) return;
+  setInovaAccess(isOwner);
+  if (!isOwner) return;
+  if (inovaRoute === 'inova-blocos-atual') {
+   void openCurrentInova();
+  } else if (inovaRoute === 'inova-blocos') {
+   switchModule(inovaPanel.id);
+   try {
+    const {mountErp} = await import('./inova-fachada/erp.js?v=layout1');
+    if (check !== inovaAccessCheck || inovaTab.hidden) return;
+    erp ??= mountErp(inovaPanel, {links: usefulLinks, clear: () => selectInovaView('')}, {layoutOnly: true});
+    erp.open();
+   } catch {
+    void openCurrentInova();
+   }
+  }
  }
  window.addEventListener('itop:authorized', event => void verifyInovaAccess(event.detail));
  window.addEventListener('itop:logged-out', () => {
   inovaAccessCheck += 1;
+  erp?.close();
   setInovaAccess(false);
  });
  if (document.documentElement.classList.contains('itop-authorized')) {
@@ -808,7 +826,14 @@
  comprasStyle.rel = 'stylesheet';
  comprasStyle.href = 'inova-fachada/compras.css?v=7';
  document.head.append(comprasStyle);
- inovaTab.addEventListener('click', async () => {
+ inovaTab.addEventListener('click', () => {
+  if (inovaTab.hidden) return;
+  const url = new URL(location.href);
+  url.searchParams.set('app', 'inova-blocos');
+  url.hash = '';
+  window.open(url, '_blank', 'noopener');
+ });
+ async function openCurrentInova() {
   if (inovaTab.hidden) return;
   switchModule(inovaPanel.id);
   selectInovaView(compras.id);
@@ -824,7 +849,7 @@
   } catch {
    compras.textContent = 'Não foi possível abrir Compras. Selecione o módulo novamente.';
   }
- });
+ }
  for (const button of inovaPanel.querySelectorAll('button[data-arquivo]')) {
   button.addEventListener('click', async () => {
    const client = window.itopAuthClient;
