@@ -802,7 +802,7 @@
   } else if (inovaRoute === 'inova-blocos') {
    switchModule(inovaPanel.id);
    try {
-    const {mountErp} = await import('./inova-fachada/erp.js?v=layout1');
+    const {mountErp} = await import('./inova-fachada/erp.js?v=layout2');
     if (check !== inovaAccessCheck || inovaTab.hidden) return;
     erp ??= mountErp(inovaPanel, {links: usefulLinks, clear: () => selectInovaView('')}, {layoutOnly: true});
     erp.open();
