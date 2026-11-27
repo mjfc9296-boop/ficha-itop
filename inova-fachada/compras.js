@@ -1,4 +1,4 @@
-import {mountPurchaseQuotes} from './orcamentos-compras.js?v=3';
+import {mountPurchaseQuotes} from './orcamentos-compras.js?v=4';
 
 export function mountPurchases(panel, loadStock, supplierRegistration) {
  const money = cents => (cents / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -33,6 +33,18 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
       <section class="compras-card"><div class="compras-heading"><h3>Itens</h3><button type="button" data-add>+ Adicionar item</button></div>
         <div data-items></div><datalist id="inova-compra-produtos"></datalist>
       </section>
+      <section class="compras-card">
+        <h3>Orçamentos</h3>
+        <label class="compras-exclusive"><input type="checkbox" name="fornecedor_exclusivo"> Fornecedor exclusivo</label>
+        <nav class="compras-tabs" aria-label="Orçamentos do novo pedido">
+          <button type="button" data-draft-slot="1">Orçamento 1</button>
+          <button type="button" data-draft-slot="2">Orçamento 2</button>
+          <button type="button" data-draft-slot="3">Orçamento 3</button>
+        </nav>
+        <p data-draft-quote aria-live="polite"></p>
+        <button type="button" data-fill-quote>Preencher orçamento</button>
+        <p><button type="button" class="compras-primary" data-send-approval>Enviar para aprovação</button></p>
+      </section>
       <section class="compras-card"><label>Observações<textarea name="observacoes" rows="3" maxlength="2000"></textarea></label></section>
     </div>
     <aside class="compras-card compras-summary"><h3>Resumo</h3>
@@ -48,7 +60,12 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
  const items = find('[data-items]');
  const stock = find('[data-stock]');
  const status = find('[data-status]');
- const submit = form.querySelector('[type=submit]');
+ const submit = form.querySelector('.compras-summary [type=submit]');
+ const send = find('[data-send-approval]');
+ const draftQuotes = new Map();
+ const draftTabs = [...form.querySelectorAll('[data-draft-slot]')];
+ const exclusiveDraft = form.elements.fornecedor_exclusivo;
+ let slot = 1;
  let screen = 'orders', revision = 0, saving = false, orderId;
  const setStatus = message => { status.textContent = message; };
  const products = data => Object.entries({Máscara: data?.mascara, Bloco: data?.blocos})
@@ -83,8 +100,52 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
   find('[data-delivery]').textContent = date(form.elements.entrega.value);
   find('[data-count]').textContent = rows.filter(row => row.produto).length;
   find('[data-total]').textContent = money(rows.reduce((sum, row) => sum + row.total_centavos, 0));
+  refreshDraftQuote(rows);
   return rows;
  }
+ function quoteMatches(quote, rows) {
+  return quote.itens.length === rows.length && quote.itens.every((item, index) =>
+   item.produto === rows[index].produto && item.quantidade === rows[index].quantidade);
+ }
+ function refreshDraftQuote(rows) {
+  const max = exclusiveDraft.checked ? 1 : 3;
+  if (slot > max) slot = 1;
+  for (const tab of draftTabs) {
+   const number = Number(tab.dataset.draftSlot);
+   tab.hidden = number > max;
+   tab.setAttribute('aria-current', number === slot ? 'page' : 'false');
+  }
+  const quote = draftQuotes.get(slot);
+  find('[data-fill-quote]').textContent = quote ? 'Editar orçamento' : 'Preencher orçamento';
+  find('[data-draft-quote]').textContent = !quote ? 'Orçamento em branco.' : quoteMatches(quote, rows)
+   ? quote.fornecedor + ' · Total com frete ' + money(quote.frete_centavos + quote.itens.reduce((sum, item) => sum + (item.total_centavos ?? 0), 0))
+   : 'Os itens do pedido mudaram. Revise este orçamento.';
+ }
+ for (const tab of draftTabs) tab.onclick = () => {
+  slot = Number(tab.dataset.draftSlot);
+  totals();
+ };
+ find('[data-fill-quote]').onclick = () => {
+  if (saving) return;
+  const rows = totals();
+  if (rows.some(item => !item.produto || !item.quantidade)) {
+   setStatus('Preencha os produtos e as quantidades do pedido antes de abrir o orçamento.');
+   return;
+  }
+  setStatus('');
+  const currentSlot = slot;
+  const currentOrder = orderId;
+  const previous = draftQuotes.get(currentSlot);
+  const quotedItems = rows.map((item, index) => ({
+   ...item, valor_centavos: previous?.itens[index]?.produto === item.produto ? previous.itens[index].valor_centavos : null
+  }));
+  quotes.open({id:currentOrder, itens:quotedItems}, currentSlot, quote => {
+   if (orderId !== currentOrder || screen !== 'form') return;
+   draftQuotes.set(currentSlot, quote);
+   totals();
+  }, {previous});
+ };
+
  function addItem(focus = false) {
   if (items.children.length >= 100) return;
   const row = document.createElement('div');
@@ -107,12 +168,14 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
   screen = view;
   const current = ++revision;
   for (const section of panel.querySelectorAll('[data-view]')) section.hidden = section.dataset.view !== view;
-  for (const tab of panel.querySelectorAll('.compras-tabs button')) {
+  for (const tab of panel.querySelectorAll('.compras-tabs [data-open]')) {
    tab.setAttribute('aria-current', tab.dataset.open === view ? 'page' : 'false');
   }
   setStatus('');
   if (view === 'form') {
    form.reset();
+   draftQuotes.clear();
+   slot = 1;
    items.replaceChildren();
    addItem(true);
    orderId = crypto.randomUUID();
@@ -302,26 +365,46 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
  });
  find('[data-add]').onclick = () => addItem(true);
  form.addEventListener('input', totals);
+ let approveOnSubmit = false;
+ send.onclick = () => {
+  approveOnSubmit = true;
+  try {
+   form.requestSubmit(submit);
+  } finally {
+   approveOnSubmit = false;
+  }
+ };
  form.onsubmit = async event => {
   event.preventDefault();
   if (saving || screen !== 'form') return;
   const lines = totals();
   const supplier = form.elements.fornecedor.value.trim();
   if (!supplier || lines.some(line => !line.produto)) return setStatus('Preencha o fornecedor e o produto de cada item.');
-  saving = submit.disabled = true;
+  const selectedQuotes = [...draftQuotes.values()].filter(quote => !exclusiveDraft.checked || quote.posicao === 1);
+  const approve = approveOnSubmit;
+  if (selectedQuotes.some(quote => !quoteMatches(quote, lines))) {
+   return setStatus('Revise os orçamentos após alterar os itens do pedido.');
+  }
+  if (approve && selectedQuotes.length !== (exclusiveDraft.checked ? 1 : 3)) {
+   return setStatus(exclusiveDraft.checked ? 'Preencha o Orçamento 1 para enviar.' : 'Preencha os três orçamentos para enviar.');
+  }
+  saving = submit.disabled = send.disabled = true;
   const current = revision;
   try {
-   const {error} = await client().from('inova_compras').upsert({
+   const order = {
     id: orderId, fornecedor: supplier, entrega: form.elements.entrega.value || null,
     itens: lines, observacoes: form.elements.observacoes.value.trim()
-   }, {onConflict:'id', ignoreDuplicates:true});
+   };
+   const {error} = await client().rpc('inova_criar_pedido_com_orcamentos', {
+    pedido: order, orcamentos: selectedQuotes, exclusivo: exclusiveDraft.checked, aprovar: approve
+   });
    if (error) throw error;
    if (revision !== current) return;
    saving = false;
    await show('orders');
   } catch {
    if (revision === current) setStatus('Não foi possível criar o pedido. Os dados continuam no formulário.');
-  } finally { saving = submit.disabled = false; }
+  } finally { saving = submit.disabled = send.disabled = false; }
  };
  minForm.onsubmit = async event => {
   event.preventDefault();
@@ -343,6 +426,8 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
  return {open: () => show('orders'), reset() {
   revision++;
   quotes.reset();
+  draftQuotes.clear();
+  orderId = null;
   find('[data-quotes]').replaceChildren();
   form.reset();
   items.replaceChildren();
