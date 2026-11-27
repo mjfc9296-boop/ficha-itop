@@ -5,19 +5,63 @@
 
   const styles = document.createElement('style');
   styles.textContent = `
-    #telemedicina { color:#fff; }
+    #telemedicina { color:#191919; }
+    @media screen {
+      html:has(#telemedicina.active:not([hidden])) body > header {
+        --tele-header-image-height: calc(100vw * 252 / 2047);
+        --tele-header-height: var(--tele-header-image-height);
+        box-sizing:border-box;
+        height:var(--tele-header-height)!important;
+        min-height:var(--tele-header-height)!important;
+        max-height:var(--tele-header-height)!important;
+        background:#050505 url("capas/topos-20261123/telemedicina.webp") center top / 100% var(--tele-header-image-height) no-repeat!important;
+        border-bottom:0!important;
+        aspect-ratio:auto!important;
+      }
+      html:has(#telemedicina.active:not([hidden])) body > header::before,
+      html:has(#telemedicina.active:not([hidden])) body > header::after,
+      html:has(#telemedicina.active:not([hidden])) body > header > :is(.head, .itop-module-header-center, .itop-top-mascote, .itop-top-marca, .itop-top-uvi) {
+        display:none!important;
+      }
+      html:has(#telemedicina.active:not([hidden])) body > header #itop-logout {
+        top:0!important; right:0!important; bottom:auto!important;
+      }
+    }
+    @media screen and (min-width:901px) {
+      html:has(#telemedicina.active:not([hidden])) body > main {
+        height:calc(100dvh - 100vw * 252 / 2047)!important;
+        max-height:calc(100dvh - 100vw * 252 / 2047)!important;
+      }
+    }
+    @media screen and (max-width:900px) {
+      html:has(#telemedicina.active:not([hidden])) body > header {
+        --tele-header-height: max(42px, var(--tele-header-image-height));
+      }
+    }
     #telemedicina [hidden], [data-module="telemedicina"] [hidden] { display:none!important; }
     #telemedicina .tele-actions { display:flex; gap:10px; flex-wrap:wrap; margin-block:12px; }
     #telemedicina button { border:1px solid #d27a2f; border-radius:8px; padding:8px 13px; }
     #telemedicina button[aria-pressed="true"] { background:#d27a2f; color:#101010; }
-    #telemedicina form, #telemedicina details { padding:14px; border:1px solid #666; border-radius:10px; background:#171717; }
+    html body main #telemedicina :is(form, details, [data-active-clients]) {
+      padding:14px; border:1px solid #d27a2f; border-radius:10px;
+      background:#fff!important; color:#191919!important;
+    }
+    #telemedicina [data-active-clients] { margin-top:12px; }
+    #telemedicina [data-active-clients] h3 { margin-top:0; }
+    #telemedicina [data-active-list] { list-style:none; margin:0; padding:0; }
+    #telemedicina [data-active-list] li {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));
+      gap:5px 12px; padding:10px 4px; border-bottom:1px solid #e8dfd7; overflow-wrap:anywhere;
+    }
+    #telemedicina [data-active-list] li:last-child { border-bottom:0; }
+    #telemedicina [data-active-list] small { color:#5a3922; font-size:.85em; }
     #telemedicina form { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr)); gap:12px; }
-    #telemedicina label { display:grid; gap:4px; align-content:start; min-width:0; }
-    #telemedicina :is(input,select,textarea) { width:100%; box-sizing:border-box; border:1px solid #aaa; border-radius:7px; padding:8px; background:#fff; color:#111; }
+    #telemedicina label { display:grid; gap:4px; align-content:start; min-width:0; color:#222; font-weight:600; }
+    #telemedicina :is(input,select,textarea) { width:100%; box-sizing:border-box; border:1px solid #d27a2f; border-radius:7px; padding:8px; background:#fff4e8; color:#191919; }
     #telemedicina [aria-invalid="true"] { outline:2px solid #f66; }
     #telemedicina [data-full] { grid-column:1/-1; }
     #telemedicina [data-form-status] { margin:0; }
-    #telemedicina [data-form-status][data-error] { color:#ffb8b8; }
+    #telemedicina [data-form-status][data-error] { color:#a71921; }
     #telemedicina [data-list] { display:grid; gap:8px; }
     #telemedicina summary { cursor:pointer; overflow-wrap:anywhere; }
     #telemedicina dl { display:grid; grid-template-columns:minmax(88px,1fr) 2fr; gap:6px 12px; }
@@ -80,6 +124,15 @@
       <label data-full>Motivo do cancelamento<textarea name="motivo" rows="3" maxlength="2000" required></textarea></label>
       ${formFooter}
     </form>
+    <section data-active-clients>
+      <h3>Lista de ativos</h3>
+      <p data-active-status role="status"></p>
+      <ul data-active-list></ul>
+      <div class="tele-actions">
+        <button type="button" data-active-prev hidden>Anterior</button>
+        <button type="button" data-active-next hidden>Próxima</button>
+      </div>
+    </section>
     <section data-queue hidden>
       <h3>Solicitações</h3>
       <p data-queue-status role="status"></p>
@@ -100,6 +153,10 @@
   const list = panel.querySelector('[data-list]');
   const previous = panel.querySelector('[data-prev]');
   const next = panel.querySelector('[data-next]');
+  const activeList = panel.querySelector('[data-active-list]');
+  const activeStatus = panel.querySelector('[data-active-status]');
+  const activePrevious = panel.querySelector('[data-active-prev]');
+  const activeNext = panel.querySelector('[data-active-next]');
   const table = () => window.itopAuthClient.from('itop_telemedicina_solicitacoes');
   const timeZone = 'America/Sao_Paulo';
   const localDay = new Intl.DateTimeFormat('sv-SE', { timeZone, dateStyle: 'short' });
@@ -108,7 +165,7 @@
   const actions = new WeakMap();
   const pageSize = 20;
   let profile, manager = false, session = 0, badgeVersion = 0, queueVersion = 0;
-  let selected = '', page = 0;
+  let selected = '', page = 0, activePage = 0, activeVersion = 0;
 
   function setDates() {
     const day = localDay.format(new Date());
@@ -242,6 +299,48 @@
     }
   }
 
+  async function loadActiveClients(quiet = false) {
+    if (!profile || !panel.classList.contains('active')) return;
+    const version = ++activeVersion;
+    if (!quiet) {
+      activePrevious.hidden = activeNext.hidden = true;
+      activeStatus.textContent = 'Carregando clientes…';
+    }
+    try {
+      const start = activePage * pageSize;
+      const { data, error } = await window.itopAuthClient.from('itop_telemedicina_ativos')
+        .select('id,titular,titular_mk,plano,aliviaapp')
+        .order('criado_em', { ascending:false }).order('id')
+        .range(start, start + pageSize);
+      if (version !== activeVersion) return;
+      if (error) throw error;
+      if (!data.length && activePage > 0) {
+        activePage -= 1;
+        return loadActiveClients(quiet);
+      }
+      activeList.replaceChildren(...data.slice(0, pageSize).map(row => {
+        const item = document.createElement('li');
+        const values = [
+          ['strong', row.titular],
+          ['span', row.titular_mk],
+          ['span', row.plano],
+          ['small', row.aliviaapp === 'sim' ? 'Ativo no AliviaApp' : 'Aguardando confirmação']
+        ];
+        for (const [tag, label] of values) {
+          const cell = document.createElement(tag);
+          cell.textContent = label;
+          item.append(cell);
+        }
+        return item;
+      }));
+      activeStatus.textContent = data.length ? '' : 'Nenhum cliente na lista.';
+      activePrevious.hidden = activePage === 0;
+      activeNext.hidden = data.length <= pageSize;
+    } catch {
+      if (version === activeVersion && !quiet) activeStatus.textContent = 'Não foi possível carregar a lista de ativos.';
+    }
+  }
+
   async function confirm(id, value, controls) {
     const epoch = session;
     const buttons = [...controls.querySelectorAll('button')];
@@ -251,7 +350,7 @@
       const { data, error } = await table().update({ aliviaapp: value }).eq('id', id).select('id').maybeSingle();
       if (epoch !== session) return;
       if (error) throw error;
-      await Promise.all([refreshBadge(), loadQueue(true)]);
+      await Promise.all([refreshBadge(), loadQueue(true), loadActiveClients(true)]);
       if (!data && epoch === session) queueStatus.textContent = 'A solicitação já foi atualizada. Confira o status.';
     } catch {
       if (epoch === session) {
@@ -305,8 +404,8 @@
         setDates();
         if (profile.nome) activation.elements.vendedor.value = profile.nome;
         formStatus(form, `Enviado em ${localTime.format(new Date(data.criado_em))}. Aguardando confirmação no AliviaApp.`);
-        page = 0;
-        await Promise.all([refreshBadge(), loadQueue()]);
+        page = activePage = 0;
+        await Promise.all([refreshBadge(), loadQueue(), loadActiveClients()]);
       } catch {
         if (epoch === session) formStatus(form, 'Não foi possível enviar. Confira a conexão e tente novamente.', true);
       } finally {
@@ -332,6 +431,8 @@
   }
   previous.addEventListener('click', () => { page -= 1; void loadQueue(); });
   next.addEventListener('click', () => { page += 1; void loadQueue(); });
+  activePrevious.addEventListener('click', () => { activePage -= 1; void loadActiveClients(); });
+  activeNext.addEventListener('click', () => { activePage += 1; void loadActiveClients(); });
   tab.addEventListener('click', () => {
     if (tab.hidden) return;
     switchModule(panel.id);
@@ -343,6 +444,7 @@
     }
     setDates();
     void loadQueue();
+    void loadActiveClients();
     void refreshBadge();
   });
   new MutationObserver(() => tab.setAttribute('aria-current', tab.classList.contains('active') ? 'page' : 'false'))
@@ -352,6 +454,11 @@
     session += 1;
     badgeVersion += 1;
     queueVersion += 1;
+    activeVersion += 1;
+    activePage = 0;
+    activeList.replaceChildren();
+    activePrevious.hidden = activeNext.hidden = true;
+    activeStatus.textContent = '';
     profile = null;
     manager = false;
     selected = '';
@@ -402,6 +509,7 @@
   setInterval(() => {
     if (document.hidden || !profile) return;
     void refreshBadge();
+    void loadActiveClients(true);
     if (!list.querySelector('details[open]')) void loadQueue(true);
   }, 15000);
   window.addEventListener('focus', () => void refreshBadge());

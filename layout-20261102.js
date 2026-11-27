@@ -890,7 +890,7 @@
  sync();
 
  const telemedicineScript = document.createElement('script');
- telemedicineScript.src = 'telemedicina.js?v=20261127';
+ telemedicineScript.src = 'telemedicina.js?v=20261127-ativos';
  document.head.append(telemedicineScript);
 })();
 
