@@ -424,19 +424,51 @@ export function mountErp(panel, legacy) {
     filter.type = 'search';
     filter.placeholder = 'Número, fornecedor ou produto';
     filter.setAttribute('aria-label', 'Buscar recebimentos');
-    content.append(filter);
+    const filters = element('div');
+    filters.className = 'erp-period';
+    const statusLabel = element('label', 'Situação');
+    const status = element('select');
+    for (const value of ['Aguardando entrega', 'Recebido parcialmente', 'Recebido integralmente', 'Atrasado', 'Encerrado no fluxo anterior']) {
+      status.add(new Option(value));
+    }
+    status.add(new Option('Todas as situações', ''), 0);
+    status.value = '';
+    statusLabel.append(status);
+    const dates = ['Entrega prevista de', 'Entrega prevista até'].map(label => {
+      const field = element('label', label);
+      const input = element('input');
+      input.type = 'date';
+      field.append(input);
+      filters.append(field);
+      return input;
+    });
+    const [from, to] = dates;
+    const clear = button('Limpar filtros', () => {
+      filter.value = status.value = from.value = to.value = '';
+      render();
+    });
+    filters.prepend(filter, statusLabel);
+    filters.append(clear);
+    content.append(filters);
     const list = element('div');
     list.className = 'erp-receiving-list';
     content.append(list);
 
     function render() {
       list.replaceChildren();
+      if (from.value && to.value && from.value > to.value) {
+        list.append(element('p', 'A data inicial deve ser anterior ou igual à data final.'));
+        return;
+      }
       for (const order of [...orders].reverse()) {
+        if (from.value && (!order.entrega || order.entrega < from.value)) continue;
+        if (to.value && (!order.entrega || order.entrega > to.value)) continue;
         const quote = order.inova_compras_orcamentos.find(row => row.id === order.inova_compras_decisoes.orcamento_id);
         if (!quote) continue;
         const code = 'SC-' + String(order.numero).padStart(5, '0');
-        const terms = [code, order.fornecedor, ...quote.itens.map(item => item.produto)].join(' ').toLowerCase();
-        if (!terms.includes(filter.value.trim().toLowerCase())) continue;
+        const supplier = quote.fornecedor || order.fornecedor;
+        const terms = normalize([code, supplier, order.fornecedor, ...quote.itens.map(item => item.produto)].join(' '));
+        if (!terms.includes(normalize(filter.value.trim()))) continue;
         const receipts = order.inova_erp_recebimentos;
         const entries = receipts.flatMap(receipt => receipt.inova_erp_entradas_compra);
         const lines = quote.itens.map((item, index) => {
@@ -447,10 +479,11 @@ export function mountErp(panel, legacy) {
         const closed = Boolean(order.inova_compras_conclusoes);
         const pending = !closed && lines.some(line => line.pending > 0);
         const state = closed ? 'Encerrado no fluxo anterior' : !pending ? 'Recebido integralmente'
-          : order.entrega && order.entrega < today ? 'Atrasado'
           : entries.length ? 'Recebido parcialmente' : 'Aguardando entrega';
+        const late = pending && Boolean(order.entrega && order.entrega < today);
+        if (status.value && (status.value === 'Atrasado' ? !late : state !== status.value)) continue;
         const details = element('details');
-        const summary = element('summary', [code, order.fornecedor, state].join(' · '));
+        const summary = element('summary', [code, supplier, state, ...(late ? ['Atrasado'] : [])].join(' · '));
         if (pending) {
           const dot = element('span');
           dot.className = 'erp-receiving-pending';
@@ -485,9 +518,10 @@ export function mountErp(panel, legacy) {
         if (pending) details.append(button('Registrar recebimento', () => receiptForm(order.id, lines, stock, today)));
         list.append(details);
       }
-      if (!list.childElementCount) list.append(element('p', 'Nenhum pedido aprovado encontrado.'));
+      if (!list.childElementCount) list.append(element('p', 'Nenhum pedido aprovado corresponde aos filtros.'));
     }
     filter.addEventListener('input', render);
+    for (const control of [status, from, to]) control.addEventListener('change', render);
     render();
   }
 
