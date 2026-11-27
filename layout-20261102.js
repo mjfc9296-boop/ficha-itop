@@ -803,7 +803,7 @@
   if (isOwner && inovaRoute) {
    switchModule(inovaPanel.id);
    try {
-    const {mountErp} = await import('./inova-fachada/erp.js?v=1');
+    const {mountErp} = await import('./inova-fachada/erp.js?v=2');
     if (check !== inovaAccessCheck || inovaTab.hidden) return;
     erp ??= mountErp(inovaPanel, {
      client: window.itopAuthClient,
