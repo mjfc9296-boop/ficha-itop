@@ -1,4 +1,4 @@
-import {mountPurchaseQuotes} from './orcamentos-compras.js?v=2';
+import {mountPurchaseQuotes} from './orcamentos-compras.js?v=3';
 
 export function mountPurchases(panel, loadStock, supplierRegistration) {
  const money = cents => (cents / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -159,11 +159,50 @@ export function mountPurchases(panel, loadStock, supplierRegistration) {
       notes.textContent = order.observacoes;
       detail.append(notes);
      }
-     const quoteButton = document.createElement('button');
-     quoteButton.type = 'button';
-     quoteButton.textContent = 'Adicionar orçamento';
-     quoteButton.onclick = () => quotes.open(order);
-     detail.append(quoteButton);
+     const quoteTabs = document.createElement('details');
+     const quoteLabel = document.createElement('summary');
+     quoteLabel.textContent = '3 orçamentos';
+     const tabs = document.createElement('nav');
+     tabs.className = 'compras-tabs';
+     tabs.setAttribute('aria-label', 'Orçamentos do pedido');
+     const result = document.createElement('div');
+     result.setAttribute('aria-live', 'polite');
+     let selected = 1, request = 0;
+     async function refresh(slot) {
+      selected = slot;
+      const latest = ++request;
+      for (const [index, tab] of [...tabs.children].entries()) {
+       tab.setAttribute('aria-current', index + 1 === slot ? 'page' : 'false');
+      }
+      result.textContent = 'Carregando…';
+      try {
+       const rows = await quotes.list(order.id, slot);
+       if (latest !== request) return;
+       if (rows.length) {
+        const list = document.createElement('ul');
+        list.append(...rows);
+        result.replaceChildren(list);
+        return;
+       }
+       const add = document.createElement('button');
+       add.type = 'button';
+       add.textContent = '+ Preencher orçamento ' + slot;
+       add.onclick = () => quotes.open(order, slot, () => refresh(slot));
+       result.replaceChildren(add);
+      } catch {
+       if (latest === request) result.textContent = 'Não foi possível carregar o orçamento. Selecione a aba para tentar novamente.';
+      }
+     }
+     for (const slot of [1, 2, 3]) {
+      const tab = document.createElement('button');
+      tab.type = 'button';
+      tab.textContent = 'Orçamento ' + slot;
+      tab.onclick = () => void refresh(slot);
+      tabs.append(tab);
+     }
+     quoteTabs.append(quoteLabel, tabs, result);
+     quoteTabs.addEventListener('toggle', () => { if (quoteTabs.open) void refresh(selected); });
+     detail.append(quoteTabs);
      li.append(detail);
      return li;
     }));
