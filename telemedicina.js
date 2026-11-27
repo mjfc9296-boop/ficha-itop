@@ -8,13 +8,13 @@
     #telemedicina { color:#191919; }
     @media screen {
       html:has(#telemedicina.active:not([hidden])) body > header {
-        --tele-header-image-height: calc(100vw * 252 / 2047);
+        --tele-header-image-height: calc(100vw * 256 / 2048);
         --tele-header-height: var(--tele-header-image-height);
         box-sizing:border-box;
         height:var(--tele-header-height)!important;
         min-height:var(--tele-header-height)!important;
         max-height:var(--tele-header-height)!important;
-        background:#050505 url("capas/topos-20261123/telemedicina.webp") center top / 100% var(--tele-header-image-height) no-repeat!important;
+        background:#050505 url("capas/topos-20261123/itop-health.webp") center top / 100% var(--tele-header-image-height) no-repeat!important;
         border-bottom:0!important;
         aspect-ratio:auto!important;
       }
@@ -29,8 +29,8 @@
     }
     @media screen and (min-width:901px) {
       html:has(#telemedicina.active:not([hidden])) body > main {
-        height:calc(100dvh - 100vw * 252 / 2047)!important;
-        max-height:calc(100dvh - 100vw * 252 / 2047)!important;
+        height:calc(100dvh - 100vw * 256 / 2048)!important;
+        max-height:calc(100dvh - 100vw * 256 / 2048)!important;
       }
     }
     @media screen and (max-width:900px) {
