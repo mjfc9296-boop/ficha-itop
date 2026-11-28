@@ -65,7 +65,7 @@ html.inova-erp-active body #inova-blocos {
 .erp-search [data-results] button { display: block; width: 100%; text-align: left; }
 .erp-body { display: flex; align-items: stretch; min-height: calc(100dvh - 54px); }
 .erp-body > nav { flex: none; padding: 10px 6px; border-right: 1px solid var(--erp-line); }
-.erp-body [data-primary] { width: 91px; background: white; }
+.erp-body [data-primary] { width: 112px; background: white; }
 .erp-body #erp-secondary { width: 190px; background: #FFFFFF; }
 .erp-body nav button { width: 100%; margin: 2px 0; text-align: left; }
 .erp-body [data-primary] button { display: grid; gap: 1px; justify-items: center; text-align: center; }
@@ -194,7 +194,7 @@ html body #inova-blocos .inova-erp .erp-return { background: #00634D; border-col
  .inova-erp .erp-search input { width: 100%; }
  .inova-erp .erp-body { display: block; }
  .inova-erp .erp-body [data-primary] { display: flex; overflow-x: auto; width: auto; }
- .inova-erp .erp-body [data-primary] button { width: auto; min-width: 76px; }
+ .inova-erp .erp-body [data-primary] button { width: auto; min-width: 96px; }
  .inova-erp .erp-body #erp-secondary { width: auto; }
  .inova-erp .erp-content { padding: 12px; }
  .inova-erp .erp-heading { padding: 10px; flex-wrap: wrap; }
