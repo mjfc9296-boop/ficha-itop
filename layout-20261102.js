@@ -112,7 +112,11 @@
  inovaCoverLabel.textContent = 'Painel';
  inovaCoverLabel.setAttribute('aria-hidden', 'true');
  inovaTab.append(inovaCoverLabel);
- menu.querySelector('.nav-tabs').append(inovaTab);
+ const moduleList = menu.querySelector('.nav-tabs');
+ moduleList.append(inovaTab);
+ new MutationObserver(() => {
+  if (moduleList.lastElementChild !== inovaTab) moduleList.append(inovaTab);
+ }).observe(moduleList, {childList:true});
 
  const inovaPanel = document.createElement('section');
  inovaPanel.className = 'module';
@@ -743,6 +747,7 @@
    inovaPanel.hidden = false;
    return;
   }
+  erp?.close();
   inovaPanel.hidden = true;
   archiveSession += 1;
   if (inovaPanel.classList.contains('active')) switchModule('sondagem');
@@ -831,7 +836,8 @@
  comprasStyle.rel = 'stylesheet';
  comprasStyle.href = 'inova-fachada/compras.css?v=7';
  document.head.append(comprasStyle);
- inovaTab.addEventListener('click', () => {
+ inovaTab.addEventListener('click', event => {
+  event.stopPropagation();
   if (inovaTab.hidden) return;
   const token = crypto.randomUUID();
   const key = 'inova-abertura:' + token;
@@ -852,7 +858,7 @@
   const check = inovaAccessCheck;
   switchModule(inovaPanel.id);
   try {
-   const {mountErp} = await import('./inova-fachada/erp.js?v=gestao2');
+   const {mountErp} = await import('./inova-fachada/erp.js?v=pastel3');
    if (check !== inovaAccessCheck || inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
    erp ??= mountErp(inovaPanel, {
     links: usefulLinks,

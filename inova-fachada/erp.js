@@ -49,13 +49,38 @@ const pageThemes = {Recebimentos:'recebimentos', 'Notas de entrada':'recebimento
   Expedição:'vendas', Devoluções:'vendas', 'Pesquisa de satisfação':'vendas', Clientes:'cadastros', Fornecedores:'cadastros'};
 const themeFor = (group, page) => pageThemes[page] ?? sectorThemes[group] ?? 'institucional';
 const departments = [
-  ['Comercial', 'Propostas e negociação', 'Comercial', 'Propostas comerciais', '◇'],
-  ['Estoque', 'Produtos e saldos', 'Estoque', 'Produtos e serviços', '▦'],
-  ['Compras', 'Solicitações e cotações', 'Compras', 'Painel de compras', '▤'],
-  ['Produção', 'Ordens de produção', 'Produção', 'Ordens de produção', '⚙'],
-  ['Cadastros', 'Clientes e fornecedores', 'Cadastros', 'Clientes', '☷']
+  ['Comercial', 'Propostas e negociação', 'Comercial', 'Propostas comerciais'],
+  ['Estoque', 'Produtos e saldos', 'Estoque', 'Produtos e serviços'],
+  ['Compras', 'Solicitações e cotações', 'Compras', 'Painel de compras'],
+  ['Recebimentos', 'Conferência de pedidos', 'Compras', 'Recebimentos'],
+  ['Vendas e entregas', 'Pedidos e expedição', 'Comercial', 'Pedidos de venda'],
+  ['Financeiro', 'Contas a pagar e receber', 'Financeiro', 'Contas a pagar'],
+  ['Cadastros', 'Clientes e fornecedores', 'Cadastros', 'Clientes'],
+  ['Relatórios', 'Relatórios e administração', 'Relatórios', 'Relatórios e administração']
 ];
-const icons = ['⌂', '▤', '▣', '◈', '▦', '≋', '▥', '⚙', '✓', '☷'];
+const iconPaths = {
+  Início:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
+  Comercial:'M3 17l6-6 4 3 8-9 M15 5h6v6',
+  Compras:'M2 3h3l3 12h11l2-9H6 M9 20h.1 M18 20h.1',
+  Estoque:'M3 7l9-5 9 5v10l-9 5-9-5z M3 7l9 5 9-5 M12 12v10 M7 5l10 5',
+  Recebimentos:'M3 13v7h18v-7 M12 2v12 M7 9l5 5 5-5',
+  'Vendas e entregas':'M2 5h12v12H2z M14 9h4l4 5v3h-8 M5 20h2 M17 20h2',
+  Financeiro:'M3 6h17v14H3z M3 6l14-4v4 M15 11h6v5h-6z',
+  Cadastros:'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M2 21v-3a7 7 0 0 1 14 0v3 M16 4a4 4 0 0 1 0 7 M18 14q4 1 4 6',
+  Relatórios:'M4 3v18h17 M8 17v-4 M13 17V8 M18 17V4',
+  Documentos:'M2 6h8l2 3h10l-3 11H2z',
+  Produção:'M3 21V10l6 3V8l6 4V4h4l2 17z',
+  Serviços:'M14 4a6 6 0 0 0-7 8l-5 6 3 3 6-6a6 6 0 0 0 8-8l-4 4-3-3z'
+};
+function iconFor(name) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 24 24');
+  svg.setAttribute('aria-hidden','true');
+  const path = document.createElementNS(svg.namespaceURI,'path');
+  path.setAttribute('d',iconPaths[name]);
+  svg.append(path);
+  return svg;
+}
 const phases = ['Para cotar', 'Cotando', 'Para aprovar', 'Com o fornecedor', 'Recebido'];
 const types = ['EPI', 'EPS', 'Patrimonial', 'Matéria-prima', 'Insumo', 'Produto acabado', 'Ferramenta', 'Equipamento', 'Serviço'];
 const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -132,7 +157,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
   const {client} = legacy;
   const style = element('link');
   style.rel = 'stylesheet';
-  style.href = new URL('./erp.css?v=gestao2', import.meta.url);
+  style.href = new URL('./erp.css?v=pastel3', import.meta.url);
   document.head.append(style);
 
   const root = element('div');
@@ -140,10 +165,10 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
   root.hidden = true;
   root.innerHTML = `
     <header class="erp-top">
-      <div class="erp-brand"><img src="inova-fachada/marca.webp" alt="Inova Blocos"><strong>INOVA BLOCOS | Gestão Empresarial</strong></div>
-      <button type="button" data-menu aria-expanded="true" aria-controls="erp-main-navigation erp-secondary">Menu</button>
+      <div class="erp-brand"><img src="inova-fachada/marca.webp" alt="Inova Blocos"><div><strong>Inova Blocos</strong><small>FLUXO EFICIENTE</small></div></div>
+      <button type="button" data-menu aria-expanded="true" aria-controls="erp-main-navigation erp-secondary" aria-label="Recolher ou expandir menu">☰</button>
       <div class="erp-search">
-        <input type="search" placeholder="Buscar na plataforma" aria-label="Buscar na plataforma" autocomplete="off">
+        <input type="search" placeholder="Buscar telas e departamentos" aria-label="Buscar telas e departamentos" autocomplete="off">
         <div data-results hidden></div>
       </div>
       <span class="erp-user" data-erp-user></span>
@@ -228,7 +253,9 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     const row = element('div');
     row.className = 'erp-heading';
     const name = element('h1', title);
-    row.append(name);
+    const titleBlock = element('div');
+    titleBlock.append(element('small', sector === 'Início' ? 'Central de gestão' : 'Fluxo Eficiente  /  ' + sector), name);
+    row.append(titleBlock);
     if (action) {
       action.className = 'erp-action';
       row.append(action);
@@ -266,7 +293,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     filter.innerHTML = `
       <label>Período <select name="periodo">
         <option value="">Todo o período</option><option value="dia">Hoje</option>
-        <option value="semana">Semana atual</option><option value="mes">Mês atual</option>
+        <option value="semana">Semana atual</option><option value="mes" selected>Mês atual</option>
         <option value="trimestre">Trimestre atual</option><option value="ano">Ano atual</option>
         <option value="personalizado">Personalizado</option>
       </select></label>
@@ -275,6 +302,9 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     filter.onsubmit = event => event.preventDefault();
     const cards = element('div');
     cards.className = 'erp-cards';
+    const featured = element('div');
+    featured.className = 'erp-featured';
+    const featuredLabels = ['Vendas confirmadas no período','Compras pendentes','Entregas atrasadas','Estoque crítico'];
     const totals = key => stock?.some(item => item[key] == null) ? null : stock?.reduce((sum, item) => sum + Number(item[key]), 0);
     const overdueDeliveries = confirmed?.filter(row =>
       row.dados?.dataEntrega && row.dados.dataEntrega < today && deliveryState(row) !== 'complete').length;
@@ -302,6 +332,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
       const periodOrders = orders?.filter(row => inPeriod(row.criado_em && localDate.format(new Date(row.criado_em))));
       const periodDeliveries = confirmed?.filter(row => inPeriod(row.dados?.dataEntrega));
       cards.replaceChildren();
+      featured.replaceChildren();
       for (const [label, value, group, target] of [
         ['Produtos cadastrados', stock?.length, 'Estoque', 'Produtos e serviços'],
         ['Estoque físico', totals('fisico'), 'Estoque', 'Produtos e serviços'],
@@ -328,7 +359,11 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
         const card = button(label, () => navigate(group, target));
         card.dataset.theme = themeFor(group, target);
         card.append(element('strong', value == null ? 'Sem dados' : number.format(value)));
-        cards.append(card);
+        if (featuredLabels.includes(label)) {
+          card.prepend(iconFor(group));
+          card.style.order = featuredLabels.indexOf(label);
+          featured.append(card);
+        } else cards.append(card);
       }
     }
 
@@ -336,10 +371,10 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     notificationsCount(awaiting);
     const shortcuts = element('div');
     shortcuts.className = 'erp-departments';
-    for (const [label, description, group, target, glyph] of departments) {
+    for (const [label, description, group, target] of departments) {
       const card = button('', () => navigate(group, target));
       card.dataset.theme = themeFor(group, target);
-      const icon = element('span', glyph);
+      const icon = iconFor(label);
       icon.setAttribute('aria-hidden', 'true');
       card.append(icon, element('strong', label), element('small', description));
       shortcuts.append(card);
@@ -365,9 +400,12 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
       attention.append(table(['Estoque crítico','Saldo físico','Mínimo','Faltam'], critical.map(item =>
         [item.nome, item.fisico, item.estoque_minimo, number.format(item.estoque_minimo - item.fisico)])));
     } else attention.append(element('p', critical ? 'Nenhum produto abaixo do mínimo físico.' : 'Estoque indisponível.'));
-    content.append(shortcuts, attention, element('h2', 'Indicadores comerciais e operacionais'), filter, cards);
+    const more = element('details');
+    more.className = 'erp-more';
+    more.append(element('summary','Todos os indicadores'), cards);
+    content.append(filter, featured, element('h2','Departamentos'), shortcuts, attention, more);
     const phaseCounts = phases.map((_, index) => orders?.filter(order => purchasePhase(order) === index).length ?? 0);
-    if (phaseCounts.some(Boolean)) {
+    if (orders) {
       const chart = element('section');
       chart.className = 'erp-recent erp-phase-chart';
       chart.dataset.theme = 'compras';
@@ -375,7 +413,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
       phases.forEach((phase, index) => {
         const label = element('label', phase + ' · ' + phaseCounts[index]);
         const bar = element('meter');
-        bar.max = Math.max(...phaseCounts);
+        bar.max = Math.max(1, ...phaseCounts);
         bar.value = phaseCounts[index];
         label.append(bar);
         chart.append(label);
@@ -420,11 +458,31 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
       Patrimônio: item => item.tipo === 'Patrimonial',
       'Estoque mínimo': item => item.estoque_minimo != null || item.disponivel < 0
     };
-    const rows = filters[page] ? list.filter(filters[page]) : list;
-    content.append(table(['SKU', 'Produto', 'Tipo', 'Físico', 'Reservado', 'Disponível', 'Preço de venda'],
-      rows.map(item => [item.sku, item.nome, item.tipo, ...[item.fisico,item.reservado,item.disponivel].map(value => value == null ? '—' : number.format(value)),
-        item.preco_venda == null ? '—' : money.format(item.preco_venda)])));
-    if (!rows.length) report('Nenhum produto nesta visão.');
+    const source = filters[page] ? list.filter(filters[page]) : list;
+    const toolbar = element('div');
+    toolbar.className = 'erp-tools';
+    const searchLabel = element('label','Buscar produto');
+    const query = element('input');
+    query.type = 'search';
+    query.placeholder = 'Nome ou SKU';
+    searchLabel.append(query);
+    const typeLabel = element('label','Tipo de produto');
+    const type = element('select');
+    type.append(new Option('Todos os tipos',''), ...[...new Set(source.map(item => item.tipo))].sort().map(name => new Option(name,name)));
+    typeLabel.append(type);
+    const results = element('div');
+    results.className = 'erp-purchase-list';
+    toolbar.append(searchLabel,typeLabel);
+    content.append(toolbar,results);
+    function render() {
+      const rows = source.filter(item => (!type.value || type.value === item.tipo) && normalize(item.nome + ' ' + item.sku).includes(normalize(query.value.trim())));
+      results.replaceChildren(table(['SKU', 'Produto', 'Tipo', 'Físico', 'Reservado', 'Disponível', 'Preço de venda'],
+        rows.map(item => [item.sku, item.nome, item.tipo, ...[item.fisico,item.reservado,item.disponivel].map(value => value == null ? '—' : number.format(value)),
+          item.preco_venda == null ? '—' : money.format(item.preco_venda)])));
+      if (!rows.length) results.append(element('p','Nenhum produto nesta visão.'));
+    }
+    query.oninput = type.onchange = render;
+    render();
   }
 
   async function newCategory() {
@@ -456,7 +514,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     const loading = element('p', 'Preparando cadastro…');
     dialogContent.append(loading);
     try {
-      const [next, list] = catalogAvailable ? await Promise.all([client.rpc('inova_erp_proximo_sku'), categories()]) : [{data:'Automático'}, []];
+      const [next, list] = layoutOnly ? [{data:'Automático'}, []] : catalogAvailable ? await Promise.all([client.rpc('inova_erp_proximo_sku'), categories()]) : [{data:'Automático'}, []];
       if (!loading.isConnected || !dialog.open) return;
       if (next.error || !next.data) throw next.error || new Error('SKU indisponível');
       loading.remove();
@@ -849,7 +907,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
         wrapper.append(list);
         content.append(wrapper);
       } else if (group === 'Início') {
-        heading('Início');
+        heading('Visão geral');
         await dashboard(current);
       } else if (group === 'Compras' && target === 'Painel de compras') {
         heading(target, button('Abrir operações de compras', () => navigate('Compras', 'Pedidos de compra')));
@@ -904,16 +962,19 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
         } else legacyPages[target].click();
       } else {
         heading(target);
-        report('Esta tela será integrada em uma próxima etapa.');
+        if (layoutLists[target]) {
+          content.append(table(layoutLists[target], []));
+          report('Fonte de dados ainda não integrada.');
+        } else report('Esta tela será integrada em uma próxima etapa.');
       }
     } catch {
       if (current === revision) report('Não foi possível carregar os dados. Selecione a página novamente para tentar.');
     }
   }
 
-  Object.keys(sectors).forEach((group, index) => {
+  Object.keys(sectors).forEach((group) => {
     const item = button(group, () => navigate(...routes.find(([name]) => name === group)));
-    const icon = element('span', icons[index]);
+    const icon = iconFor(group);
     icon.setAttribute('aria-hidden', 'true');
     item.prepend(icon);
     item.dataset.sector = group;
