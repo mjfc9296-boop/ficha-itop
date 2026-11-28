@@ -778,7 +778,11 @@
   archiveStatus.textContent = '';
  }
 
- const inovaRoute = new URLSearchParams(location.search).get('app');
+ const inovaUrl = new URL(location.href);
+ if (['inova-blocos', 'inova-blocos-atual'].includes(inovaUrl.searchParams.get('app'))) {
+  inovaUrl.searchParams.delete('app');
+  history.replaceState(history.state, '', inovaUrl);
+ }
  let erp;
  let inovaAccessCheck = 0;
  async function verifyInovaAccess(profile) {
@@ -796,20 +800,7 @@
   }
   if (check !== inovaAccessCheck) return;
   setInovaAccess(isOwner);
-  if (!isOwner) return;
-  if (inovaRoute === 'inova-blocos-atual') {
-   void openCurrentInova();
-  } else if (inovaRoute === 'inova-blocos') {
-   switchModule(inovaPanel.id);
-   try {
-    const {mountErp} = await import('./inova-fachada/erp.js?v=layout3');
-    if (check !== inovaAccessCheck || inovaTab.hidden) return;
-    erp ??= mountErp(inovaPanel, {links: usefulLinks, clear: () => selectInovaView('')}, {layoutOnly: true});
-    erp.open();
-   } catch {
-    void openCurrentInova();
-   }
-  }
+
  }
  window.addEventListener('itop:authorized', event => void verifyInovaAccess(event.detail));
  window.addEventListener('itop:logged-out', () => {
@@ -826,12 +817,31 @@
  comprasStyle.rel = 'stylesheet';
  comprasStyle.href = 'inova-fachada/compras.css?v=7';
  document.head.append(comprasStyle);
- inovaTab.addEventListener('click', () => {
+ inovaTab.addEventListener('click', async () => {
   if (inovaTab.hidden) return;
-  const url = new URL(location.href);
-  url.searchParams.set('app', 'inova-blocos');
-  url.hash = '';
-  window.open(url, '_blank', 'noopener');
+  const check = inovaAccessCheck;
+  switchModule(inovaPanel.id);
+  try {
+   const {mountErp} = await import('./inova-fachada/erp.js?v=layout4');
+   if (check !== inovaAccessCheck || inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
+   erp ??= mountErp(inovaPanel, {
+    links: usefulLinks,
+    clear: () => selectInovaView(''),
+    back: () => {
+     erp.close();
+     switchModule('sondagem');
+     if (mq.matches) menu.open = true;
+     menu.querySelector('.nav-tab.active')?.focus({preventScroll:true});
+    },
+    current: () => {
+     erp.close();
+     void openCurrentInova();
+    }
+   }, {layoutOnly:true});
+   erp.open();
+  } catch {
+   if (check === inovaAccessCheck && inovaPanel.classList.contains('active')) void openCurrentInova();
+  }
  });
  async function openCurrentInova() {
   if (inovaTab.hidden) return;
@@ -843,7 +853,7 @@
     const {mountPurchases} = await import('./inova-fachada/compras.js?v=13');
     if (inovaTab.hidden || compras.hidden || !inovaPanel.classList.contains('active')) return;
     purchases ??= mountPurchases(compras, async () => (await getInovaStock()).stock, {supplierForm, saveSupplier, supplierError});
-    compras.querySelector('[data-return]').onclick = () => returnButton.click();
+    compras.querySelector('[data-return]').onclick = () => switchModule('sondagem');
    }
    void purchases.open();
   } catch {
