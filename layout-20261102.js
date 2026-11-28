@@ -807,18 +807,18 @@
    setInovaAccess(false);
    return;
   }
-  let isOwner = false;
+  let allowed = false;
   try {
-   const {data, error} = await window.itopAuthClient.auth.getUser();
-   isOwner = !error && data?.user?.email?.toLowerCase() === 'mjfc9296@gmail.com';
+   const {data, error} = await window.itopAuthClient.rpc('inova_compras_e_administrador');
+   allowed = !error && data === true;
   } catch {
    // Keep the module hidden when the session cannot be verified.
   }
   if (check !== inovaAccessCheck) return;
-  setInovaAccess(isOwner);
+  setInovaAccess(allowed);
   if (openInovaInThisTab) {
    openInovaInThisTab = false;
-   if (isOwner) void openInovaErp(profile);
+   if (allowed) void openInovaErp(profile);
   }
  }
  window.addEventListener('itop:authorized', event => void verifyInovaAccess(event.detail));
