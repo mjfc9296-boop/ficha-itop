@@ -210,9 +210,6 @@ html.inova-erp-active #inova-blocos .inova-erp { position:fixed; inset:0; z-inde
 .inova-erp .erp-brand { color:white; border:0; }
 .inova-erp .erp-brand strong { font-size:15px; letter-spacing:0; white-space:normal; }
 .inova-erp .erp-body [data-primary] { width:86px; }
-.inova-erp [data-theme=compras], .inova-erp[data-theme=compras] { --erp-pastel:#eee5fb; --erp-accent:#653599; }
-.inova-erp [data-theme=comercial], .inova-erp[data-theme=comercial] { --erp-pastel:#dfedfa; --erp-accent:#155d88; }
-.inova-erp [data-theme=estoque], .inova-erp[data-theme=estoque] { --erp-pastel:#fff0c6; --erp-accent:#815500; }
 .inova-erp .erp-board section { border-top:4px solid #8050bd; background:#f1eafa; }
 .inova-erp .erp-board section:nth-child(2) { border-color:#6f48aa; background:#eee6fa; }
 .inova-erp .erp-board section:nth-child(3) { border-color:#b78419; background:#fff2cb; }
@@ -224,3 +221,61 @@ html.inova-erp-active #inova-blocos .inova-erp { position:fixed; inset:0; z-inde
 .inova-erp .erp-brand img { background:white; padding:3px; border-radius:5px; }
 .inova-erp .erp-content { background:#f6f8f7; }
 html body #inova-blocos .inova-erp .erp-action:disabled { opacity:.6; cursor:not-allowed; }
+/* Application shell and department workspaces */
+.inova-erp { --erp-ink:#192d28; --erp-muted:#586b65; --erp-surface:#fff; --erp-canvas:#F5F6F8; }
+.inova-erp *, .inova-erp *::before { box-sizing:border-box; }
+html body #inova-blocos .inova-erp .erp-top { background:#fff; color:var(--erp-ink); border-bottom:1px solid var(--erp-line); min-height:66px; padding:8px 22px; gap:16px; box-shadow:none; }
+.inova-erp .erp-brand { padding:0; color:var(--erp-ink); gap:9px; }
+.inova-erp .erp-brand img { height:40px; max-width:68px; object-fit:contain; }
+.inova-erp .erp-brand small { display:block; color:#00634D; font-size:9px; letter-spacing:.16em; font-weight:750; }
+html body #inova-blocos .inova-erp .erp-return { order:initial; border-radius:8px; }
+.inova-erp svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.65; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+html body #inova-blocos .inova-erp .erp-body [data-primary] { width:84px; padding:12px 5px; }
+html body #inova-blocos .inova-erp .erp-body [data-primary] button { background:transparent; border:0; border-radius:8px; font-size:11px; font-weight:600; gap:4px; min-height:48px; color:var(--erp-muted); }
+.inova-erp .erp-body #erp-secondary { background:#f8faf9; width:200px; padding:20px 10px; }
+html body #inova-blocos .inova-erp #erp-secondary button { border:0; background:transparent; padding:7px 10px; }
+.inova-erp #erp-secondary summary { color:var(--erp-muted); font-size:12px; }
+.inova-erp .erp-content { background:var(--erp-canvas); padding:22px clamp(16px,2.5vw,42px) 40px; color:var(--erp-ink); }
+.inova-erp .erp-heading { padding:0 0 16px; margin:0 0 16px; border:0; border-bottom:1px solid var(--erp-line); border-radius:0; background:transparent; color:var(--erp-ink); }
+.inova-erp .erp-heading small { font-size:12px; color:var(--erp-muted); }
+.inova-erp .erp-heading h1 { font-size:clamp(24px,2.3vw,36px); letter-spacing:-.045em; line-height:1.2; margin:3px 0 0; }
+.inova-erp .erp-featured,.inova-erp .erp-departments { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+html body #inova-blocos .inova-erp .erp-featured button { position:relative; text-align:left; padding:16px; height:auto; min-height:91px; color:var(--erp-muted); background:white; border:1px solid var(--erp-line); border-radius:12px; font-size:13px; }
+.inova-erp .erp-featured button svg { float:right; color:var(--erp-accent); margin-left:4px; }
+.inova-erp .erp-featured strong { display:block; margin-top:8px; font-size:26px; color:var(--erp-ink); line-height:1; }
+html body #inova-blocos .inova-erp .erp-departments button[data-theme] { position:relative; height:auto; min-height:82px; grid-template-columns:34px 1fr; grid-template-rows:auto auto; gap:1px 10px; align-content:center; padding:13px; border-radius:12px; border-color:color-mix(in srgb,var(--erp-accent) 18%,white); }
+.inova-erp .erp-departments button svg { grid-row:span 2; align-self:center; color:var(--erp-accent); background:#ffffff9c; width:34px; height:34px; border-radius:8px; padding:7px; }
+.inova-erp .erp-departments button strong { color:var(--erp-ink); font-size:15px; }
+.inova-erp .erp-departments button small { font-size:12px; }
+.inova-erp .erp-recent,.inova-erp .erp-more,.inova-erp .erp-tasks { background:white; border:1px solid var(--erp-line); padding:16px 18px; border-radius:12px; margin:16px 0; }
+.inova-erp .erp-more summary { cursor:pointer; font-weight:650; }
+.inova-erp .erp-more[open] summary { margin-bottom:12px; }
+.inova-erp .erp-recent p { margin:4px 0; color:var(--erp-muted); }
+.inova-erp .erp-tools { display:flex; flex-wrap:wrap; gap:12px; padding:14px; border:1px solid var(--erp-line); background:white; border-radius:10px 10px 0 0; }
+.inova-erp .erp-tools label { display:grid; flex:1; gap:4px; font-size:12px; font-weight:600; }
+.inova-erp .erp-purchase-list { background:white; border:1px solid var(--erp-line); border-radius:8px; padding-bottom:2px; }
+.inova-erp .erp-purchase-list p { text-align:center; padding:22px; color:var(--erp-muted); }
+.inova-erp thead th { background:var(--erp-pastel); color:var(--erp-ink); }
+.inova-erp .erp-dialog input[name^="preco"] { text-align:right; }
+.inova-erp .erp-board { grid-template-columns:repeat(5,minmax(145px,1fr)); }
+.inova-erp .erp-board section { min-height:155px; border:1px solid var(--erp-line); border-top:3px solid var(--erp-accent); background:white; padding:12px; }
+.inova-erp .erp-board section h2 { color:#223a33; }
+.inova-erp .erp-board section small { display:block; }
+@media(max-width:1050px){ .inova-erp .erp-departments,.inova-erp .erp-featured { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:700px){
+ html body #inova-blocos .inova-erp .erp-top { position:static; gap:8px; padding:8px; }
+ html body #inova-blocos .inova-erp .erp-body [data-primary] { width:100%; padding:4px; }
+ .inova-erp .erp-body #erp-secondary { width:100%; max-height:190px; overflow:auto; }
+ .inova-erp .erp-content { padding:14px 10px; }
+ .inova-erp .erp-departments,.inova-erp .erp-featured { gap:7px; }
+ html body #inova-blocos .inova-erp .erp-departments button[data-theme] { display:flex; flex-direction:column; align-items:flex-start; }
+ .inova-erp .erp-user { font-size:12px; }
+}
+html body #inova-blocos .inova-erp .erp-legacy-content :is(#inova-proposta,#inova-compras,#inova-envios,#inova-fornecedores,#inova-solicitacoes) { --proposta-contorno:var(--erp-line); border:1px solid var(--erp-line) !important; background:white !important; border-radius:12px; color:var(--erp-ink); }
+html body #inova-blocos .inova-erp .erp-legacy-content :is(#inova-proposta,#inova-compras,#inova-envios,#inova-solicitacoes) :is(fieldset,input,select,textarea,button,output) { background:white !important; border-color:var(--erp-line) !important; box-shadow:none !important; color:var(--erp-ink) !important; }
+html body #inova-blocos .inova-erp .erp-legacy-content :is(#inova-proposta,#inova-compras,#inova-envios,#inova-solicitacoes) :is(legend,thead th,.inova-proposta-total,.inova-proposta-banner) { background:var(--erp-pastel) !important; border-color:var(--erp-line) !important; color:var(--erp-ink) !important; }
+.inova-erp .erp-legacy-content :is(input:not([type=checkbox],[type=radio]),select) { min-height:36px; }
+.inova-erp .erp-search input, .inova-erp .erp-tools :is(input,select) { min-height:38px; }
+.inova-erp[data-theme]:not([data-theme=institucional]) .erp-heading { border-bottom:3px solid var(--erp-pastel); }
+.inova-erp[data-theme]:not([data-theme=institucional]) .erp-heading small { color:var(--erp-accent); font-weight:650; }
+html body #inova-blocos .inova-erp .erp-body [data-primary] button { padding-inline:1px; }
