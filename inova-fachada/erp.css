@@ -1,6 +1,6 @@
 html.inova-erp-active body #inova-blocos {
   color: #1c2b25 !important;
-  background: #f3f6f5 !important;
+  background: #F5F6F8 !important;
 }
 html.inova-erp-active body > :is(header, footer),
 html.inova-erp-active body > main > .itop-work-rail {
@@ -25,11 +25,13 @@ html.inova-erp-active body #inova-blocos {
   max-width: none !important;
 }
 .inova-erp {
-  --erp-accent: #08735a;
-  --erp-line: #dde6e2;
-  --erp-text: #1c2b25;
+  --erp-diamond: #008F72;
+  --erp-accent: #00634D;
+  --erp-pastel: #E3F2ED;
+  --erp-line: #DCE5E1;
+  --erp-text: #525252;
   min-height: 100dvh;
-  background: #f3f6f5;
+  background: #F5F6F8;
   color: var(--erp-text);
   font: 14px/1.45 system-ui, sans-serif;
 }
@@ -64,11 +66,11 @@ html.inova-erp-active body #inova-blocos {
 .erp-body { display: flex; align-items: stretch; min-height: calc(100dvh - 54px); }
 .erp-body > nav { flex: none; padding: 10px 6px; border-right: 1px solid var(--erp-line); }
 .erp-body [data-primary] { width: 91px; background: white; }
-.erp-body #erp-secondary { width: 190px; background: #eef4f1; }
+.erp-body #erp-secondary { width: 190px; background: #FFFFFF; }
 .erp-body nav button { width: 100%; margin: 2px 0; text-align: left; }
 .erp-body [data-primary] button { display: grid; gap: 1px; justify-items: center; text-align: center; }
 .erp-body [data-primary] span { color: var(--erp-accent); font-size: 18px; }
-.erp-body nav [aria-current=true], .erp-body nav [aria-current=page] { background: #d9efe7 !important; color: #075541 !important; font-weight: 700; }
+.erp-body nav [aria-current=true], .erp-body nav [aria-current=page] { background: var(--erp-pastel) !important; color: var(--erp-accent) !important; font-weight: 700; }
 .erp-body summary { cursor: pointer; padding: 9px 4px; font-weight: 650; }
 .erp-body #erp-secondary h2 { padding: 0 5px; }
 .erp-content { flex: 1; min-width: 0; padding: 18px; overflow: auto; }
@@ -96,7 +98,7 @@ html body #inova-blocos .inova-erp button.erp-action { background: var(--erp-acc
 .erp-board small { display: block; }
 .inova-erp table { border-collapse: collapse; min-width: 100%; background: white; color: inherit; }
 .inova-erp :is(th,td) { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--erp-line); }
-.inova-erp th { background: #e3f0ea; white-space: nowrap; }
+.inova-erp th { background: var(--erp-pastel); white-space: nowrap; }
 .inova-erp .erp-dialog {
   width: min(720px, 94vw);
   max-height: 88dvh;
@@ -112,7 +114,7 @@ html body #inova-blocos .inova-erp button.erp-action { background: var(--erp-acc
 .erp-dialog label { display: grid; gap: 3px; min-width: 0; }
 .erp-dialog :is(input,textarea,select) { width: 100%; box-sizing: border-box; }
 .erp-form-tabs button { margin-right: 6px; }
-.erp-form-tabs button[aria-pressed=true] { background: #d9efe7 !important; }
+.erp-form-tabs button[aria-pressed=true] { background: var(--erp-pastel) !important; }
 #inova-blocos.erp-show-legacy .erp-legacy-content > :not([hidden]) { margin-top: 8px; }
 #inova-blocos .erp-legacy-content #inova-compras [data-return] { display: none !important; }
 @media (max-width: 700px) {
@@ -149,3 +151,56 @@ html body #inova-blocos .inova-erp .erp-return {
  font-weight: 700;
 }
 .inova-erp[hidden] { display: none !important; }
+
+:is(.inova-erp[data-theme="comercial"], .inova-erp [data-theme="comercial"]) { --erp-pastel: #E9E0F5; --erp-accent: #7654A4; }
+:is(.inova-erp[data-theme="estoque"], .inova-erp [data-theme="estoque"]) { --erp-pastel: #DCEFE4; --erp-accent: #267553; }
+:is(.inova-erp[data-theme="compras"], .inova-erp [data-theme="compras"]) { --erp-pastel: #DCE8FA; --erp-accent: #345C9D; }
+:is(.inova-erp[data-theme="recebimentos"], .inova-erp [data-theme="recebimentos"]) { --erp-pastel: #FCE9D5; --erp-accent: #A66B27; }
+:is(.inova-erp[data-theme="vendas"], .inova-erp [data-theme="vendas"]) { --erp-pastel: #D9EFEC; --erp-accent: #247D77; }
+:is(.inova-erp[data-theme="financeiro"], .inova-erp [data-theme="financeiro"]) { --erp-pastel: #F8EFCF; --erp-accent: #947522; }
+:is(.inova-erp[data-theme="cadastros"], .inova-erp [data-theme="cadastros"]) { --erp-pastel: #F3DFE8; --erp-accent: #A3567C; }
+:is(.inova-erp[data-theme="administracao"], .inova-erp [data-theme="administracao"]) { --erp-pastel: #E4E7EC; --erp-accent: #525252; }
+.inova-erp .erp-brand { display: flex; align-items: center; gap: 12px; color: #00634D; }
+.inova-erp .erp-brand img { width: auto; height: 32px; max-width: 112px; }
+.inova-erp .erp-brand strong { white-space: nowrap; font-size: 12px; letter-spacing: .06em; }
+.inova-erp .erp-user { overflow-wrap: anywhere; }
+.inova-erp .erp-heading { background: var(--erp-pastel); border-radius: 10px; padding: 14px 16px; border-inline-start: 4px solid var(--erp-accent); color: var(--erp-accent); }
+.inova-erp .erp-content > h2 { margin-block: 18px 10px; font-size: 16px; }
+.inova-erp .erp-departments { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(175px, 100%), 1fr)); gap: 10px; }
+html body #inova-blocos .inova-erp :is(.erp-departments,.erp-cards) > button[data-theme] { text-align: start; background: var(--erp-pastel); padding: 12px; }
+.inova-erp .erp-departments button { display: grid; gap: 5px; }
+.inova-erp .erp-departments button > span { color: var(--erp-accent); font-size: 20px; line-height: 1; }
+.inova-erp .erp-departments button small { color: var(--erp-text); }
+.inova-erp .erp-cards { grid-template-columns: repeat(auto-fit, minmax(min(145px, 100%), 1fr)); }
+.inova-erp .erp-recent { margin-top: 16px; padding: 14px; background: #FFFFFF; border: 1px solid var(--erp-line); border-radius: 10px; }
+.inova-erp .erp-recent ul { padding-inline-start: 18px; }
+.inova-erp .erp-body [data-primary] button { min-height: 42px; }
+.inova-erp .erp-body [data-primary] button:not([aria-current="true"]) { border-color: transparent; }
+.inova-erp .erp-body #erp-secondary { border-color: var(--erp-line); }
+.inova-erp.erp-menu-collapsed .erp-body > nav { display: none; }
+.inova-erp tbody tr:nth-child(even) { background: #F5F6F8; }
+.inova-erp :is(th,td) { padding: 7px 10px; }
+.inova-erp :is(th,td)[data-money], .inova-erp input[data-money] { text-align: right; font-variant-numeric: tabular-nums; }
+.inova-erp .erp-dialog h2 { color: var(--erp-accent); border-bottom: 2px solid var(--erp-pastel); padding-bottom: 8px; }
+.inova-erp .erp-dialog form :is(input,select) { min-height: 36px; }
+.inova-erp .erp-dialog form > button[type="submit"], .inova-erp .erp-dialog form > button.erp-action:last-child { display: block; margin-inline-start: auto; }
+.inova-erp .erp-board section { background: var(--erp-pastel); }
+.inova-erp .erp-board section:nth-child(2), .inova-erp .erp-board section:nth-child(3) { background: #F8EFCF; }
+.inova-erp .erp-board section:nth-child(5) { background: #DCEFE4; }
+html body #inova-blocos .inova-erp .erp-return { background: #00634D; border-color: #00634D; color: #FFFFFF; }
+@media (max-width: 700px) {
+ .inova-erp .erp-top { align-items: center; gap: 8px; }
+ .inova-erp .erp-search { flex: 1 1 100%; order: 1; }
+ .inova-erp .erp-search input { width: 100%; }
+ .inova-erp .erp-body { display: block; }
+ .inova-erp .erp-body [data-primary] { display: flex; overflow-x: auto; width: auto; }
+ .inova-erp .erp-body [data-primary] button { width: auto; min-width: 76px; }
+ .inova-erp .erp-body #erp-secondary { width: auto; }
+ .inova-erp .erp-content { padding: 12px; }
+ .inova-erp .erp-heading { padding: 10px; flex-wrap: wrap; }
+ .inova-erp .erp-dialog form fieldset { grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); }
+}
+
+.inova-erp .erp-brand { border-inline-start: 3px solid var(--erp-diamond); padding-inline-start: 8px; }
+.inova-erp .erp-phase-chart label { display: grid; grid-template-columns: minmax(120px, 1fr) 2fr; gap: 10px; align-items: center; }
+.inova-erp .erp-phase-chart meter { width: 100%; accent-color: var(--erp-accent); }
