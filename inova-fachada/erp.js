@@ -105,7 +105,7 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
   const {client} = legacy;
   const style = element('link');
   style.rel = 'stylesheet';
-  style.href = new URL('./erp.css?v=2', import.meta.url);
+  style.href = new URL('./erp.css?v=3', import.meta.url);
   document.head.append(style);
 
   const root = element('div');
@@ -423,6 +423,60 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
     }
   }
 
+  function previewRequest() {
+    openDialog('Nova solicitação');
+    const form = element('form');
+    form.className = 'erp-request-preview';
+    form.innerHTML = `
+      <fieldset>
+        <label>Solicitante<input required maxlength="160"></label>
+        <label>Prioridade<select><option>Normal</option><option>Urgente</option></select></label>
+        <label>Tipo de material<select required><option value="">Selecione</option><option>EPI</option><option>EPS</option><option>Suprimento</option><option>Patrimônio</option></select></label>
+        <label>Data necessária<input type="date"></label>
+      </fieldset>
+      <h3>Itens</h3><div data-request-items></div>
+      <label>Observações<textarea rows="3" maxlength="2000"></textarea></label>
+      <p role="status">Prévia do formulário. Os dados preenchidos não são gravados.</p>
+      <button class="erp-action" type="submit">Conferir preenchimento</button>`;
+    const lines = form.querySelector('[data-request-items]');
+    function appendLine() {
+      const row = element('fieldset');
+      row.innerHTML = `
+        <label>Produto<input required maxlength="160"></label>
+        <label>Referência<select><option>Unidade</option><option>Pacote</option><option>Caixa</option><option>Fardo</option><option>Kit</option></select></label>
+        <label>Qtd. de referências<input type="number" min="1" max="999999" step="1" required></label>
+        <label>Itens por referência<input type="number" min="1" max="999999" step="1" value="1" readonly required></label>
+        <label>Total de itens<output>0</output></label>`;
+      const reference = row.querySelector('select');
+      const [, count, units] = row.querySelectorAll('input');
+      const result = row.querySelector('output');
+      function update() {
+        units.readOnly = reference.value === 'Unidade';
+        if (units.readOnly) units.value = '1';
+        result.value = number.format((count.valueAsNumber || 0) * (units.valueAsNumber || 0));
+      }
+      row.addEventListener('input', update);
+      row.addEventListener('change', update);
+      row.append(button('Remover item', () => {
+        row.remove();
+        if (!lines.childElementCount) appendLine();
+      }));
+      lines.append(row);
+      return row;
+    }
+    appendLine();
+    const add = button('+ Adicionar item', () => appendLine().querySelector('input').focus());
+    lines.before(add);
+    form.addEventListener('input', () => {
+      form.querySelector('[role=status]').textContent = 'Prévia do formulário. Os dados preenchidos não são gravados.';
+    });
+    form.onsubmit = event => {
+      event.preventDefault();
+      form.querySelector('[role=status]').textContent = 'Preenchimento conferido. A solicitação continua em prévia.';
+    };
+    dialogContent.append(form);
+  }
+
   async function receiving(current) {
     const [orders, stock] = layoutOnly ? [[], []] : await Promise.all([
       allRows(client.from('inova_compras').select(
@@ -639,7 +693,7 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
     }
     try {
       if (layoutOnly && group === 'Compras' && Object.hasOwn(purchaseLists, target)) {
-        heading(target);
+        heading(target, target === 'Solicitações' ? button('Nova solicitação', previewRequest) : undefined);
         const columns = purchaseLists[target];
         const wrapper = element('div');
         wrapper.className = 'erp-purchase-list';
