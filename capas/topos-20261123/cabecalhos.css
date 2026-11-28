@@ -1,21 +1,21 @@
 @media screen {
- /* Mesma proporção da tarja visível no módulo Universidade de Vendas. */
- :root { --itop-module-tarja-height: calc(100vw * 246 / 2048); }
- html:has(#procedimentos.active:not([hidden])) { --itop-module-tarja: url("oficial-uvi.webp"); }
- html:has(#sondagem.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-sondagem.webp"); }
- html:has(#confraternizacao.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-confraternizacao.webp"); }
- html:has(#retencao.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-retencao.webp"); }
- html:has(#comercial.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-comercial.webp"); }
- html:has(#gestao-usuarios.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-arte-gestao-usuarios.webp"); }
- html:has(#portaria-seguranca.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-portaria-seguranca.webp"); }
- html:has(#comissionamento-area.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-comissionamento-area.webp"); }
- html:has(#svas-area.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-svas-area.webp"); }
- html:has(#itop-comunica.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-itop-comunica.webp"); }
- html:has(#movel.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-movel.webp"); }
- html:has(#itop-movel.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-itop-movel.webp"); }
- html:has(#energia.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-energia.webp"); }
- html:has(#fechamento.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-fechamento.webp"); }
- html:has(#pacote.active:not([hidden])) { --itop-module-tarja: url("oficial-fit-neon-pacote.webp"); }
+ /* Altura proporcional aos arquivos originais de cada módulo. */
+ :root { --itop-module-tarja-height: calc(100vw * 183 / 1437); }
+ html:has(#procedimentos.active:not([hidden])) { --itop-module-tarja-height: calc(100vw * 246 / 2048); --itop-module-tarja: url("oficial-uvi.webp"); }
+ html:has(#sondagem.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-sondagem.webp"); }
+ html:has(#confraternizacao.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-confraternizacao.webp"); }
+ html:has(#retencao.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-retencao.webp"); }
+ html:has(#comercial.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-comercial.webp"); }
+ html:has(#gestao-usuarios.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-gestao-usuarios.webp"); }
+ html:has(#portaria-seguranca.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-portaria-seguranca.webp"); }
+ html:has(#comissionamento-area.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-comissionamento-area.webp"); }
+ html:has(#svas-area.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-svas-area.webp"); }
+ html:has(#itop-comunica.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-itop-comunica.webp"); }
+ html:has(#movel.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-movel.webp"); }
+ html:has(#itop-movel.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-itop-movel.webp"); }
+ html:has(#energia.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-energia.webp"); }
+ html:has(#fechamento.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-fechamento.webp"); }
+ html:has(#pacote.active:not([hidden])) { --itop-module-tarja: url("tarja-20261128-pacote.webp"); }
  html:has(:is(#procedimentos, #sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header {
   --itop-module-header-height: var(--itop-module-tarja-height);
   height: var(--itop-module-header-height) !important;
