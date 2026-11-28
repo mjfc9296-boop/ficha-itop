@@ -19,9 +19,11 @@ const sectors = {
     Movimentação: ['Entradas', 'Saídas', 'Reservas', 'Transferências', 'Ajustes', 'Histórico'],
     Saldos: ['Locais de armazenamento', 'Estoque mínimo', 'Estoque anterior']
   },
+  'Financeiro': ['Contas a pagar', 'Contas a receber'],
+  'Relatórios': ['Relatórios e administração'],
   'Produção': ['Ordens de produção'],
   'Serviços': ['Atas de visita e reposição', 'Links úteis'],
-  'Cadastros': ['Categorias', 'Fornecedores']
+  'Cadastros': ['Clientes', 'Fornecedores', 'Categorias']
 };
 
 const purchaseLists = {
@@ -33,7 +35,30 @@ const purchaseLists = {
   'Notas de entrada': ['Nota fiscal', 'Pedido', 'Fornecedor', 'Data de entrada', 'Situação']
 };
 
-const icons = ['⌂', '▤', '▣', '◈', '▦', '⚙', '✓', '☷'];
+const layoutLists = {
+  ...purchaseLists,
+  'Propostas comerciais': ['Proposta', 'Cliente', 'Data', 'Valor', 'Situação'],
+  'Contas a pagar': ['Fornecedor', 'Documento', 'Vencimento', 'Valor', 'Situação'],
+  'Contas a receber': ['Cliente', 'Documento', 'Vencimento', 'Valor', 'Situação'],
+  'Clientes': ['Cliente', 'Documento', 'Contato', 'Situação'],
+  'Fornecedores': ['Fornecedor', 'Documento', 'Contato', 'Situação'],
+  'Pedidos de venda': ['Pedido', 'Cliente', 'Data', 'Valor', 'Situação']
+};
+const sectorThemes = {Comercial:'comercial', Estoque:'estoque', Compras:'compras', Financeiro:'financeiro', Relatórios:'administracao', Cadastros:'cadastros', Produção:'administracao'};
+const pageThemes = {Recebimentos:'recebimentos', 'Notas de entrada':'recebimentos', 'Pedidos de venda':'vendas',
+  Expedição:'vendas', Devoluções:'vendas', 'Pesquisa de satisfação':'vendas', Clientes:'cadastros', Fornecedores:'cadastros'};
+const themeFor = (group, page) => pageThemes[page] ?? sectorThemes[group] ?? 'institucional';
+const departments = [
+  ['Comercial', 'Propostas e negociação', 'Comercial', 'Propostas comerciais', '◇'],
+  ['Estoque', 'Produtos e saldos', 'Estoque', 'Produtos e serviços', '▦'],
+  ['Compras', 'Solicitações e cotações', 'Compras', 'Painel de compras', '▤'],
+  ['Recebimentos', 'Entradas dos pedidos', 'Compras', 'Recebimentos', '↓'],
+  ['Vendas e entregas', 'Pedidos e expedição', 'Comercial', 'Pedidos de venda', '→'],
+  ['Financeiro', 'Contas a pagar e receber', 'Financeiro', 'Contas a pagar', '≋'],
+  ['Clientes e fornecedores', 'Cadastros comerciais', 'Cadastros', 'Clientes', '☷'],
+  ['Relatórios e administração', 'Consultas de gestão', 'Relatórios', 'Relatórios e administração', '▥']
+];
+const icons = ['⌂', '▤', '▣', '◈', '▦', '≋', '▥', '⚙', '✓', '☷'];
 const phases = ['Para cotar', 'Cotando', 'Para aprovar', 'Com o fornecedor', 'Recebido'];
 const types = ['EPI', 'EPS', 'Patrimonial', 'Matéria-prima', 'Insumo', 'Produto acabado', 'Ferramenta', 'Equipamento', 'Serviço'];
 const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -60,12 +85,17 @@ function table(headers, rows) {
   for (const name of headers) {
     const cell = element('th', name);
     cell.scope = 'col';
+    if (/^(Valor|Total|Preço)/.test(name)) cell.dataset.money = '';
     header.append(cell);
   }
   const body = node.createTBody();
   for (const values of rows) {
     const row = body.insertRow();
-    values.forEach(value => { row.insertCell().textContent = value; });
+    values.forEach((value, index) => {
+      const cell = row.insertCell();
+      if (/^(Valor|Total|Preço)/.test(headers[index])) cell.dataset.money = '';
+      cell.textContent = value;
+    });
   }
   return node;
 }
@@ -101,11 +131,11 @@ async function allRows(query, key) {
 
 const normalize = value => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
-export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
+export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected = false} = {}) {
   const {client} = legacy;
   const style = element('link');
   style.rel = 'stylesheet';
-  style.href = new URL('./erp.css?v=4', import.meta.url);
+  style.href = new URL('./erp.css?v=identidade1', import.meta.url);
   document.head.append(style);
 
   const root = element('div');
@@ -113,23 +143,25 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
   root.hidden = true;
   root.innerHTML = `
     <header class="erp-top">
-      <img src="inova-fachada/marca.webp" alt="Inova Blocos">
-      <button type="button" data-menu aria-expanded="true" aria-controls="erp-secondary">Menu</button>
+      <div class="erp-brand"><img src="inova-fachada/marca.webp" alt="Inova Blocos"><strong>FLUXO EFICIENTE</strong></div>
+      <button type="button" data-menu aria-expanded="true" aria-controls="erp-main-navigation erp-secondary">Menu</button>
       <div class="erp-search">
         <input type="search" placeholder="Buscar na plataforma" aria-label="Buscar na plataforma" autocomplete="off">
         <div data-results hidden></div>
       </div>
+      <span class="erp-user" data-erp-user></span>
       <button type="button" data-notifications>Notificações</button>
       ${layoutOnly ? '<button type="button" data-current-panel>Painel atual</button>' : ''}
       <button type="button" class="erp-return" data-return-itop>← Voltar à ITOP</button>
     </header>
     <div class="erp-body">
-      <nav aria-label="Setores" data-primary></nav>
+      <nav aria-label="Setores" id="erp-main-navigation" data-primary></nav>
       <nav aria-label="Páginas do setor" id="erp-secondary"></nav>
       <section class="erp-content" aria-label="Conteúdo"></section>
     </div>
     <dialog class="erp-dialog"><div data-dialog-content></div></dialog>`;
   panel.prepend(root);
+  root.querySelector('[data-erp-user]').textContent = legacy.userName || 'Administrador';
   root.querySelector('[data-return-itop]').onclick = () => legacy.back ? legacy.back() : location.assign('./');
   const currentPanel = root.querySelector('[data-current-panel]');
   if (currentPanel) currentPanel.onclick = () => legacy.current?.();
@@ -151,9 +183,9 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
   const products = async () => layoutOnly ? [] : allRows(client.from('inova_erp_produtos').select(
     'sku,nome,tipo,fisico,reservado,disponivel,estoque_minimo,preco_venda'), 'sku');
   const categories = async () => layoutOnly ? [] : allRows(client.from('inova_erp_categorias').select('id,nome'), 'nome');
-  const purchases = async () => layoutOnly ? [] : allRows(client.from('inova_compras').select(
+  const purchases = async () => layoutOnly && !dashboardConnected ? [] : allRows(client.from('inova_compras').select(
     'id,numero,fornecedor,entrega,criado_em,enviado_para_aprovacao_em,inova_compras_orcamentos(id),inova_compras_decisoes(resultado),inova_compras_conclusoes(concluido_em)'), 'numero');
-  const sales = async () => layoutOnly ? [] : allRows(client.from('inova_vendas').select(
+  const sales = async () => layoutOnly && !dashboardConnected ? [] : allRows(client.from('inova_vendas').select(
     'id,data_venda,pesquisa_em,dados,itens,inova_entregas(item,quantidade)').is('arquivada_em', null), 'id');
 
   const legacyPages = {
@@ -195,7 +227,7 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
   }
 
   async function dashboard(current) {
-    const data = await Promise.allSettled([products(), purchases(), sales()]);
+    const data = await Promise.allSettled([layoutOnly && dashboardConnected ? Promise.resolve(null) : products(), purchases(), sales()]);
     if (current !== revision) return;
     const [stock, orders, confirmed] = data.map(result => result.status === 'fulfilled' ? result.value : null);
     const localDate = new Intl.DateTimeFormat('sv-SE', {timeZone:'America/Sao_Paulo'});
@@ -250,6 +282,9 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
         ['Estoque crítico', stock?.filter(item => item.disponivel < 0 || (item.estoque_minimo != null && item.disponivel <= item.estoque_minimo)).length, 'Estoque', 'Estoque mínimo'],
         ['Produtos sem estoque físico', stock?.filter(item => Number(item.fisico) === 0).length, 'Estoque', 'Produtos e serviços'],
         ['Compras pendentes', orders?.filter(order => purchasePhase(order) >= 0 && purchasePhase(order) < 4).length, 'Compras', 'Painel de compras'],
+        ['Pedidos aguardando recebimento', orders?.filter(order => purchasePhase(order) === 3).length, 'Compras', 'Recebimentos'],
+        ['Contas a pagar', null, 'Financeiro', 'Contas a pagar'],
+        ['Contas a receber', null, 'Financeiro', 'Contas a receber'],
         ['Cotações em andamento', orders?.filter(order => purchasePhase(order) === 1).length, 'Compras', 'Cotações'],
         ['Cotações aguardando aprovação', awaiting, 'Compras', 'Para aprovar'],
         ['Compras com entrega atrasada', orders?.filter(order => purchasePhase(order) === 3 && order.entrega && order.entrega < today).length, 'Compras', 'Pedidos de compra'],
@@ -263,14 +298,55 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
         ['Ordens de produção', null, 'Produção', 'Ordens de produção']
       ]) {
         const card = button(label, () => navigate(group, target));
-        card.append(element('strong', value == null ? 'Indisponível' : number.format(value)));
+        card.dataset.theme = themeFor(group, target);
+        card.append(element('strong', value == null ? 'Sem dados' : number.format(value)));
         cards.append(card);
       }
     }
 
     filter.addEventListener('change', updateCards);
     notificationsCount(awaiting);
-    content.append(filter, cards);
+    const shortcuts = element('div');
+    shortcuts.className = 'erp-departments';
+    for (const [label, description, group, target, glyph] of departments) {
+      const card = button('', () => navigate(group, target));
+      card.dataset.theme = themeFor(group, target);
+      const icon = element('span', glyph);
+      icon.setAttribute('aria-hidden', 'true');
+      card.append(icon, element('strong', label), element('small', description));
+      shortcuts.append(card);
+    }
+    const recent = element('section');
+    recent.className = 'erp-recent';
+    const activity = (orders ?? []).filter(order => order.criado_em)
+      .sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em)).slice(0, 5);
+    recent.append(element('h2', 'Atividades recentes'));
+    if (activity.length) {
+      const list = element('ul');
+      for (const order of activity) {
+        list.append(element('li', 'Solicitação SC-' + String(order.numero).padStart(5, '0') + ' · ' +
+          new Date(order.criado_em).toLocaleDateString('pt-BR', {timeZone:'America/Sao_Paulo'})));
+      }
+      recent.append(list);
+    } else recent.append(element('p', 'Nenhuma atividade disponível.'));
+    content.append(element('h2', 'Departamentos'), shortcuts, element('h2', 'Indicadores'), filter, cards);
+    const phaseCounts = phases.map((_, index) => orders?.filter(order => purchasePhase(order) === index).length ?? 0);
+    if (phaseCounts.some(Boolean)) {
+      const chart = element('section');
+      chart.className = 'erp-recent erp-phase-chart';
+      chart.dataset.theme = 'compras';
+      chart.append(element('h2', 'Compras por situação'));
+      phases.forEach((phase, index) => {
+        const label = element('label', phase + ' · ' + phaseCounts[index]);
+        const bar = element('meter');
+        bar.max = Math.max(...phaseCounts);
+        bar.value = phaseCounts[index];
+        label.append(bar);
+        chart.append(label);
+      });
+      content.append(chart);
+    }
+    content.append(recent);
     updateCards();
   }
 
@@ -671,6 +747,7 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
   async function navigate(group, target) {
     sector = group;
     page = target;
+    root.dataset.theme = themeFor(group, target);
     const current = ++revision;
     legacy.clear();
     panel.append(...legacyContent.children);
@@ -685,6 +762,7 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
     const groups = sectors[group];
     function navItem(name) {
       const item = button(name, () => navigate(group, name));
+      item.dataset.theme = themeFor(group, name);
       if (name === target) item.setAttribute('aria-current', 'page');
       return item;
     }
@@ -696,9 +774,9 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
       secondary.append(details);
     }
     try {
-      if (layoutOnly && group === 'Compras' && Object.hasOwn(purchaseLists, target)) {
+      if (layoutOnly && Object.hasOwn(layoutLists, target)) {
         heading(target, target === 'Solicitações' ? button('Nova solicitação', previewRequest) : undefined);
-        const columns = purchaseLists[target];
+        const columns = layoutLists[target];
         const wrapper = element('div');
         wrapper.className = 'erp-purchase-list';
         wrapper.tabIndex = 0;
@@ -766,11 +844,12 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
     icon.setAttribute('aria-hidden', 'true');
     item.prepend(icon);
     item.dataset.sector = group;
+    item.dataset.theme = themeFor(group);
     primary.append(item);
   });
   root.querySelector('[data-menu]').onclick = event => {
-    secondary.hidden = !secondary.hidden;
-    event.currentTarget.setAttribute('aria-expanded', String(!secondary.hidden));
+    const collapsed = root.classList.toggle('erp-menu-collapsed');
+    event.currentTarget.setAttribute('aria-expanded', String(!collapsed));
   };
   search.addEventListener('input', () => {
     const query = normalize(search.value.trim());
