@@ -779,8 +779,19 @@
  }
 
  const inovaUrl = new URL(location.href);
+ const launchToken = inovaUrl.searchParams.get('inova-abertura');
+ let openInovaInThisTab = false;
+ if (inovaUrl.searchParams.get('app') === 'inova-blocos' && launchToken) {
+  try {
+   const key = 'inova-abertura:' + launchToken;
+   const expires = Number(localStorage.getItem(key));
+   localStorage.removeItem(key);
+   openInovaInThisTab = expires > Date.now();
+  } catch {}
+ }
  if (['inova-blocos', 'inova-blocos-atual'].includes(inovaUrl.searchParams.get('app'))) {
   inovaUrl.searchParams.delete('app');
+  inovaUrl.searchParams.delete('inova-abertura');
   history.replaceState(history.state, '', inovaUrl);
  }
  let erp;
@@ -800,7 +811,10 @@
   }
   if (check !== inovaAccessCheck) return;
   setInovaAccess(isOwner);
-
+  if (openInovaInThisTab) {
+   openInovaInThisTab = false;
+   if (isOwner) void openInovaErp(profile);
+  }
  }
  window.addEventListener('itop:authorized', event => void verifyInovaAccess(event.detail));
  window.addEventListener('itop:logged-out', () => {
@@ -817,15 +831,33 @@
  comprasStyle.rel = 'stylesheet';
  comprasStyle.href = 'inova-fachada/compras.css?v=7';
  document.head.append(comprasStyle);
- inovaTab.addEventListener('click', async () => {
+ inovaTab.addEventListener('click', () => {
+  if (inovaTab.hidden) return;
+  const token = crypto.randomUUID();
+  const key = 'inova-abertura:' + token;
+  try {
+   localStorage.setItem(key, String(Date.now() + 60000));
+  } catch {
+   return;
+  }
+  setTimeout(() => localStorage.removeItem(key), 60000);
+  const url = new URL(location.href);
+  url.searchParams.set('app', 'inova-blocos');
+  url.searchParams.set('inova-abertura', token);
+  url.hash = '';
+  window.open(url, '_blank', 'noopener');
+ });
+ async function openInovaErp(profile) {
   if (inovaTab.hidden) return;
   const check = inovaAccessCheck;
   switchModule(inovaPanel.id);
   try {
-   const {mountErp} = await import('./inova-fachada/erp.js?v=layout4');
+   const {mountErp} = await import('./inova-fachada/erp.js?v=identidade1');
    if (check !== inovaAccessCheck || inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
    erp ??= mountErp(inovaPanel, {
     links: usefulLinks,
+    client: window.itopAuthClient,
+    userName: profile?.nome_completo || profile?.nome || 'Administrador',
     clear: () => selectInovaView(''),
     back: () => {
      erp.close();
@@ -837,12 +869,12 @@
      erp.close();
      void openCurrentInova();
     }
-   }, {layoutOnly:true});
+   }, {layoutOnly:true, dashboardConnected:true});
    erp.open();
   } catch {
    if (check === inovaAccessCheck && inovaPanel.classList.contains('active')) void openCurrentInova();
   }
- });
+ }
  async function openCurrentInova() {
   if (inovaTab.hidden) return;
   switchModule(inovaPanel.id);
