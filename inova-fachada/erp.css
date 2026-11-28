@@ -135,3 +135,6 @@ html body #inova-blocos .inova-erp button.erp-action { background: var(--erp-acc
 .inova-erp .erp-purchase-list { overflow-x: auto; }
 .inova-erp .erp-purchase-list table { min-width: 36rem; }
 .inova-erp .erp-purchase-list td[colspan] { text-align: center; padding: 24px 12px; }
+
+.inova-erp .erp-request-preview [data-request-items] fieldset { border: 1px solid #cbded8; border-radius: 8px; padding: 10px; align-items: end; }
+.inova-erp .erp-request-preview output { display: block; padding-block: 8px; font-weight: 600; }
