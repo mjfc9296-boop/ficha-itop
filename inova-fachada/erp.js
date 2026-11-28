@@ -105,11 +105,12 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
   const {client} = legacy;
   const style = element('link');
   style.rel = 'stylesheet';
-  style.href = new URL('./erp.css?v=3', import.meta.url);
+  style.href = new URL('./erp.css?v=4', import.meta.url);
   document.head.append(style);
 
   const root = element('div');
   root.className = 'inova-erp';
+  root.hidden = true;
   root.innerHTML = `
     <header class="erp-top">
       <img src="inova-fachada/marca.webp" alt="Inova Blocos">
@@ -119,8 +120,8 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
         <div data-results hidden></div>
       </div>
       <button type="button" data-notifications>Notificações</button>
-      ${layoutOnly ? '<a href="?app=inova-blocos-atual">Painel atual</a>' : ''}
-      <a href="./">Voltar ITOP</a>
+      ${layoutOnly ? '<button type="button" data-current-panel>Painel atual</button>' : ''}
+      <button type="button" class="erp-return" data-return-itop>← Voltar à ITOP</button>
     </header>
     <div class="erp-body">
       <nav aria-label="Setores" data-primary></nav>
@@ -129,6 +130,9 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
     </div>
     <dialog class="erp-dialog"><div data-dialog-content></div></dialog>`;
   panel.prepend(root);
+  root.querySelector('[data-return-itop]').onclick = () => legacy.back ? legacy.back() : location.assign('./');
+  const currentPanel = root.querySelector('[data-current-panel]');
+  if (currentPanel) currentPanel.onclick = () => legacy.current?.();
   const content = root.querySelector('.erp-content');
   const secondary = root.querySelector('#erp-secondary');
   const primary = root.querySelector('[data-primary]');
@@ -799,10 +803,12 @@ export function mountErp(panel, legacy, {layoutOnly = false} = {}) {
   };
   return {
     open() {
+      root.hidden = false;
       document.documentElement.classList.add('inova-erp-active');
       navigate(sector || 'Início', page || 'Dashboard');
     },
     close() {
+      root.hidden = true;
       revision += 1;
       if (dialog.open) dialog.close();
       panel.append(...legacyContent.children);
