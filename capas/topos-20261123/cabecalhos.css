@@ -43,36 +43,42 @@
  }
 }
 
-/* A área visível começa após a margem clara do WebP (1437 × 183). */
+
 @media screen {
  html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) {
-  --itop-art-inset: 16px;
-  --itop-art-max: 1100px;
-  --itop-module-tarja-height: calc(min(100vw - var(--itop-art-inset), var(--itop-art-max)) * 172 / 1437 + 8px);
+  --itop-module-tarja-height: min(calc(100vw * 174 / 1437), 150px);
  }
  html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header {
-  position: relative;
   box-sizing: border-box;
   width: 100% !important;
   max-width: 100% !important;
   margin-inline: 0 !important;
-  background: #050505 !important;
   aspect-ratio: auto !important;
+  background: #050505 !important;
  }
  html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header::after {
   content: "";
-  display: block !important;
   position: absolute;
-  inset: 4px auto auto 50%;
-  transform: translateX(-50%);
-  width: min(calc(100% - var(--itop-art-inset)), var(--itop-art-max));
-  height: auto;
-  aspect-ratio: 1437 / 172;
-  background: var(--itop-module-tarja) center / 100% auto no-repeat;
+  display: block !important;
+  inset: 0 0 auto;
+  transform: none;
+  width: 100%;
+  height: var(--itop-module-tarja-height);
+  background: var(--itop-module-tarja) center / 100% 105.17% no-repeat;
+  border-radius: 1.55% / 13%;
+  pointer-events: none;
+ }
+ html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header:has(> .itop-tarja-alinhada:not([hidden]))::after {
+  display: none !important;
+ }
+ html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) body > header > .itop-tarja-alinhada:not([hidden]) {
+  position: absolute;
+  inset: 0 0 auto;
+  display: block;
+  width: 100%;
+  height: var(--itop-module-tarja-height);
   border-radius: 1.55% / 13%;
   pointer-events: none;
  }
 }
-@media screen and (min-width: 901px) {
- html:has(:is(#sondagem, #confraternizacao, #retencao, #comercial, #gestao-usuarios, #portaria-seguranca, #comissionamento-area, #svas-area, #itop-comunica, #movel, #itop-movel, #energia, #fechamento, #pacote).active:not([hidden])) { --itop-art-inset: 160px; }
-}
+.itop-tarja-alinhada { display: none; }

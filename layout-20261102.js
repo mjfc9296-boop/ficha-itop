@@ -48,6 +48,7 @@
  linkRail.className='itop-work-rail itop-links-rail';
  linkRail.setAttribute('aria-label','Links úteis');
  main.append(linkRail);
+ import('./capas/topos-20261123/alinhamento.js').then(({alinharTarjas}) => alinharTarjas(menu, links)).catch(() => {});
  const mq=matchMedia('(max-width:900px)');
  function resize(){
   if(mq.matches){moduleRail.append(links);linkRail.hidden=true;}
