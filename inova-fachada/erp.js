@@ -52,11 +52,8 @@ const departments = [
   ['Comercial', 'Propostas e negociação', 'Comercial', 'Propostas comerciais', '◇'],
   ['Estoque', 'Produtos e saldos', 'Estoque', 'Produtos e serviços', '▦'],
   ['Compras', 'Solicitações e cotações', 'Compras', 'Painel de compras', '▤'],
-  ['Recebimentos', 'Entradas dos pedidos', 'Compras', 'Recebimentos', '↓'],
-  ['Vendas e entregas', 'Pedidos e expedição', 'Comercial', 'Pedidos de venda', '→'],
-  ['Financeiro', 'Contas a pagar e receber', 'Financeiro', 'Contas a pagar', '≋'],
-  ['Clientes e fornecedores', 'Cadastros comerciais', 'Cadastros', 'Clientes', '☷'],
-  ['Relatórios e administração', 'Consultas de gestão', 'Relatórios', 'Relatórios e administração', '▥']
+  ['Produção', 'Ordens de produção', 'Produção', 'Ordens de produção', '⚙'],
+  ['Cadastros', 'Clientes e fornecedores', 'Cadastros', 'Clientes', '☷']
 ];
 const icons = ['⌂', '▤', '▣', '◈', '▦', '≋', '▥', '⚙', '✓', '☷'];
 const phases = ['Para cotar', 'Cotando', 'Para aprovar', 'Com o fornecedor', 'Recebido'];
@@ -135,7 +132,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
   const {client} = legacy;
   const style = element('link');
   style.rel = 'stylesheet';
-  style.href = new URL('./erp.css?v=identidade1', import.meta.url);
+  style.href = new URL('./erp.css?v=gestao2', import.meta.url);
   document.head.append(style);
 
   const root = element('div');
@@ -143,7 +140,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
   root.hidden = true;
   root.innerHTML = `
     <header class="erp-top">
-      <div class="erp-brand"><img src="inova-fachada/marca.webp" alt="Inova Blocos"><strong>FLUXO EFICIENTE</strong></div>
+      <div class="erp-brand"><img src="inova-fachada/marca.webp" alt="Inova Blocos"><strong>INOVA BLOCOS | Gestão Empresarial</strong></div>
       <button type="button" data-menu aria-expanded="true" aria-controls="erp-main-navigation erp-secondary">Menu</button>
       <div class="erp-search">
         <input type="search" placeholder="Buscar na plataforma" aria-label="Buscar na plataforma" autocomplete="off">
@@ -176,13 +173,44 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
   const legacyContent = element('div');
   legacyContent.className = 'erp-legacy-content';
   content.append(legacyContent);
+  // Algumas telas operacionais são criadas somente depois do clique.
+  const embedVisibleView = () => {
+    if (!legacyContent.isConnected || !panel.classList.contains('erp-show-legacy')) return;
+    for (const view of panel.querySelectorAll(':scope > [id^="inova-"]:not([hidden])')) {
+      legacyContent.append(view);
+    }
+  };
+  new MutationObserver(embedVisibleView).observe(panel, {childList:true, subtree:true, attributes:true, attributeFilter:['hidden']});
   let sector;
   let page;
   let revision = 0;
 
-  const products = async () => layoutOnly ? [] : allRows(client.from('inova_erp_produtos').select(
-    'sku,nome,tipo,fisico,reservado,disponivel,estoque_minimo,preco_venda'), 'sku');
-  const categories = async () => layoutOnly ? [] : allRows(client.from('inova_erp_categorias').select('id,nome'), 'nome');
+  let catalogAvailable = true;
+  function missingCatalog(error) {
+    return ['PGRST205','42P01'].includes(error.code);
+  }
+  async function products() {
+    try {
+      const rows = await allRows(client.from('inova_erp_produtos').select(
+        'sku,nome,tipo,fisico,reservado,disponivel,estoque_minimo,preco_venda'), 'sku');
+      catalogAvailable = true;
+      return rows;
+    } catch (error) {
+      if (!missingCatalog(error)) throw error;
+      catalogAvailable = false;
+      const [stock, thresholds] = await Promise.all([legacy.stockBalances(),
+        allRows(client.from('inova_compras_minimos').select('produto,minimo'), 'produto')]);
+      const minimum = new Map(thresholds.map(row => [row.produto, row.minimo]));
+      return Object.entries({Máscara: stock.mascara, Bloco: stock.blocos}).flatMap(([label, rows]) =>
+        rows.map(([size, base, extra]) => {
+          const nome = label + ' ' + size + ' cm';
+          const fisico = Number(base || 0) + Number(extra || 0);
+          return {sku:'—', nome, tipo:label === 'Bloco' ? 'Produto acabado' : 'EPS',
+            fisico, reservado:null, disponivel:null, estoque_minimo:minimum.get(nome)};
+        }));
+    }
+  }
+  const categories = async () => allRows(client.from('inova_erp_categorias').select('id,nome'), 'nome');
   const purchases = async () => layoutOnly && !dashboardConnected ? [] : allRows(client.from('inova_compras').select(
     'id,numero,fornecedor,entrega,criado_em,enviado_para_aprovacao_em,inova_compras_orcamentos(id),inova_compras_decisoes(resultado),inova_compras_conclusoes(concluido_em)'), 'numero');
   const sales = async () => layoutOnly && !dashboardConnected ? [] : allRows(client.from('inova_vendas').select(
@@ -247,7 +275,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     filter.onsubmit = event => event.preventDefault();
     const cards = element('div');
     cards.className = 'erp-cards';
-    const totals = key => stock?.reduce((sum, item) => sum + Number(item[key]), 0);
+    const totals = key => stock?.some(item => item[key] == null) ? null : stock?.reduce((sum, item) => sum + Number(item[key]), 0);
     const overdueDeliveries = confirmed?.filter(row =>
       row.dados?.dataEntrega && row.dados.dataEntrega < today && deliveryState(row) !== 'complete').length;
     const awaiting = orders?.filter(order => purchasePhase(order) === 2).length;
@@ -279,7 +307,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
         ['Estoque físico', totals('fisico'), 'Estoque', 'Produtos e serviços'],
         ['Estoque reservado', totals('reservado'), 'Estoque', 'Produtos e serviços'],
         ['Estoque disponível', totals('disponivel'), 'Estoque', 'Produtos e serviços'],
-        ['Estoque crítico', stock?.filter(item => item.disponivel < 0 || (item.estoque_minimo != null && item.disponivel <= item.estoque_minimo)).length, 'Estoque', 'Estoque mínimo'],
+        ['Estoque crítico', stock?.filter(item => item.estoque_minimo != null && item.fisico < item.estoque_minimo).length, 'Estoque', 'Estoque mínimo'],
         ['Produtos sem estoque físico', stock?.filter(item => Number(item.fisico) === 0).length, 'Estoque', 'Produtos e serviços'],
         ['Compras pendentes', orders?.filter(order => purchasePhase(order) >= 0 && purchasePhase(order) < 4).length, 'Compras', 'Painel de compras'],
         ['Pedidos aguardando recebimento', orders?.filter(order => purchasePhase(order) === 3).length, 'Compras', 'Recebimentos'],
@@ -329,7 +357,15 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
       }
       recent.append(list);
     } else recent.append(element('p', 'Nenhuma atividade disponível.'));
-    content.append(element('h2', 'Departamentos'), shortcuts, element('h2', 'Indicadores'), filter, cards);
+    const critical = stock?.filter(item => item.estoque_minimo != null && Number(item.fisico) < Number(item.estoque_minimo));
+    const attention = element('section');
+    attention.className = 'erp-recent';
+    attention.append(element('h2', 'Pede atenção'));
+    if (critical?.length) {
+      attention.append(table(['Estoque crítico','Saldo físico','Mínimo','Faltam'], critical.map(item =>
+        [item.nome, item.fisico, item.estoque_minimo, number.format(item.estoque_minimo - item.fisico)])));
+    } else attention.append(element('p', critical ? 'Nenhum produto abaixo do mínimo físico.' : 'Estoque indisponível.'));
+    content.append(shortcuts, attention, element('h2', 'Indicadores comerciais e operacionais'), filter, cards);
     const phaseCounts = phases.map((_, index) => orders?.filter(order => purchasePhase(order) === index).length ?? 0);
     if (phaseCounts.some(Boolean)) {
       const chart = element('section');
@@ -365,7 +401,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     phases.forEach((name, index) => {
       const column = element('section');
       const entries = orders.filter(order => purchasePhase(order) === index).reverse();
-      column.append(element('h2', `${name} (${entries.length})`));
+      column.append(element('h2', `${name} (${entries.length})`), element('small', ['Solicitações na fila','Orçamentos em andamento','Aguardando autorização','Pedidos a receber','Compras recebidas'][index]));
       for (const order of entries) {
         const card = button(String(order.numero), () => navigate('Compras', index === 2 ? 'Para aprovar' : index === 4 ? 'Notas de entrada' : 'Pedidos de compra'));
         card.append(element('small', order.fornecedor || 'Fornecedor a definir'));
@@ -386,7 +422,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     };
     const rows = filters[page] ? list.filter(filters[page]) : list;
     content.append(table(['SKU', 'Produto', 'Tipo', 'Físico', 'Reservado', 'Disponível', 'Preço de venda'],
-      rows.map(item => [item.sku, item.nome, item.tipo, ...[item.fisico,item.reservado,item.disponivel].map(value => number.format(value)),
+      rows.map(item => [item.sku, item.nome, item.tipo, ...[item.fisico,item.reservado,item.disponivel].map(value => value == null ? '—' : number.format(value)),
         item.preco_venda == null ? '—' : money.format(item.preco_venda)])));
     if (!rows.length) report('Nenhum produto nesta visão.');
   }
@@ -420,7 +456,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     const loading = element('p', 'Preparando cadastro…');
     dialogContent.append(loading);
     try {
-      const [next, list] = await Promise.all([client.rpc('inova_erp_proximo_sku'), categories()]);
+      const [next, list] = catalogAvailable ? await Promise.all([client.rpc('inova_erp_proximo_sku'), categories()]) : [{data:'Automático'}, []];
       if (!loading.isConnected || !dialog.open) return;
       if (next.error || !next.data) throw next.error || new Error('SKU indisponível');
       loading.remove();
@@ -431,11 +467,12 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
           <label>SKU<input name="sku" required maxlength="32"></label>
           <label>Nome do produto<input name="nome" required maxlength="180"></label>
           <label>Tipo<select name="tipo" required></select></label>
-          <label>Uso<input name="uso"></label>
+          <label>Uso do produto<select name="uso"><option>Venda ou comodato</option><option>EPI</option><option>Suprimento</option><option>Patrimonial</option></select></label>
           <label>Categoria<select name="categoria_id"><option value="">Selecionar</option></select></label>
           <label>Foto do produto<input name="foto" type="file" accept="image/png,image/jpeg,image/webp"></label>
           <label>Unidade de medida<input name="unidade" required value="UN"></label>
           <label>Quantidade por embalagem<input name="quantidade_embalagem" type="number" required min="0.001" step="any" value="1"></label>
+          <label>Estoque inicial<input name="fisico" type="number" min="0" step="any" required value="0"></label>
           <label>Estoque mínimo<input name="estoque_minimo" type="number" min="0" step="any"></label>
           <label>Preço de custo (R$)<input name="preco_custo" type="number" min="0" step="0.01"></label>
           <label>Preço de venda (R$)<input name="preco_venda" type="number" min="0" step="0.01"></label>
@@ -464,10 +501,17 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
       form.addEventListener('invalid', event => showTab(event.target.closest('fieldset')), true);
       form.elements.sku.value = next.data;
       types.forEach(name => form.elements.tipo.add(new Option(name, name)));
+      form.elements.tipo.value = 'Produto acabado';
       list.forEach(item => form.elements.categoria_id.add(new Option(item.nome, item.id)));
+      if (!catalogAvailable) {
+        form.elements.sku.readOnly = true;
+        form.querySelector('button.erp-action').disabled = true;
+        form.querySelector('[role=status]').textContent = 'A gravação de novos produtos aguarda a ativação do catálogo no banco.';
+      }
       dialogContent.append(form);
       form.onsubmit = async event => {
         event.preventDefault();
+        if (!catalogAvailable) return;
         const submit = form.querySelector('button.erp-action');
         const status = form.querySelector('[role=status]');
         const values = Object.fromEntries(new FormData(form));
@@ -758,8 +802,24 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     for (const item of primary.children) {
       item.setAttribute('aria-current', item.dataset.sector === group ? 'true' : 'false');
     }
+    secondary.hidden = group === 'Início';
     secondary.replaceChildren(element('h2', group));
     const groups = sectors[group];
+    if (!Array.isArray(groups)) {
+      const find = element('input');
+      find.type = 'search';
+      find.placeholder = 'Buscar tela ou aba';
+      find.setAttribute('aria-label', find.placeholder);
+      find.oninput = () => {
+        for (const section of secondary.querySelectorAll('details')) {
+          const options = [...section.querySelectorAll('button')];
+          options.forEach(option => option.hidden = !normalize(option.textContent).includes(normalize(find.value.trim())));
+          section.hidden = options.every(option => option.hidden);
+          if (find.value) section.open = true;
+        }
+      };
+      secondary.append(find);
+    }
     function navItem(name) {
       const item = button(name, () => navigate(group, name));
       item.dataset.theme = themeFor(group, name);
@@ -769,7 +829,7 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
     if (Array.isArray(groups)) groups.forEach(name => secondary.append(navItem(name)));
     else for (const [label, names] of Object.entries(groups)) {
       const details = element('details');
-      details.open = names.includes(target);
+      details.open = true;
       details.append(element('summary', label), ...names.map(navItem));
       secondary.append(details);
     }
@@ -795,8 +855,13 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
         heading(target, button('Abrir operações de compras', () => navigate('Compras', 'Pedidos de compra')));
         await board(current);
       } else if (group === 'Estoque' && ['Produtos e serviços','Equipamentos','Patrimônio','Estoque mínimo'].includes(target)) {
-        heading(target, layoutOnly ? undefined : button('Novo produto', newProduct));
+        heading(target);
         await catalog(current);
+        if (current === revision) { const add = button('Novo produto', newProduct); add.className = 'erp-action'; content.querySelector('.erp-heading').append(add); }
+      } else if (target === 'Clientes') {
+        heading(target);
+        const rows = await allRows(client.from('inova_vendas').select('id,cliente').is('arquivada_em',null), 'id');
+        if (current === revision) content.append(table(['Clientes com vendas'], [...new Set(rows.map(row => row.cliente).filter(Boolean))].sort().map(nome => [nome])));
       } else if (group === 'Serviços' && target === 'Links úteis') {
         heading(target);
         for (const link of legacy.links) {
@@ -814,7 +879,15 @@ export function mountErp(panel, legacy, {layoutOnly = false, dashboardConnected 
         if (current === revision) content.append(table(['Categoria'], list.map(item => [item.nome])));
       } else if (group === 'Compras' && target === 'Recebimentos') {
         heading(target);
-        await receiving(current);
+        await products();
+        if (current !== revision) return;
+        if (catalogAvailable) await receiving(current);
+        else {
+          content.append(legacyContent);
+          panel.classList.add('erp-show-legacy');
+          await legacy.purchases();
+          if (current === revision) panel.querySelector('#inova-compras [data-open="complete"]')?.click();
+        }
       } else if ((group === 'Compras' && purchasePages.includes(target)) || legacyPages[target]) {
         heading(target);
         if (layoutOnly) {

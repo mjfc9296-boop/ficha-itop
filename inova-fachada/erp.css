@@ -204,3 +204,23 @@ html body #inova-blocos .inova-erp .erp-return { background: #00634D; border-col
 .inova-erp .erp-brand { border-inline-start: 3px solid var(--erp-diamond); padding-inline-start: 8px; }
 .inova-erp .erp-phase-chart label { display: grid; grid-template-columns: minmax(120px, 1fr) 2fr; gap: 10px; align-items: center; }
 .inova-erp .erp-phase-chart meter { width: 100%; accent-color: var(--erp-accent); }
+
+html.inova-erp-active #inova-blocos .inova-erp { position:fixed; inset:0; z-index:1000; overflow:auto; }
+.inova-erp .erp-top { background:#176951; color:white; }
+.inova-erp .erp-brand { color:white; border:0; }
+.inova-erp .erp-brand strong { font-size:15px; letter-spacing:0; white-space:normal; }
+.inova-erp .erp-body [data-primary] { width:86px; }
+.inova-erp [data-theme=compras], .inova-erp[data-theme=compras] { --erp-pastel:#eee5fb; --erp-accent:#653599; }
+.inova-erp [data-theme=comercial], .inova-erp[data-theme=comercial] { --erp-pastel:#dfedfa; --erp-accent:#155d88; }
+.inova-erp [data-theme=estoque], .inova-erp[data-theme=estoque] { --erp-pastel:#fff0c6; --erp-accent:#815500; }
+.inova-erp .erp-board section { border-top:4px solid #8050bd; background:#f1eafa; }
+.inova-erp .erp-board section:nth-child(2) { border-color:#6f48aa; background:#eee6fa; }
+.inova-erp .erp-board section:nth-child(3) { border-color:#b78419; background:#fff2cb; }
+.inova-erp .erp-board section:nth-child(4) { border-color:#377399; background:#e2eff9; }
+.inova-erp .erp-board section:nth-child(5) { border-color:#34875c; background:#e2f3e8; }
+.inova-erp .erp-board small { margin-block:5px 12px; }
+@media(max-width:700px){ .inova-erp .erp-body [data-primary] { width:100%; box-sizing:border-box; } }
+.inova-erp #erp-secondary input { box-sizing:border-box; width:100%; }
+.inova-erp .erp-brand img { background:white; padding:3px; border-radius:5px; }
+.inova-erp .erp-content { background:#f6f8f7; }
+html body #inova-blocos .inova-erp .erp-action:disabled { opacity:.6; cursor:not-allowed; }

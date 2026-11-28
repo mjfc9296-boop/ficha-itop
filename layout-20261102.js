@@ -252,7 +252,7 @@
  const header = document.querySelector('body > header');
  const inovaHeaderStyle = document.createElement('link');
  inovaHeaderStyle.rel = 'stylesheet';
- inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=30';
+ inovaHeaderStyle.href = 'inova-fachada/cabecalho.css?v=31';
  document.head.append(inovaHeaderStyle);
 
  const inovaHeader = document.createElement('div');
@@ -852,10 +852,16 @@
   const check = inovaAccessCheck;
   switchModule(inovaPanel.id);
   try {
-   const {mountErp} = await import('./inova-fachada/erp.js?v=identidade1');
+   const {mountErp} = await import('./inova-fachada/erp.js?v=gestao2');
    if (check !== inovaAccessCheck || inovaTab.hidden || !inovaPanel.classList.contains('active')) return;
    erp ??= mountErp(inovaPanel, {
     links: usefulLinks,
+    stockBalances: async () => (await getInovaStock()).stock,
+    stock: stockButton, suppliers: supplierButton, requests: requestsButton,
+    gallery: galleryButton, videos: videosButton,
+    sales: moduleRail.querySelector('[aria-controls="inova-proposta"]'),
+    shipments: moduleRail.querySelector('[aria-controls="inova-envios"]'),
+    purchases: openCurrentInova,
     client: window.itopAuthClient,
     userName: profile?.nome_completo || profile?.nome || 'Administrador',
     clear: () => selectInovaView(''),
@@ -869,10 +875,10 @@
      erp.close();
      void openCurrentInova();
     }
-   }, {layoutOnly:true, dashboardConnected:true});
+   });
    erp.open();
   } catch {
-   if (check === inovaAccessCheck && inovaPanel.classList.contains('active')) void openCurrentInova();
+   if (check === inovaAccessCheck) archiveStatus.textContent = 'Não foi possível abrir a Gestão Empresarial. Abra o módulo 17 novamente.';
   }
  }
  async function openCurrentInova() {
@@ -885,9 +891,9 @@
     const {mountPurchases} = await import('./inova-fachada/compras.js?v=13');
     if (inovaTab.hidden || compras.hidden || !inovaPanel.classList.contains('active')) return;
     purchases ??= mountPurchases(compras, async () => (await getInovaStock()).stock, {supplierForm, saveSupplier, supplierError});
-    compras.querySelector('[data-return]').onclick = () => switchModule('sondagem');
+    compras.querySelector('[data-return]').onclick = () => { erp?.close(); switchModule('sondagem'); };
    }
-   void purchases.open();
+   await purchases.open();
   } catch {
    compras.textContent = 'Não foi possível abrir Compras. Selecione o módulo novamente.';
   }
